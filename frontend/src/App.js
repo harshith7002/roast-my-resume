@@ -126,6 +126,7 @@ export default function App() {
               onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
               onDragLeave={() => setDragOver(false)}
               onDrop={handleDrop}
+              onClick={() => !file && fileRef.current.click()}
             >
               <input
                 ref={fileRef}
@@ -150,7 +151,7 @@ export default function App() {
                   <div className="upload-text">Drop your resume PDF here</div>
                   <div className="upload-subtext">or click the button below</div>
                   <div className="upload-hint">Only PDF files accepted</div>
-                  <button className="upload-trigger-btn" onClick={() => fileRef.current.click()}>
+                  <button className="upload-trigger-btn" onClick={(e) => { e.stopPropagation(); fileRef.current.click(); }}>
                     📂 Upload PDF
                   </button>
                 </div>
@@ -163,7 +164,6 @@ export default function App() {
               </div>
             )}
 
-            {/* Language Toggle */}
             <div className="language-toggle">
               <button
                 className={`lang-btn ${language === "english" ? "active" : ""}`}
