@@ -126,7 +126,6 @@ export default function App() {
               onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
               onDragLeave={() => setDragOver(false)}
               onDrop={handleDrop}
-              onClick={() => !file && fileRef.current.click()}
             >
               <input
                 ref={fileRef}
@@ -149,8 +148,11 @@ export default function App() {
                 <div className="upload-placeholder">
                   <div className="upload-icon">📋</div>
                   <div className="upload-text">Drop your resume PDF here</div>
-                  <div className="upload-subtext">or click to browse</div>
+                  <div className="upload-subtext">or click the button below</div>
                   <div className="upload-hint">Only PDF files accepted</div>
+                  <button className="upload-trigger-btn" onClick={() => fileRef.current.click()}>
+                    📂 Upload PDF
+                  </button>
                 </div>
               )}
             </div>
@@ -173,7 +175,7 @@ export default function App() {
                 className={`lang-btn ${language === "hinglish" ? "active" : ""}`}
                 onClick={() => setLanguage("hinglish")}
               >
-                IND Hindi + English
+                🇮🇳 Hindi + English
               </button>
             </div>
 
