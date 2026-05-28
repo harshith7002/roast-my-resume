@@ -1015,3 +1015,71 @@ body {
   95% { width: 95%; }
   100% { width: 99%; }
 }
+.static-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 60px 20px;
+  color: var(--text);
+  line-height: 1.8;
+}
+
+.static-page h1 {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  color: var(--fire);
+  margin-bottom: 8px;
+}
+
+.static-page h2 {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  color: var(--text);
+  margin-top: 32px;
+  margin-bottom: 8px;
+}
+
+.static-page p, .static-page li {
+  color: var(--text2);
+  margin-bottom: 12px;
+}
+
+.static-page ul, .static-page ol {
+  padding-left: 24px;
+}
+
+.static-page a {
+  color: var(--fire);
+  text-decoration: none;
+}
+
+.static-date {
+  color: var(--text2);
+  font-size: 13px;
+  margin-bottom: 32px;
+}
+
+.back-link {
+  display: inline-block;
+  color: var(--text2) !important;
+  font-size: 14px;
+  margin-bottom: 32px;
+  text-decoration: none !important;
+}
+
+.back-link:hover { color: var(--text) !important; }
+
+.footer-links {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  margin: 8px 0;
+  font-size: 13px;
+}
+
+.footer-links a {
+  color: var(--text2);
+  text-decoration: none;
+}
+
+.footer-links a:hover { color: var(--text); }
