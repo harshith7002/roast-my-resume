@@ -491,12 +491,16 @@ export default function App() {
               ) : "🔥 Roast My Resume"}
             </button>
 
-            {loading && (
-              <div className="loading-state">
-                <div className="loading-msg" key={loadingMsgIdx}>{LOADING_MESSAGES[loadingMsgIdx]}</div>
-                <p className="loading-hint">☕ Grab a chai, this takes ~15 seconds...</p>
-              </div>
-            )}
+         {loading && (
+  <div className="loading-state">
+    <div className="loading-msg" key={loadingMsgIdx}>{LOADING_MESSAGES[loadingMsgIdx]}</div>
+    <div className="progress-bar-container">
+      <div className="progress-bar-fill" style={{ animationDuration: "15s" }} />
+      <span className="progress-label">Analyzing resume...</span>
+    </div>
+    <p className="loading-hint">☕ Grab a chai, this takes ~15 seconds...</p>
+  </div>
+)}
 
             <div className="sample-section">
               <div className="sample-card">
