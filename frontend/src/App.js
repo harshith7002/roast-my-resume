@@ -33,6 +33,7 @@ export default function App() {
   const [roast, setRoast] = useState(null);
   const [error, setError] = useState(null);
   const [dragOver, setDragOver] = useState(false);
+  const [language, setLanguage] = useState("english");
   const fileRef = useRef();
 
   const handleFile = (f) => {
@@ -58,6 +59,7 @@ export default function App() {
 
     const formData = new FormData();
     formData.append("resume", file);
+    formData.append("language", language);
 
     try {
       const res = await fetch(`${BACKEND_URL}/api/roast`, {
@@ -92,11 +94,9 @@ export default function App() {
 
   return (
     <div className="app">
-      {/* Animated background */}
       <div className="bg-noise" />
       <div className="bg-grid" />
 
-      {/* Header */}
       <header className="header">
         <div className="header-badge">🇮🇳 Made for Indian CS Freshers</div>
         <h1 className="title">
@@ -118,11 +118,9 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main content */}
       <main className="main">
         {!roast ? (
           <div className="upload-section">
-            {/* Upload card */}
             <div
               className={`upload-card ${dragOver ? "drag-over" : ""} ${file ? "has-file" : ""}`}
               onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
@@ -163,6 +161,22 @@ export default function App() {
               </div>
             )}
 
+            {/* Language Toggle */}
+            <div className="language-toggle">
+              <button
+                className={`lang-btn ${language === "english" ? "active" : ""}`}
+                onClick={() => setLanguage("english")}
+              >
+                🌍 English
+              </button>
+              <button
+                className={`lang-btn ${language === "hinglish" ? "active" : ""}`}
+                onClick={() => setLanguage("hinglish")}
+              >
+                🇮🇳 Hinglish(Hindi + English)
+              </button>
+            </div>
+
             <button
               className={`roast-btn ${loading ? "loading" : ""} ${!file ? "disabled" : ""}`}
               onClick={handleSubmit}
@@ -185,7 +199,6 @@ export default function App() {
               </div>
             )}
 
-            {/* Sample verdict preview */}
             <div className="sample-card">
               <div className="sample-title">Sample Verdict Types</div>
               <div className="sample-verdicts">
@@ -235,7 +248,6 @@ export default function App() {
         )}
       </main>
 
-      {/* Footer */}
       <footer className="footer">
         <p>Built for Indian CS freshers 🇮🇳 • <a href="https://macoostudy.info">macoostudy.info</a></p>
         <p className="footer-note">Your resume is not stored. Ever.</p>
