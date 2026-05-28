@@ -98,7 +98,7 @@ export default function App() {
       <div className="bg-grid" />
 
       <header className="header">
-        <div className="header-badge">🇮🇳 Made for Indian CS Freshers</div>
+        <div className="header-badge">🌍 Made for CS Freshers</div>
         <h1 className="title">
           <span className="title-roast">Roast</span>
           <span className="title-my"> My</span>
