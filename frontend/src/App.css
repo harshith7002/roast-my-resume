@@ -954,3 +954,11 @@ body {
   .title { font-size: 2.1rem; }
   .results-title { font-size: 1.8rem; }
 }
+.header-badges-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
