@@ -475,7 +475,7 @@ export default function App() {
 
             <div className="language-toggle">
               <button className={`lang-btn${language === "english" ? " active" : ""}`} onClick={() => setLanguage("english")}>🌍 English</button>
-              <button className={`lang-btn${language === "hinglish" ? " active" : ""}`} onClick={() => setLanguage("hinglish")}>🇮🇳 Hindi + English</button>
+              <button className={`lang-btn${language === "hinglish" ? " active" : ""}`} onClick={() => setLanguage("hinglish")}>IND Hindi + English</button>
             </div>
 
             <button
