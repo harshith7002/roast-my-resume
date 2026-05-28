@@ -204,7 +204,7 @@ export default function App() {
             <div className="sample-card">
               <div className="sample-title">Sample Verdict Types</div>
               <div className="sample-verdicts">
-                <span className="verdict-badge tcs">🏭 TCS Material</span>
+                <span className="verdict-badge tcs">🏭 Entry Level</span>
                 <span className="verdict-badge startup">🚀 Startup Ready</span>
                 <span className="verdict-badge product">💰 Product Co.</span>
                 <span className="verdict-badge faang">🌟 FAANG Possible</span>
