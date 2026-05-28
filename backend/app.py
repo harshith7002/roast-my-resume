@@ -119,7 +119,7 @@ def roast_resume():
             model="llama-3.3-70b-versatile",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1500,
-            temperature=0.8,
+            temperature=0.3,
         )
 
         roast_text = response.choices[0].message.content
