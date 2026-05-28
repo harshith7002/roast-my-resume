@@ -1,16 +1,14 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import google.generativeai as genai
-import fitz  # PyMuPDF
+from groq import Groq
+from pypdf import PdfReader
+import io
 import os
-import re
 
 app = Flask(__name__)
 CORS(app)
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "YOUR_GEMINI_API_KEY_HERE")
-genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-2.0-flash-lite")
+client = Groq(api_key=os.environ.get("GROQ_API_KEY", "YOUR_GROQ_API_KEY_HERE"))
 
 ROAST_PROMPT = """You are a brutally honest but hilarious Indian senior software engineer who has seen thousands of fresher resumes. You roast resumes in a funny, savage but ultimately helpful way. You understand the Indian CS student context deeply.
 
@@ -27,36 +25,33 @@ Here is the resume text:
 Now give your roast in this EXACT format (use emojis, be funny but genuinely helpful):
 
 🔥 THE ROAST
-[2-3 savage but funny opening lines roasting the overall resume. Use Hinglish if it feels natural. Be creative and specific to what you see.]
+[2-3 savage but funny opening lines roasting the overall resume. Use Hinglish if it feels natural.]
 
 💀 HALL OF SHAME (Top 3 Brutal Mistakes)
-1. [Specific mistake from resume - be funny and savage]
-2. [Specific mistake from resume - be funny and savage]  
-3. [Specific mistake from resume - be funny and savage]
+1. [Specific mistake - funny and savage]
+2. [Specific mistake - funny and savage]
+3. [Specific mistake - funny and savage]
 
 ✅ OKAY FINE, THIS IS DECENT
-[2-3 things that are actually good or show potential. Be genuine here.]
+[2-3 things that are actually good]
 
 📈 GLOW UP GUIDE (5 Specific Fixes)
-1. [Specific actionable improvement]
-2. [Specific actionable improvement]
-3. [Specific actionable improvement]
-4. [Specific actionable improvement]
-5. [Specific actionable improvement]
+1. [Actionable improvement]
+2. [Actionable improvement]
+3. [Actionable improvement]
+4. [Actionable improvement]
+5. [Actionable improvement]
 
 🎯 FINAL VERDICT
-[Pick ONE and explain why in 2 sentences:]
-- 🏭 TCS/Infosys Material (service company level)
-- 🚀 Startup Ready (good enough for funded startups)  
-- 💰 Product Company Ready (Amazon, Flipkart, Swiggy level)
-- 🌟 FAANG Possible (with the fixes above)"""
+[Pick ONE: 🏭 TCS/Infosys Material / 🚀 Startup Ready / 💰 Product Company Ready / 🌟 FAANG Possible]
+[Explain in 2 sentences]"""
 
 
 def extract_text_from_pdf(pdf_bytes):
-    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    reader = PdfReader(io.BytesIO(pdf_bytes))
     text = ""
-    for page in doc:
-        text += page.get_text()
+    for page in reader.pages:
+        text += page.extract_text() or ""
     return text.strip()
 
 
@@ -80,9 +75,15 @@ def roast_resume():
             return jsonify({"error": "Could not extract text from PDF. Make sure it's not a scanned image."}), 400
 
         prompt = ROAST_PROMPT.format(resume_text=resume_text[:4000])
-        response = model.generate_content(prompt)
-        roast_text = response.text
 
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=1500,
+            temperature=0.8,
+        )
+
+        roast_text = response.choices[0].message.content
         return jsonify({"roast": roast_text, "success": True})
 
     except Exception as e:
