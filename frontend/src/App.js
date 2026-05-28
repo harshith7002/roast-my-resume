@@ -18,7 +18,7 @@ const LOADING_MESSAGES = [
 
 const FAQS = [
   { q: "Is my resume stored anywhere?", a: "Nope. Your PDF is processed in memory and immediately discarded. We don't store, log, or sell your resume. Pinky promise." },
-  { q: "How is the roast generated?", a: "We use Claude AI (by Anthropic) to analyze your resume and generate brutally honest, yet actionable feedback. It's like having a senior engineer friend with zero filter." },
+  { q: "How is the roast generated?", a: "We use Groq AI to analyze your resume and generate brutally honest, yet actionable feedback. It's like having a senior engineer friend with zero filter." },
   { q: "Why is the feedback so harsh?", a: "Because sugarcoating doesn't get you jobs. The roast format makes the feedback memorable and actually useful. Every criticism comes with an implicit fix." },
   { q: "What's the difference between English and Hindi+English mode?", a: "Hinglish mode delivers the roast in a mix of Hindi and English — perfect for desi freshers who want the feedback to hit different. Bilkul seedha." },
   { q: "How accurate is the score?", a: "The score is an AI-generated heuristic based on resume quality signals. It's directionally correct — a 30 is genuinely worse than an 80 — but don't treat it as gospel." },
@@ -67,7 +67,6 @@ function extractVerdict(text) {
   return "Entry Level";
 }
 
-// ── Toasts ──────────────────────────────────────────────────────────────────
 function Toast({ toasts }) {
   return (
     <div className="toast-container" aria-live="polite">
@@ -81,7 +80,6 @@ function Toast({ toasts }) {
   );
 }
 
-// ── Circular score ───────────────────────────────────────────────────────────
 function CircularScore({ score, animate }) {
   const radius = 52;
   const circ = 2 * Math.PI * radius;
@@ -127,7 +125,6 @@ function CircularScore({ score, animate }) {
   );
 }
 
-// ── Confetti ─────────────────────────────────────────────────────────────────
 function Confetti({ active }) {
   const COLORS = ["#ff4444","#ff8c00","#ffd700","#00e676","#448aff","#ce93d8","#ff69b4"];
   if (!active) return null;
@@ -164,7 +161,6 @@ function Confetti({ active }) {
   );
 }
 
-// ── Fire particles ────────────────────────────────────────────────────────────
 function FireParticles() {
   const particles = Array.from({ length: 22 }, (_, i) => ({
     id: i,
@@ -194,7 +190,6 @@ function FireParticles() {
   );
 }
 
-// ── FAQ item ──────────────────────────────────────────────────────────────────
 function FAQItem({ q, a }) {
   const [open, setOpen] = useState(false);
   return (
@@ -208,7 +203,6 @@ function FAQItem({ q, a }) {
   );
 }
 
-// ── Roast counter ─────────────────────────────────────────────────────────────
 const BASE_COUNT = 1247;
 function RoastCounter() {
   const [count, setCount] = useState(BASE_COUNT);
@@ -225,7 +219,6 @@ function RoastCounter() {
   );
 }
 
-// ── Main App ──────────────────────────────────────────────────────────────────
 export default function App() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -418,8 +411,10 @@ export default function App() {
       <FireParticles />
 
       <header className="header">
-        <RoastCounter />
-        <div className="header-badge">🌍 Made for CS Freshers</div>
+        <div className="header-badges-row">
+          <RoastCounter />
+          <div className="header-badge">🌍 Made for CS Freshers</div>
+        </div>
         <h1 className="title" aria-label="Roast My Resume">
           {"Roast".split("").map((l, i) => (
             <span key={`r${i}`} className="title-letter title-roast" style={{ animationDelay: `${i * 0.07}s` }}>{l}</span>
