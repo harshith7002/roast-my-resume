@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import "./App.css";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
@@ -108,17 +109,9 @@ function CircularScore({ score, animate }) {
     <div className="circular-score">
       <svg width="128" height="128" viewBox="0 0 128 128">
         <circle cx="64" cy="64" r={radius} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="10" />
-        <circle
-          cx="64" cy="64" r={radius}
-          fill="none"
-          stroke={color}
-          strokeWidth="10"
-          strokeLinecap="round"
-          strokeDasharray={circ}
-          strokeDashoffset={offset}
-          transform="rotate(-90 64 64)"
-          style={{ transition: "stroke-dashoffset 0.04s linear", filter: `drop-shadow(0 0 10px ${color})` }}
-        />
+        <circle cx="64" cy="64" r={radius} fill="none" stroke={color} strokeWidth="10" strokeLinecap="round"
+          strokeDasharray={circ} strokeDashoffset={offset} transform="rotate(-90 64 64)"
+          style={{ transition: "stroke-dashoffset 0.04s linear", filter: `drop-shadow(0 0 10px ${color})` }} />
       </svg>
       <div className="score-center">
         <span className="score-number" style={{ color }}>{displayed}</span>
@@ -132,33 +125,18 @@ function Confetti({ active }) {
   const COLORS = ["#ff4444","#ff8c00","#ffd700","#00e676","#448aff","#ce93d8","#ff69b4"];
   if (!active) return null;
   const pieces = Array.from({ length: 90 }, (_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    color: COLORS[i % COLORS.length],
-    delay: Math.random() * 0.9,
-    dur: 1.6 + Math.random() * 1.6,
-    size: 7 + Math.random() * 9,
-    rot: Math.random() * 360,
-    drift: (Math.random() - 0.5) * 120,
-    shape: Math.random() > 0.45,
+    id: i, x: Math.random() * 100, color: COLORS[i % COLORS.length],
+    delay: Math.random() * 0.9, dur: 1.6 + Math.random() * 1.6,
+    size: 7 + Math.random() * 9, drift: (Math.random() - 0.5) * 120, shape: Math.random() > 0.45,
   }));
   return (
     <div className="confetti-container" aria-hidden="true">
       {pieces.map(p => (
-        <div
-          key={p.id}
-          className="confetti-piece"
-          style={{
-            left: `${p.x}%`,
-            background: p.color,
-            width: p.size,
-            height: p.shape ? p.size : p.size * 0.4,
-            borderRadius: p.shape ? "50%" : "2px",
-            animationDelay: `${p.delay}s`,
-            animationDuration: `${p.dur}s`,
-            "--drift": `${p.drift}px`,
-          }}
-        />
+        <div key={p.id} className="confetti-piece" style={{
+          left: `${p.x}%`, background: p.color, width: p.size,
+          height: p.shape ? p.size : p.size * 0.4, borderRadius: p.shape ? "50%" : "2px",
+          animationDelay: `${p.delay}s`, animationDuration: `${p.dur}s`, "--drift": `${p.drift}px`,
+        }} />
       ))}
     </div>
   );
@@ -166,28 +144,16 @@ function Confetti({ active }) {
 
 function FireParticles() {
   const particles = Array.from({ length: 22 }, (_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    delay: Math.random() * 6,
-    dur: 5 + Math.random() * 5,
-    size: 5 + Math.random() * 14,
-    drift: (Math.random() - 0.5) * 70,
+    id: i, x: Math.random() * 100, delay: Math.random() * 6,
+    dur: 5 + Math.random() * 5, size: 5 + Math.random() * 14, drift: (Math.random() - 0.5) * 70,
   }));
   return (
     <div className="fire-particles" aria-hidden="true">
       {particles.map(p => (
-        <div
-          key={p.id}
-          className="fire-particle"
-          style={{
-            left: `${p.x}%`,
-            width: p.size,
-            height: p.size,
-            animationDelay: `${p.delay}s`,
-            animationDuration: `${p.dur}s`,
-            "--drift": `${p.drift}px`,
-          }}
-        />
+        <div key={p.id} className="fire-particle" style={{
+          left: `${p.x}%`, width: p.size, height: p.size,
+          animationDelay: `${p.delay}s`, animationDuration: `${p.dur}s`, "--drift": `${p.drift}px`,
+        }} />
       ))}
     </div>
   );
@@ -197,10 +163,7 @@ function FAQItem({ q, a }) {
   const [open, setOpen] = useState(false);
   return (
     <div className={`faq-item ${open ? "open" : ""}`} onClick={() => setOpen(o => !o)}>
-      <div className="faq-q">
-        <span>{q}</span>
-        <span className="faq-arrow">{open ? "−" : "+"}</span>
-      </div>
+      <div className="faq-q"><span>{q}</span><span className="faq-arrow">{open ? "−" : "+"}</span></div>
       <div className="faq-a">{a}</div>
     </div>
   );
@@ -222,7 +185,89 @@ function RoastCounter() {
   );
 }
 
-export default function App() {
+// ── Privacy Policy Page ───────────────────────────────────────────────────────
+function PrivacyPolicy() {
+  return (
+    <div className="app">
+      <FireParticles />
+      <div className="static-page">
+        <Link to="/" className="back-link">← Back to Roast My Resume</Link>
+        <h1>Privacy Policy</h1>
+        <p className="static-date">Last updated: May 28, 2026</p>
+
+        <h2>1. Information We Collect</h2>
+        <p>macoostudy.info does not collect, store, or sell any personal information. When you upload a resume, it is processed in memory and immediately discarded. We never store your resume on our servers.</p>
+
+        <h2>2. How We Use Information</h2>
+        <p>Your resume text is sent to our AI service (Groq AI) solely to generate feedback. No data is retained after the session ends.</p>
+
+        <h2>3. Cookies & Tracking</h2>
+        <p>We use Google Analytics to understand site traffic. This may use cookies to track anonymous usage data. We also use Google AdSense which may use cookies to serve relevant ads. You can opt out of personalized ads via Google's ad settings.</p>
+
+        <h2>4. Third Party Services</h2>
+        <ul>
+          <li>Google Analytics — for traffic analysis</li>
+          <li>Google AdSense — for serving ads</li>
+          <li>Groq AI — for generating resume feedback</li>
+        </ul>
+
+        <h2>5. Data Security</h2>
+        <p>Your resume is never stored, logged, or shared with any third party other than the AI service used to generate feedback.</p>
+
+        <h2>6. Children's Privacy</h2>
+        <p>Our service is not directed to children under 13. We do not knowingly collect information from children.</p>
+
+        <h2>7. Changes to This Policy</h2>
+        <p>We may update this policy from time to time. Changes will be posted on this page.</p>
+
+        <h2>8. Contact</h2>
+        <p>For any questions about this privacy policy, contact us at macoostudy.info</p>
+      </div>
+    </div>
+  );
+}
+
+// ── About Page ────────────────────────────────────────────────────────────────
+function About() {
+  return (
+    <div className="app">
+      <FireParticles />
+      <div className="static-page">
+        <Link to="/" className="back-link">← Back to Roast My Resume</Link>
+        <h1>About Roast My Resume 🔥</h1>
+
+        <p>Roast My Resume is a free AI-powered tool that gives brutally honest resume feedback to CS freshers. No sugarcoating. No "add more action verbs." Just real, actionable feedback.</p>
+
+        <h2>Why We Built This</h2>
+        <p>Most resume feedback tools are either too expensive or too generic. We built this so every CS student gets the kind of honest feedback that only a senior engineer friend would give.</p>
+
+        <h2>How It Works</h2>
+        <ol>
+          <li>Upload your resume as a PDF</li>
+          <li>Our AI analyzes it in ~15 seconds</li>
+          <li>Get a brutal roast + actionable feedback</li>
+          <li>Improve your resume and get hired!</li>
+        </ol>
+
+        <h2>Privacy First</h2>
+        <p>Your resume is never stored. It's processed in memory and immediately discarded after analysis.</p>
+
+        <h2>Tech Stack</h2>
+        <ul>
+          <li>Frontend: React</li>
+          <li>Backend: Flask (Python)</li>
+          <li>AI: Groq AI (LLaMA 3.3)</li>
+          <li>Hosting: Netlify + Render</li>
+        </ul>
+
+        <p>Built with ❤️ for CS freshers worldwide. <a href="https://macoostudy.info">macoostudy.info</a></p>
+      </div>
+    </div>
+  );
+}
+
+// ── Main App ──────────────────────────────────────────────────────────────────
+function MainApp() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [roast, setRoast] = useState(null);
@@ -257,9 +302,7 @@ export default function App() {
 
   const handleFile = (f) => {
     if (f && f.type === "application/pdf") {
-      setFile(f);
-      setError(null);
-      setFileDropped(true);
+      setFile(f); setError(null); setFileDropped(true);
       setTimeout(() => setFileDropped(false), 900);
       addToast(`${f.name} loaded!`, "success", "📄");
     } else {
@@ -268,23 +311,14 @@ export default function App() {
     }
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setDragOver(false);
-    handleFile(e.dataTransfer.files[0]);
-  };
+  const handleDrop = (e) => { e.preventDefault(); setDragOver(false); handleFile(e.dataTransfer.files[0]); };
 
   const handleSubmit = async () => {
     if (!file) return;
-    setLoading(true);
-    setRoast(null);
-    setError(null);
-    setLoadingMsgIdx(0);
-
+    setLoading(true); setRoast(null); setError(null); setLoadingMsgIdx(0);
     const formData = new FormData();
     formData.append("resume", file);
     formData.append("language", language);
-
     try {
       const res = await fetch(`${BACKEND_URL}/api/roast`, { method: "POST", body: formData });
       const data = await res.json();
@@ -319,82 +353,45 @@ export default function App() {
   };
 
   const handleReset = () => {
-    setFile(null);
-    setRoast(null);
-    setError(null);
-    setShowConfetti(false);
+    setFile(null); setRoast(null); setError(null); setShowConfetti(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleShareImage = () => {
     addToast("Generating share card...", "info", "🎨");
     const canvas = document.createElement("canvas");
-    canvas.width = 800;
-    canvas.height = 460;
+    canvas.width = 800; canvas.height = 460;
     const ctx = canvas.getContext("2d");
-
     const bg = ctx.createLinearGradient(0, 0, 800, 460);
-    bg.addColorStop(0, "#0a0a0f");
-    bg.addColorStop(1, "#1a0808");
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, 800, 460);
-
-    ctx.strokeStyle = "rgba(255,68,68,0.5)";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(1, 1, 798, 458);
-
-    ctx.fillStyle = "#ff4444";
-    ctx.font = "bold 34px sans-serif";
-    ctx.fillText("🔥 Roast My Resume", 40, 66);
-
-    ctx.fillStyle = "#9090a8";
-    ctx.font = "16px sans-serif";
-    ctx.fillText("macoostudy.info", 40, 92);
-
-    const sc = extractScore(roast);
-    const vd = extractVerdict(roast);
+    bg.addColorStop(0, "#0a0a0f"); bg.addColorStop(1, "#1a0808");
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, 800, 460);
+    ctx.strokeStyle = "rgba(255,68,68,0.5)"; ctx.lineWidth = 2; ctx.strokeRect(1, 1, 798, 458);
+    ctx.fillStyle = "#ff4444"; ctx.font = "bold 34px sans-serif"; ctx.fillText("🔥 Roast My Resume", 40, 66);
+    ctx.fillStyle = "#9090a8"; ctx.font = "16px sans-serif"; ctx.fillText("macoostudy.info", 40, 92);
+    const sc = extractScore(roast); const vd = extractVerdict(roast);
     const scoreColor = sc >= 70 ? "#00e676" : sc >= 45 ? "#ffd700" : "#ff4444";
-
-    ctx.fillStyle = scoreColor;
-    ctx.font = "bold 60px sans-serif";
-    ctx.fillText(`${sc}`, 690, 90);
-    ctx.font = "16px sans-serif";
-    ctx.fillStyle = "#9090a8";
-    ctx.fillText("/100", 710, 112);
-
-    ctx.fillStyle = "#ffd700";
-    ctx.font = "bold 20px sans-serif";
-    ctx.fillText(`Verdict: ${vd}`, 40, 148);
-
-    const ps = parseRoast(roast);
-    const first = ps.find(s => s.key === "roast");
+    ctx.fillStyle = scoreColor; ctx.font = "bold 60px sans-serif"; ctx.fillText(`${sc}`, 690, 90);
+    ctx.font = "16px sans-serif"; ctx.fillStyle = "#9090a8"; ctx.fillText("/100", 710, 112);
+    ctx.fillStyle = "#ffd700"; ctx.font = "bold 20px sans-serif"; ctx.fillText(`Verdict: ${vd}`, 40, 148);
+    const ps = parseRoast(roast); const first = ps.find(s => s.key === "roast");
     if (first) {
-      ctx.fillStyle = "#e0e0ea";
-      ctx.font = "15px sans-serif";
+      ctx.fillStyle = "#e0e0ea"; ctx.font = "15px sans-serif";
       const words = first.content.replace(/^🔥[^\n]*\n?/, "").split(" ");
       let line = "", y = 205;
       for (const w of words) {
         const test = line + w + " ";
         if (ctx.measureText(test).width > 720 && line) {
-          ctx.fillText(line.trim(), 40, y);
-          line = w + " ";
-          y += 26;
+          ctx.fillText(line.trim(), 40, y); line = w + " "; y += 26;
           if (y > 360) { ctx.fillText("...", 40, y); break; }
         } else line = test;
       }
       if (y <= 360) ctx.fillText(line.trim(), 40, y);
     }
-
-    ctx.fillStyle = "rgba(255,68,68,0.6)";
-    ctx.font = "13px sans-serif";
+    ctx.fillStyle = "rgba(255,68,68,0.6)"; ctx.font = "13px sans-serif";
     ctx.fillText("Try it free → macoostudy.info", 40, 430);
-
     canvas.toBlob(blob => {
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "roast-result.png";
-      a.click();
+      const a = document.createElement("a"); a.href = url; a.download = "roast-result.png"; a.click();
       URL.revokeObjectURL(url);
       addToast("Share card downloaded!", "success", "🎉");
     });
@@ -478,32 +475,27 @@ export default function App() {
 
             <div className="language-toggle">
               <button className={`lang-btn${language === "english" ? " active" : ""}`} onClick={() => setLanguage("english")}>🌍 English</button>
-              <button className={`lang-btn${language === "hinglish" ? " active" : ""}`} onClick={() => setLanguage("hinglish")}>IND Hindi + English</button>
+              <button className={`lang-btn${language === "hinglish" ? " active" : ""}`} onClick={() => setLanguage("hinglish")}>🌏 Hindi + English</button>
             </div>
 
             <button
               className={`roast-btn${loading ? " loading" : ""}${!file ? " disabled" : ""}`}
-              onClick={handleSubmit}
-              disabled={!file || loading}
+              onClick={handleSubmit} disabled={!file || loading}
             >
               {loading ? (
-                <span className="btn-loading">
-                  <span className="fire-spinner">🔥</span>
-                  Roasting...
-                </span>
+                <span className="btn-loading"><span className="fire-spinner">🔥</span>Roasting...</span>
               ) : "🔥 Roast My Resume"}
             </button>
 
-         {loading && (
-  <div className="loading-state">
-    <div className="loading-msg" key={loadingMsgIdx}>{LOADING_MESSAGES[loadingMsgIdx]}</div>
-    <div className="progress-bar-container">
-      <div className="progress-bar-fill" style={{ animationDuration: "15s" }} />
-      <span className="progress-label">Analyzing resume...</span>
-    </div>
-    <p className="loading-hint">☕ Grab a chai, this takes ~15 seconds...</p>
-  </div>
-)}
+            {loading && (
+              <div className="loading-state">
+                <div className="loading-msg" key={loadingMsgIdx}>{LOADING_MESSAGES[loadingMsgIdx]}</div>
+                <div className="progress-bar-container">
+                  <div className="progress-bar-fill" style={{ animationDuration: "15s" }} />
+                </div>
+                <p className="loading-hint">☕ Grab a chai, this takes ~15 seconds...</p>
+              </div>
+            )}
 
             <div className="sample-section">
               <div className="sample-card">
@@ -540,7 +532,6 @@ export default function App() {
               <h2 className="results-title">Your Roast is Ready 😂</h2>
               <p className="results-subtitle">Brace yourself...</p>
             </div>
-
             <div className="score-verdict-row">
               <CircularScore score={score} animate={scoreAnimate} />
               <div className="verdict-info">
@@ -555,7 +546,6 @@ export default function App() {
                 </p>
               </div>
             </div>
-
             <div className="roast-cards">
               {parsedSections.map((section, idx) => (
                 <div key={section.key} className="roast-card" style={{ "--card-color": section.color, animationDelay: `${idx * 0.14}s` }}>
@@ -569,13 +559,11 @@ export default function App() {
                 </div>
               ))}
             </div>
-
             <div className="results-actions">
               <button className="action-btn copy-btn" onClick={handleCopy}>📋 Copy & Share</button>
               <button className="action-btn share-img-btn" onClick={handleShareImage}>🎨 Share as Image</button>
               <button className="action-btn reset-btn" onClick={handleReset}>🔄 Roast Another</button>
             </div>
-
             <div className="share-nudge">Share your roast in your college group chat 😂</div>
           </div>
         )}
@@ -588,8 +576,26 @@ export default function App() {
 
       <footer className="footer">
         <p>Built for CS freshers • <a href="https://macoostudy.info">macoostudy.info</a></p>
+        <div className="footer-links">
+          <Link to="/privacy">Privacy Policy</Link>
+          <span>•</span>
+          <Link to="/about">About</Link>
+        </div>
         <p className="footer-note">Your resume is not stored.</p>
       </footer>
     </div>
+  );
+}
+
+// ── Root with Router ──────────────────────────────────────────────────────────
+export default function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<MainApp />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/about" element={<About />} />
+      </Routes>
+    </Router>
   );
 }
