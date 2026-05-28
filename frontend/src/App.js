@@ -60,10 +60,13 @@ function extractScore(text) {
 }
 
 function extractVerdict(text) {
-  if (/faang possible/i.test(text)) return "FAANG Possible";
-  if (/faang/i.test(text)) return "FAANG Possible";
-  if (/product co/i.test(text)) return "Product Co.";
-  if (/startup ready/i.test(text)) return "Startup Ready";
+  const verdictSection = text.split("🎯").pop() || text;
+  if (/faang possible/i.test(verdictSection)) return "FAANG Possible";
+  if (/faang/i.test(verdictSection)) return "FAANG Possible";
+  if (/product company ready/i.test(verdictSection)) return "Product Co.";
+  if (/product co/i.test(verdictSection)) return "Product Co.";
+  if (/startup ready/i.test(verdictSection)) return "Startup Ready";
+  if (/startup/i.test(verdictSection)) return "Startup Ready";
   return "Entry Level";
 }
 
