@@ -173,7 +173,7 @@ export default function App() {
                 className={`lang-btn ${language === "hinglish" ? "active" : ""}`}
                 onClick={() => setLanguage("hinglish")}
               >
-                🇮🇳 Hinglish(Hindi + English)
+                IND Hindi + English
               </button>
             </div>
 
@@ -249,8 +249,8 @@ export default function App() {
       </main>
 
       <footer className="footer">
-        <p>Built for Indian CS freshers 🇮🇳 • <a href="https://macoostudy.info">macoostudy.info</a></p>
-        <p className="footer-note">Your resume is not stored. Ever.</p>
+        <p>Built for CS freshers • <a href="https://macoostudy.info">macoostudy.info</a></p>
+        <p className="footer-note">Your resume is not stored.</p>
       </footer>
     </div>
   );
