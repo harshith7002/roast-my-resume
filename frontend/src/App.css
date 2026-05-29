@@ -1106,14 +1106,7 @@ body {
 }
 
 .language-select-wrap::after {
-  content: "▾";
-  position: absolute;
-  right: 18px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  color: var(--text);
-  font-size: 13px;
+  right: 22px;  /* was 18px */
 }
 
 .language-select {
