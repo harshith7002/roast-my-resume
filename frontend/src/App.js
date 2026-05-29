@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import "./App.css";
+import Blog from "./Blog";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 
@@ -88,7 +89,6 @@ function CircularScore({ score, animate }) {
   const radius = 52;
   const circ = 2 * Math.PI * radius;
   const [displayed, setDisplayed] = useState(0);
-
   useEffect(() => {
     if (!animate) return;
     let start = null;
@@ -101,10 +101,8 @@ function CircularScore({ score, animate }) {
     };
     requestAnimationFrame(tick);
   }, [animate, score]);
-
   const offset = circ - (displayed / 100) * circ;
   const color = score >= 70 ? "#00e676" : score >= 45 ? "#ffd700" : score >= 28 ? "#ff8c00" : "#ff4444";
-
   return (
     <div className="circular-score">
       <svg width="128" height="128" viewBox="0 0 128 128">
@@ -185,7 +183,6 @@ function RoastCounter() {
   );
 }
 
-// ── Privacy Policy Page ───────────────────────────────────────────────────────
 function PrivacyPolicy() {
   return (
     <div className="app">
@@ -193,33 +190,25 @@ function PrivacyPolicy() {
       <div className="static-page">
         <Link to="/" className="back-link">← Back to Roast My Resume</Link>
         <h1>Privacy Policy</h1>
-        <p className="static-date">Last updated: May 28, 2026</p>
-
+        <p className="static-date">Last updated: May 29, 2026</p>
         <h2>1. Information We Collect</h2>
         <p>macoostudy.info does not collect, store, or sell any personal information. When you upload a resume, it is processed in memory and immediately discarded. We never store your resume on our servers.</p>
-
         <h2>2. How We Use Information</h2>
         <p>Your resume text is sent to our AI service (Groq AI) solely to generate feedback. No data is retained after the session ends.</p>
-
         <h2>3. Cookies & Tracking</h2>
         <p>We use Google Analytics to understand site traffic. This may use cookies to track anonymous usage data. We also use Google AdSense which may use cookies to serve relevant ads. You can opt out of personalized ads via Google's ad settings.</p>
-
         <h2>4. Third Party Services</h2>
         <ul>
           <li>Google Analytics — for traffic analysis</li>
           <li>Google AdSense — for serving ads</li>
           <li>Groq AI — for generating resume feedback</li>
         </ul>
-
         <h2>5. Data Security</h2>
         <p>Your resume is never stored, logged, or shared with any third party other than the AI service used to generate feedback.</p>
-
         <h2>6. Children's Privacy</h2>
         <p>Our service is not directed to children under 13. We do not knowingly collect information from children.</p>
-
         <h2>7. Changes to This Policy</h2>
         <p>We may update this policy from time to time. Changes will be posted on this page.</p>
-
         <h2>8. Contact</h2>
         <p>For any questions about this privacy policy, contact us at macoostudy.info</p>
       </div>
@@ -227,7 +216,6 @@ function PrivacyPolicy() {
   );
 }
 
-// ── About Page ────────────────────────────────────────────────────────────────
 function About() {
   return (
     <div className="app">
@@ -235,12 +223,9 @@ function About() {
       <div className="static-page">
         <Link to="/" className="back-link">← Back to Roast My Resume</Link>
         <h1>About Roast My Resume 🔥</h1>
-
         <p>Roast My Resume is a free AI-powered tool that gives brutally honest resume feedback to CS freshers. No sugarcoating. No "add more action verbs." Just real, actionable feedback.</p>
-
         <h2>Why We Built This</h2>
         <p>Most resume feedback tools are either too expensive or too generic. We built this so every CS student gets the kind of honest feedback that only a senior engineer friend would give.</p>
-
         <h2>How It Works</h2>
         <ol>
           <li>Upload your resume as a PDF</li>
@@ -248,10 +233,8 @@ function About() {
           <li>Get a brutal roast + actionable feedback</li>
           <li>Improve your resume and get hired!</li>
         </ol>
-
         <h2>Privacy First</h2>
         <p>Your resume is never stored. It's processed in memory and immediately discarded after analysis.</p>
-
         <h2>Tech Stack</h2>
         <ul>
           <li>Frontend: React</li>
@@ -259,14 +242,12 @@ function About() {
           <li>AI: Groq AI (LLaMA 3.3)</li>
           <li>Hosting: Netlify + Render</li>
         </ul>
-
         <p>Built with ❤️ for CS freshers worldwide. <a href="https://macoostudy.info">macoostudy.info</a></p>
       </div>
     </div>
   );
 }
 
-// ── Main App ──────────────────────────────────────────────────────────────────
 function MainApp() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -409,7 +390,6 @@ function MainApp() {
       <div className="bg-mesh" aria-hidden="true" />
       <div className="bg-grid" aria-hidden="true" />
       <FireParticles />
-
       <header className="header">
         <div className="header-badges-row">
           <RoastCounter />
@@ -441,7 +421,6 @@ function MainApp() {
           <div className="stat">🆓 100% Free</div>
         </div>
       </header>
-
       <main className="main">
         {!roast ? (
           <div className="upload-section">
@@ -470,14 +449,11 @@ function MainApp() {
                 </div>
               )}
             </div>
-
             {error && <div className="error-box">⚠️ {error}</div>}
-
             <div className="language-toggle">
               <button className={`lang-btn${language === "english" ? " active" : ""}`} onClick={() => setLanguage("english")}>🌍 English</button>
               <button className={`lang-btn${language === "hinglish" ? " active" : ""}`} onClick={() => setLanguage("hinglish")}>🌏 Hindi + English</button>
             </div>
-
             <button
               className={`roast-btn${loading ? " loading" : ""}${!file ? " disabled" : ""}`}
               onClick={handleSubmit} disabled={!file || loading}
@@ -486,7 +462,6 @@ function MainApp() {
                 <span className="btn-loading"><span className="fire-spinner">🔥</span>Roasting...</span>
               ) : "🔥 Roast My Resume"}
             </button>
-
             {loading && (
               <div className="loading-state">
                 <div className="loading-msg" key={loadingMsgIdx}>{LOADING_MESSAGES[loadingMsgIdx]}</div>
@@ -496,7 +471,6 @@ function MainApp() {
                 <p className="loading-hint">☕ Grab a chai, this takes ~15 seconds...</p>
               </div>
             )}
-
             <div className="sample-section">
               <div className="sample-card">
                 <div className="sample-title">Sample Verdict Types</div>
@@ -567,16 +541,16 @@ function MainApp() {
             <div className="share-nudge">Share your roast in your college group chat 😂</div>
           </div>
         )}
-
         <section className="faq-section">
           <h3 className="faq-heading">Frequently Asked Questions</h3>
           {FAQS.map((f, i) => <FAQItem key={i} q={f.q} a={f.a} />)}
         </section>
       </main>
-
       <footer className="footer">
         <p>Built for CS freshers • <a href="https://macoostudy.info">macoostudy.info</a></p>
         <div className="footer-links">
+          <Link to="/blog">Blog</Link>
+          <span>•</span>
           <Link to="/privacy">Privacy Policy</Link>
           <span>•</span>
           <Link to="/about">About</Link>
@@ -587,12 +561,12 @@ function MainApp() {
   );
 }
 
-// ── Root with Router ──────────────────────────────────────────────────────────
 export default function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<MainApp />} />
+        <Route path="/blog" element={<Blog />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/about" element={<About />} />
       </Routes>
