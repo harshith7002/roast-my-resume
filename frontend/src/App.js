@@ -509,7 +509,19 @@ function MainApp() {
     ) : "🔥 Roast My Resume"}
   </button>
 </div>
-
+<div className="language-section">
+  <p className="language-label">🌐 Choose your roast language</p>
+  <p className="language-hint">✨ 34+ languages available — including Indian regional languages!</p>
+  <div className="language-select-wrap">
+    <select ...>
+    </select>
+  </div>
+  <div className="language-stats">
+    <span>🇮🇳 11 Indian languages</span>
+    <span className="lang-dot">•</span>
+    <span>🌍 23 International languages</span>
+  </div>
+</div>
 
             {loading && (
               <div className="loading-state">
