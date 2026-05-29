@@ -1093,6 +1093,18 @@ body {
   width: 100%;
   max-width: 400px;
   margin: 0 auto;
+  position: relative;
+}
+
+.language-select-wrap::after {
+  content: "▾";
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--text);
+  font-size: 14px;
 }
 
 .language-select {
@@ -1108,9 +1120,11 @@ body {
   cursor: pointer;
   appearance: none;
   text-align: center;
+  text-align-last: center;
+  -webkit-text-align-last: center;
 }
 
 .language-select:focus {
   outline: none;
-  border-color: rgba(255,68,68,0.5);
+  border-color: rgba(255, 68, 68, 0.5);
 }
