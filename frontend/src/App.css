@@ -1083,3 +1083,28 @@ body {
 }
 
 .footer-links a:hover { color: var(--text); }
+.language-select-wrap {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.language-select {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  appearance: none;
+  text-align: center;
+}
+
+.language-select:focus {
+  outline: none;
+  border-color: rgba(255,68,68,0.5);
+}
