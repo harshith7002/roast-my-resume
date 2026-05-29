@@ -452,53 +452,55 @@ function MainApp() {
             </div>
 
             {error && <div className="error-box">⚠️ {error}</div>}
+<div className="language-select-wrap">
+  <div className="language-label">🌐 Choose your roast language</div>
+  <select
+    className="language-select"
+    value={language}
+    onChange={(e) => setLanguage(e.target.value)}
+  >
+    <option value="english">🌍 English (Default)</option>
+    
+    <optgroup label="━━━ 🇮🇳 Indian Languages + English ━━━">
+      <option value="hinglish">🇮🇳 Hindi + English</option>
+      <option value="tanglish">🇮🇳 Tamil + English</option>
+      <option value="tenglish">🇮🇳 Telugu + English</option>
+      <option value="benglish">🇮🇳 Bengali + English</option>
+      <option value="manglish">🇮🇳 Malayalam + English</option>
+      <option value="kanglish">🇮🇳 Kannada + English</option>
+      <option value="punglish">🇮🇳 Punjabi + English</option>
+      <option value="marathish">🇮🇳 Marathi + English</option>
+      <option value="gujarish">🇮🇳 Gujarati + English</option>
+      <option value="orish">🇮🇳 Odia + English</option>
+      <option value="assamese">🇮🇳 Assamese + English</option>
+    </optgroup>
 
-            <div className="language-select-wrap">
-              <select
-                className="language-select"
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-              >
-                <optgroup label="🌍 International">
-                  <option value="english">🌍 English</option>
-                  <option value="spanish">🇪🇸 Spanish</option>
-                  <option value="french">🇫🇷 French</option>
-                  <option value="german">🇩🇪 German</option>
-                  <option value="portuguese">🇧🇷 Portuguese</option>
-                  <option value="arabic">🇸🇦 Arabic</option>
-                  <option value="japanese">🇯🇵 Japanese</option>
-                  <option value="korean">🇰🇷 Korean</option>
-                  <option value="italian">🇮🇹 Italian</option>
-                  <option value="dutch">🇳🇱 Dutch</option>
-                  <option value="turkish">🇹🇷 Turkish</option>
-                  <option value="polish">🇵🇱 Polish</option>
-                  <option value="swedish">🇸🇪 Swedish</option>
-                  <option value="norwegian">🇳🇴 Norwegian</option>
-                  <option value="danish">🇩🇰 Danish</option>
-                  <option value="finnish">🇫🇮 Finnish</option>
-                  <option value="greek">🇬🇷 Greek</option>
-                  <option value="thai">🇹🇭 Thai</option>
-                  <option value="vietnamese">🇻🇳 Vietnamese</option>
-                  <option value="indonesian">🇮🇩 Indonesian</option>
-                  <option value="malay">🇲🇾 Malay</option>
-                  <option value="filipino">🇵🇭 Filipino</option>
-                  <option value="swahili">🇰🇪 Swahili</option>
-                </optgroup>
-                <optgroup label="🇮🇳 Indian Languages + English">
-                  <option value="hinglish">🇮🇳 Hindi + English</option>
-                  <option value="tanglish">🇮🇳 Tamil + English</option>
-                  <option value="tenglish">🇮🇳 Telugu + English</option>
-                  <option value="benglish">🇮🇳 Bengali + English</option>
-                  <option value="manglish">🇮🇳 Malayalam + English</option>
-                  <option value="kanglish">🇮🇳 Kannada + English</option>
-                  <option value="punglish">🇮🇳 Punjabi + English</option>
-                  <option value="marathish">🇮🇳 Marathi + English</option>
-                  <option value="gujarish">🇮🇳 Gujarati + English</option>
-                  <option value="orish">🇮🇳 Odia + English</option>
-                  <option value="assamese">🇮🇳 Assamese + English</option>
-                </optgroup>
-              </select>
-            </div>
+    <optgroup label="━━━ 🌍 International Languages ━━━">
+      <option value="spanish">🇪🇸 Spanish</option>
+      <option value="french">🇫🇷 French</option>
+      <option value="german">🇩🇪 German</option>
+      <option value="portuguese">🇧🇷 Portuguese</option>
+      <option value="arabic">🇸🇦 Arabic</option>
+      <option value="japanese">🇯🇵 Japanese</option>
+      <option value="korean">🇰🇷 Korean</option>
+      <option value="italian">🇮🇹 Italian</option>
+      <option value="dutch">🇳🇱 Dutch</option>
+      <option value="turkish">🇹🇷 Turkish</option>
+      <option value="polish">🇵🇱 Polish</option>
+      <option value="swedish">🇸🇪 Swedish</option>
+      <option value="norwegian">🇳🇴 Norwegian</option>
+      <option value="danish">🇩🇰 Danish</option>
+      <option value="finnish">🇫🇮 Finnish</option>
+      <option value="greek">🇬🇷 Greek</option>
+      <option value="thai">🇹🇭 Thai</option>
+      <option value="vietnamese">🇻🇳 Vietnamese</option>
+      <option value="indonesian">🇮🇩 Indonesian</option>
+      <option value="malay">🇲🇾 Malay</option>
+      <option value="filipino">🇵🇭 Filipino</option>
+      <option value="swahili">🇰🇪 Swahili</option>
+    </optgroup>
+  </select>
+</div>
 
             <button
               className={`roast-btn${loading ? " loading" : ""}${!file ? " disabled" : ""}`}
