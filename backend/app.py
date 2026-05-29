@@ -83,8 +83,12 @@ Now give your roast in this EXACT format:
 5. [Actionable improvement]
 
 🎯 FINAL VERDICT
-[Pick ONE: 🏭 Entry Level / 🚀 Startup Ready / 💰 Product Company Ready / 🌟 FAANG Possible]
-[Explain in 2 sentences]"""
+IMPORTANT: Pick ONLY ONE verdict that matches the overall quality. Be realistic and consistent with your roast above.
+- 🏭 Entry Level — weak profile, needs major work
+- 🚀 Startup Ready — decent profile, can apply to startups
+- 💰 Product Company Ready — strong profile, good for product companies
+- 🌟 FAANG Possible — exceptional profile, can target top companies
+[Write your chosen verdict on first line, then explain in 2 sentences]
 
 
 def extract_text_from_pdf(pdf_bytes):
