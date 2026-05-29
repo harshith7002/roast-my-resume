@@ -510,14 +510,6 @@ function MainApp() {
   </button>
 </div>
 
-            <button
-              className={`roast-btn${loading ? " loading" : ""}${!file ? " disabled" : ""}`}
-              onClick={handleSubmit} disabled={!file || loading}
-            >
-              {loading ? (
-                <span className="btn-loading"><span className="fire-spinner">🔥</span>Roasting...</span>
-              ) : "🔥 Roast My Resume"}
-            </button>
 
             {loading && (
               <div className="loading-state">
