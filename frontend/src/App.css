@@ -1095,7 +1095,7 @@ body {
 .language-label {
   font-size: 14px;
   font-weight: 600;
-  color: var(--text);
+  color: var(--text2);
   text-align: center;
 }
 
@@ -1135,10 +1135,5 @@ body {
 
 .language-select:focus {
   outline: none;
-  border-color: rgba(255, 68, 68, 0.5);
-}
-
-.roast-btn {
-  width: 100%;
-  max-width: 380px;
+  border-color: rgba(255,68,68,0.5);
 }
