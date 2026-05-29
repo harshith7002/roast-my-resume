@@ -10,13 +10,54 @@ CORS(app)
 
 client = Groq(api_key=os.environ.get("GROQ_API_KEY", "YOUR_GROQ_API_KEY_HERE"))
 
-ROAST_PROMPT_ENGLISH = """You are a brutally honest but hilarious Indian senior software engineer who has seen thousands of fresher resumes. You roast resumes in a funny, savage but ultimately helpful way. Write in English only.
+LANG_INSTRUCTIONS = {
+    # International
+    "english": "Write in English only.",
+    "spanish": "Write entirely in Spanish.",
+    "french": "Write entirely in French.",
+    "german": "Write entirely in German.",
+    "portuguese": "Write entirely in Portuguese.",
+    "arabic": "Write entirely in Arabic.",
+    "japanese": "Write entirely in Japanese.",
+    "korean": "Write entirely in Korean.",
+    "italian": "Write entirely in Italian.",
+    "dutch": "Write entirely in Dutch.",
+    "turkish": "Write entirely in Turkish.",
+    "polish": "Write entirely in Polish.",
+    "swedish": "Write entirely in Swedish.",
+    "norwegian": "Write entirely in Norwegian.",
+    "danish": "Write entirely in Danish.",
+    "finnish": "Write entirely in Finnish.",
+    "greek": "Write entirely in Greek.",
+    "thai": "Write entirely in Thai.",
+    "vietnamese": "Write entirely in Vietnamese.",
+    "indonesian": "Write entirely in Indonesian.",
+    "malay": "Write entirely in Malay.",
+    "filipino": "Write entirely in Filipino.",
+    "swahili": "Write entirely in Swahili.",
+    # Indian Languages + English mix
+    "hinglish": "Write in Hinglish — a fun natural mix of Hindi and English the way Indian college students actually talk. Like 'Yaar tera resume dekh ke lagta hai tu TCS jayega' mixed with English technical terms.",
+    "tanglish": "Write in Tanglish — a fun natural mix of Tamil and English the way Tamil people actually speak. Mix Tamil words naturally with English technical terms.",
+    "tenglish": "Write in Tenglish — a fun natural mix of Telugu and English the way Telugu people actually speak. Mix Telugu words naturally with English technical terms.",
+    "benglish": "Write in Benglish — a fun natural mix of Bengali and English the way Bengali people actually speak. Mix Bengali words naturally with English technical terms.",
+    "manglish": "Write in Manglish — a fun natural mix of Malayalam and English the way Malayali people actually speak. Mix Malayalam words naturally with English technical terms.",
+    "kanglish": "Write in Kanglish — a fun natural mix of Kannada and English the way Kannada people actually speak. Mix Kannada words naturally with English technical terms.",
+    "punglish": "Write in Punglish — a fun natural mix of Punjabi and English the way Punjabi people actually speak. Mix Punjabi words naturally with English technical terms.",
+    "marathish": "Write in a fun natural mix of Marathi and English the way Marathi people actually speak. Mix Marathi words naturally with English technical terms.",
+    "gujarish": "Write in a fun natural mix of Gujarati and English the way Gujarati people actually speak. Mix Gujarati words naturally with English technical terms.",
+    "orish": "Write in a fun natural mix of Odia and English the way Odia people actually speak. Mix Odia words naturally with English technical terms.",
+    "assamese": "Write in a fun natural mix of Assamese and English the way Assamese people actually speak. Mix Assamese words naturally with English technical terms.",
+}
+
+ROAST_PROMPT = """You are a brutally honest but hilarious senior software engineer who has seen thousands of fresher resumes. You roast resumes in a funny, savage but ultimately helpful way.
+
+{lang_instruction}
 
 You understand:
-- CGPA grading systems (out of 10), tier 1/2/3 college dynamics
-- Common desi resume mistakes (listing MS Word as a skill, "hobbies: listening to music, watching movies")
-- Indian IT job market: TCS/Infosys/Wipro vs product startups vs FAANG/MAANG
-- Internship culture, hackathons, competitive programming in India
+- CGPA grading systems (out of 10), college dynamics
+- Common resume mistakes (listing MS Word as a skill, "hobbies: listening to music, watching movies")
+- IT job market: service companies vs product startups vs FAANG/MAANG
+- Internship culture, hackathons, competitive programming
 
 Here is the resume text:
 {resume_text}
@@ -24,12 +65,12 @@ Here is the resume text:
 Now give your roast in this EXACT format:
 
 🔥 THE ROAST
-[2-3 savage but funny opening lines in English. Be creative and specific.]
+[2-3 savage but funny opening lines. Be creative and specific.]
 
 💀 HALL OF SHAME (Top 3 Brutal Mistakes)
-1. [Specific mistake - funny and savage in English]
-2. [Specific mistake - funny and savage in English]
-3. [Specific mistake - funny and savage in English]
+1. [Specific mistake - funny and savage]
+2. [Specific mistake - funny and savage]
+3. [Specific mistake - funny and savage]
 
 ✅ OKAY FINE, THIS IS DECENT
 [2-3 things that are actually good]
@@ -42,45 +83,8 @@ Now give your roast in this EXACT format:
 5. [Actionable improvement]
 
 🎯 FINAL VERDICT
-[Pick ONE: 🏭 TCS/Infosys Material / 🚀 Startup Ready / 💰 Product Company Ready / 🌟 FAANG Possible]
-[Explain in 2 sentences in English]"""
-
-ROAST_PROMPT_HINGLISH = """You are a brutally honest but hilarious Indian senior software engineer who has seen thousands of fresher resumes. You roast resumes in a funny, savage but ultimately helpful way.
-
-Write in Hinglish - a fun mix of Hindi and English naturally blended together the way Indian college students actually talk. Like "Yaar tera resume dekh ke lagta hai tu toh pakka TCS jayega" mixed with English technical terms. Make it sound natural, funny and relatable.
-
-You understand:
-- CGPA grading systems (out of 10), tier 1/2/3 college dynamics
-- Common Indian resume mistakes (listing MS Word as a skill, "hobbies: listening to music, watching movies")
-- Indian IT job market: TCS/Infosys/Wipro vs product startups vs FAANG/MAANG
-- Internship culture, hackathons, competitive programming in India
-
-Here is the resume text:
-{resume_text}
-
-Now give your roast in this EXACT format:
-
-🔥 THE ROAST
-[2-3 savage but funny opening lines in Hinglish. Be creative and specific.]
-
-💀 HALL OF SHAME (Top 3 Brutal Mistakes)
-1. [Specific mistake - funny in Hinglish]
-2. [Specific mistake - funny in Hinglish]
-3. [Specific mistake - funny in Hinglish]
-
-✅ OKAY FINE, THIS IS DECENT
-[2-3 things that are actually good - in Hinglish]
-
-📈 GLOW UP GUIDE (5 Specific Fixes)
-1. [Actionable improvement in Hinglish]
-2. [Actionable improvement in Hinglish]
-3. [Actionable improvement in Hinglish]
-4. [Actionable improvement in Hinglish]
-5. [Actionable improvement in Hinglish]
-
-🎯 FINAL VERDICT
-[Pick ONE: 🏭 TCS/Infosys Material / 🚀 Startup Ready / 💰 Product Company Ready / 🌟 FAANG Possible]
-[Explain in 2 sentences in Hinglish]"""
+[Pick ONE: 🏭 Entry Level / 🚀 Startup Ready / 💰 Product Company Ready / 🌟 FAANG Possible]
+[Explain in 2 sentences]"""
 
 
 def extract_text_from_pdf(pdf_bytes):
@@ -112,8 +116,11 @@ def roast_resume():
         if len(resume_text) < 100:
             return jsonify({"error": "Could not extract text from PDF. Make sure it's not a scanned image."}), 400
 
-        prompt_template = ROAST_PROMPT_HINGLISH if language == "hinglish" else ROAST_PROMPT_ENGLISH
-        prompt = prompt_template.format(resume_text=resume_text[:4000])
+        lang_instruction = LANG_INSTRUCTIONS.get(language, LANG_INSTRUCTIONS["english"])
+        prompt = ROAST_PROMPT.format(
+            lang_instruction=lang_instruction,
+            resume_text=resume_text[:4000]
+        )
 
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
