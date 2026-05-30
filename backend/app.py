@@ -4,6 +4,7 @@ from groq import Groq
 from pypdf import PdfReader
 import io
 import os
+import re
 
 app = Flask(__name__)
 CORS(app)
@@ -49,20 +50,19 @@ LANG_INSTRUCTIONS = {
 
 PERSONALITY_PROMPTS = {
     "default": """You are a brutally honest but hilarious senior software engineer who has seen thousands of fresher resumes. You roast resumes in a funny, savage but ultimately helpful way. No Hindi words unless the language instruction says so.""",
-
     "gordon": """You are Gordon Ramsay, but instead of reviewing food, you are reviewing a resume. Be ABSOLUTELY SAVAGE. Use ALL CAPS for emphasis. Use phrases like "THIS IS RAW!", "YOU DONKEY!", "BLOODY HELL!", "This resume is so bad it makes me want to THROW IT IN THE BIN!". Be dramatic, explosive, and hilariously harsh. Every mistake is a catastrophe. No Hindi words unless the language instruction says so.""",
-
     "parent": """You are a stereotypically disappointed parent reviewing their child's resume. Be dramatically disappointed but loving underneath. Use phrases like "Why only 7.5 GPA? Your cousin is already at Google!", "We spent so much on your education and THIS is what you give us?", "You are breaking my heart with this resume!", "I told you to study harder!". Be over-dramatic and guilt-tripping. IMPORTANT: Only use Hindi words like 'beta', 'log kya kahenge' if the language instruction says Hinglish. For English mode, use only English.""",
-
     "techbro": """You are a passive-aggressive Silicon Valley Tech Bro recruiter. Use excessive corporate jargon: "leverage", "disruptive", "bandwidth", "circle back", "move the needle", "low-hanging fruit", "synergy", "scalable", "pivot". Be condescending but mask it with corporate politeness. Say things like "I'm just going to be transparent with you...", "This resume lacks the disruptive energy we're looking for at our unicorn startup.", "Let's unpack why this doesn't move the needle." No Hindi words unless the language instruction says so.""",
-
-    "senior": """You are a toxic, burnt-out senior developer with 15 years of experience who has zero patience. Say things like "I rewrote this in a weekend", "We don't use that framework anymore, that's so 2019", "Junior mistake", "Did you even Google this?", "Back in my day we didn't need tutorials for this", "This is giving me flashbacks to bad code reviews". Be condescending about every technology choice. No Hindi words unless the language instruction says so.""",
+    "senior": """You are a toxic, burnt-out senior developer with 15 years of experience who has zero patience. Say things like "I rewrote this in a weekend", "We don't use that framework anymore, that's so 2019", "Junior mistake", "Did you even Google this?", "Back in my day we didn't need tutorials for this". Be condescending about every technology choice. No Hindi words unless the language instruction says so.""",
 }
 
 ROAST_PROMPT = """
 {personality_prompt}
 
 LANGUAGE RULE (STRICTLY FOLLOW): {lang_instruction}
+
+VERDICT RULE (CRITICAL - DO NOT CHANGE): The verdict for this resume has been pre-calculated as: **{python_verdict}**
+You MUST end with exactly this verdict. Do NOT change it under any circumstances.
 
 You understand:
 - CGPA grading systems (out of 10), college dynamics
@@ -76,7 +76,7 @@ Here is the resume text:
 Now give your roast in this EXACT format:
 
 🔥 THE ROAST
-[2-3 savage but funny opening lines in your character's voice. Be creative and specific to THIS resume.]
+[2-3 savage but funny opening lines in your character's voice. Be specific to THIS resume.]
 
 💀 HALL OF SHAME (Top 3 Brutal Mistakes)
 1. [Specific mistake from THIS resume - funny and savage in your character's voice]
@@ -94,19 +94,132 @@ Now give your roast in this EXACT format:
 5. [Actionable improvement specific to THIS resume]
 
 🎯 FINAL VERDICT
-CRITICAL RULES FOR VERDICT:
-- Base verdict ONLY on the actual resume quality you just analyzed
-- Be REALISTIC and HONEST — most freshers are Entry Level or Startup Ready
-- FAANG Possible = truly exceptional (top CGPA 9+, multiple strong projects, internships at good companies, strong DSA)
-- Product Company Ready = strong profile (good projects, decent CGPA, some experience)
-- Startup Ready = average profile (some projects, average CGPA, limited experience)  
-- Entry Level = weak profile (few projects, low CGPA, no experience)
-- Pick ONLY ONE. The verdict MUST match the quality of feedback you gave above.
-
-Write EXACTLY in this format:
-[ONE OF: 🏭 Entry Level / 🚀 Startup Ready / 💰 Product Company Ready / 🌟 FAANG Possible]
-[2 sentences explaining why in your character's voice]
+{python_verdict}
+[2 sentences explaining why, in your character's voice]
 """
+
+
+def calculate_score(resume_text):
+    text_lower = resume_text.lower()
+    score = 40  # base score
+
+    # CGPA
+    cgpa_match = re.search(r'(\d+\.?\d*)\s*(?:cgpa|gpa|grade)', text_lower)
+    if cgpa_match:
+        cgpa = float(cgpa_match.group(1))
+        if cgpa >= 9.0: score += 20
+        elif cgpa >= 8.0: score += 15
+        elif cgpa >= 7.0: score += 10
+        elif cgpa >= 6.0: score += 5
+        else: score -= 10
+
+    # Internship
+    if 'internship' in text_lower or 'intern ' in text_lower:
+        score += 15
+
+    # Projects
+    project_count = text_lower.count('project')
+    if project_count >= 4: score += 15
+    elif project_count >= 2: score += 8
+    else: score += 2
+
+    # Top companies
+    top_companies = ['google', 'microsoft', 'amazon', 'meta', 'apple', 'flipkart', 'uber', 'swiggy', 'zomato', 'razorpay', 'adobe', 'netflix']
+    for company in top_companies:
+        if company in text_lower:
+            score += 10
+            break
+
+    # DSA
+    if any(x in text_lower for x in ['leetcode', 'codeforces', 'codechef', 'competitive programming', 'hackerrank']):
+        score += 8
+
+    # GitHub
+    if 'github' in text_lower:
+        score += 3
+
+    # Open source
+    if 'open source' in text_lower or 'opensource' in text_lower:
+        score += 4
+
+    # Deployed
+    if any(x in text_lower for x in ['deployed', 'live', 'production', 'netlify', 'vercel', 'heroku', 'aws', 'cloud run']):
+        score += 4
+
+    # Certifications
+    if any(x in text_lower for x in ['aws certified', 'google cloud', 'azure certified', 'certification']):
+        score += 3
+
+    # Hackathons
+    if 'hackathon' in text_lower:
+        score += 4
+
+    return max(0, min(100, score))
+
+
+def calculate_verdict(resume_text):
+    text_lower = resume_text.lower()
+    score = 0
+
+    # CGPA
+    cgpa_match = re.search(r'(\d+\.?\d*)\s*(?:cgpa|gpa|grade)', text_lower)
+    if cgpa_match:
+        cgpa = float(cgpa_match.group(1))
+        if cgpa >= 9.0: score += 25
+        elif cgpa >= 8.0: score += 15
+        elif cgpa >= 7.0: score += 10
+        elif cgpa >= 6.0: score += 5
+
+    # Internship
+    if 'internship' in text_lower or 'intern ' in text_lower:
+        score += 20
+
+    # Projects
+    project_count = text_lower.count('project')
+    if project_count >= 4: score += 20
+    elif project_count >= 2: score += 10
+    else: score += 5
+
+    # Top companies
+    top_companies = ['google', 'microsoft', 'amazon', 'meta', 'apple', 'flipkart', 'uber', 'swiggy', 'zomato', 'razorpay', 'adobe', 'netflix']
+    for company in top_companies:
+        if company in text_lower:
+            score += 15
+            break
+
+    # DSA
+    if any(x in text_lower for x in ['leetcode', 'codeforces', 'codechef', 'competitive programming', 'hackerrank']):
+        score += 10
+
+    # GitHub
+    if 'github' in text_lower:
+        score += 5
+
+    # Open source
+    if 'open source' in text_lower or 'opensource' in text_lower:
+        score += 5
+
+    # Deployed
+    if any(x in text_lower for x in ['deployed', 'live', 'production', 'netlify', 'vercel', 'heroku', 'aws', 'cloud run']):
+        score += 5
+
+    # Certifications
+    if any(x in text_lower for x in ['aws certified', 'google cloud', 'azure certified', 'certification']):
+        score += 5
+
+    # Hackathons
+    if 'hackathon' in text_lower:
+        score += 5
+
+    # Verdict
+    if score >= 70:
+        return "🌟 FAANG Possible"
+    elif score >= 45:
+        return "💰 Product Company Ready"
+    elif score >= 25:
+        return "🚀 Startup Ready"
+    else:
+        return "🏭 Entry Level"
 
 
 def extract_text_from_pdf(pdf_bytes):
@@ -141,10 +254,13 @@ def roast_resume():
 
         lang_instruction = LANG_INSTRUCTIONS.get(language, LANG_INSTRUCTIONS["english"])
         personality_prompt = PERSONALITY_PROMPTS.get(personality, PERSONALITY_PROMPTS["default"])
+        python_verdict = calculate_verdict(resume_text)
+        python_score = calculate_score(resume_text)
 
         prompt = ROAST_PROMPT.format(
             personality_prompt=personality_prompt,
             lang_instruction=lang_instruction,
+            python_verdict=python_verdict,
             resume_text=resume_text[:4000]
         )
 
@@ -156,7 +272,13 @@ def roast_resume():
         )
 
         roast_text = response.choices[0].message.content
-        return jsonify({"roast": roast_text, "success": True})
+
+        return jsonify({
+            "roast": roast_text,
+            "success": True,
+            "score": python_score,
+            "verdict": python_verdict
+        })
 
     except Exception as e:
         return jsonify({"error": f"Something went wrong: {str(e)}"}), 500
