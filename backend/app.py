@@ -11,7 +11,6 @@ CORS(app)
 client = Groq(api_key=os.environ.get("GROQ_API_KEY", "YOUR_GROQ_API_KEY_HERE"))
 
 LANG_INSTRUCTIONS = {
-    # International
     "english": "Write in English only.",
     "spanish": "Write entirely in Spanish.",
     "french": "Write entirely in French.",
@@ -35,7 +34,6 @@ LANG_INSTRUCTIONS = {
     "malay": "Write entirely in Malay.",
     "filipino": "Write entirely in Filipino.",
     "swahili": "Write entirely in Swahili.",
-    # Indian Languages + English mix
     "hinglish": "Write in Hinglish — a fun natural mix of Hindi and English the way Indian college students actually talk. Like 'Yaar tera resume dekh ke lagta hai tu TCS jayega' mixed with English technical terms.",
     "tanglish": "Write in Tanglish — a fun natural mix of Tamil and English the way Tamil people actually speak. Mix Tamil words naturally with English technical terms.",
     "tenglish": "Write in Tenglish — a fun natural mix of Telugu and English the way Telugu people actually speak. Mix Telugu words naturally with English technical terms.",
@@ -49,7 +47,20 @@ LANG_INSTRUCTIONS = {
     "assamese": "Write in a fun natural mix of Assamese and English the way Assamese people actually speak. Mix Assamese words naturally with English technical terms.",
 }
 
-ROAST_PROMPT = """You are a brutally honest but hilarious senior software engineer who has seen thousands of fresher resumes. You roast resumes in a funny, savage but ultimately helpful way.
+PERSONALITY_PROMPTS = {
+    "default": """You are a brutally honest but hilarious senior software engineer who has seen thousands of fresher resumes. You roast resumes in a funny, savage but ultimately helpful way.""",
+
+    "gordon": """You are Gordon Ramsay, but instead of reviewing food, you are reviewing a resume. Be ABSOLUTELY SAVAGE. Use ALL CAPS for emphasis. Use phrases like "THIS IS RAW!", "YOU DONKEY!", "BLOODY HELL!", "This resume is so bad it makes me want to THROW IT IN THE BIN!". Be dramatic, explosive, and hilariously harsh like Gordon reviewing a terrible dish. Every mistake is a catastrophe.""",
+
+    "parent": """You are a stereotypical disappointed Indian parent reviewing their child's resume. Use phrases like "Why only 7.5 CGPA beta? Your cousin Rahul got 9.2 and is already at Google!", "This is shameful for our family!", "Log kya kahenge?", "We spent so much on your education and THIS is what you give us?". Mix Hindi naturally. Be dramatically disappointed but loving underneath.""",
+
+    "techbro": """You are a passive-aggressive Silicon Valley Tech Bro recruiter. Use excessive corporate jargon: "leverage", "disruptive", "bandwidth", "circle back", "move the needle", "low-hanging fruit", "synergy". Be condescending but mask it with corporate politeness. Say things like "I'm just going to be transparent with you...", "This resume lacks the disruptive energy we're looking for at our unicorn startup." """,
+
+    "senior": """You are a toxic, burnt-out senior developer with 15 years of experience who has zero patience. Say things like "I rewrote this in a weekend", "We don't use that framework anymore, that's so 2019", "Junior mistake", "Did you even Google this?", "Back in my day we didn't need tutorials for this". Be condescending about every technology choice.""",
+}
+
+ROAST_PROMPT = """
+{personality_prompt}
 
 {lang_instruction}
 
@@ -65,22 +76,22 @@ Here is the resume text:
 Now give your roast in this EXACT format:
 
 🔥 THE ROAST
-[2-3 savage but funny opening lines. Be creative and specific.]
+[2-3 savage but funny opening lines in your character's voice. Be creative and specific.]
 
 💀 HALL OF SHAME (Top 3 Brutal Mistakes)
-1. [Specific mistake - funny and savage]
-2. [Specific mistake - funny and savage]
-3. [Specific mistake - funny and savage]
+1. [Specific mistake - funny and savage in your character's voice]
+2. [Specific mistake - funny and savage in your character's voice]
+3. [Specific mistake - funny and savage in your character's voice]
 
 ✅ OKAY FINE, THIS IS DECENT
-[2-3 things that are actually good]
+[2-3 things that are actually good - still in character]
 
 📈 GLOW UP GUIDE (5 Specific Fixes)
-1. [Actionable improvement]
-2. [Actionable improvement]
-3. [Actionable improvement]
-4. [Actionable improvement]
-5. [Actionable improvement]
+1. [Actionable improvement in your character's voice]
+2. [Actionable improvement in your character's voice]
+3. [Actionable improvement in your character's voice]
+4. [Actionable improvement in your character's voice]
+5. [Actionable improvement in your character's voice]
 
 🎯 FINAL VERDICT
 IMPORTANT: Pick ONLY ONE verdict that matches the overall quality. Be realistic and consistent with your roast above.
@@ -88,7 +99,8 @@ IMPORTANT: Pick ONLY ONE verdict that matches the overall quality. Be realistic 
 - 🚀 Startup Ready — decent profile, can apply to startups
 - 💰 Product Company Ready — strong profile, good for product companies
 - 🌟 FAANG Possible — exceptional profile, can target top companies
-[Write your chosen verdict on first line, then explain in 2 sentences]
+[Write your chosen verdict on first line, then explain in 2 sentences in your character's voice]
+"""
 
 
 def extract_text_from_pdf(pdf_bytes):
@@ -112,6 +124,7 @@ def roast_resume():
         return jsonify({"error": "Please upload a PDF file"}), 400
 
     language = request.form.get("language", "english")
+    personality = request.form.get("personality", "default")
 
     try:
         pdf_bytes = file.read()
@@ -121,7 +134,10 @@ def roast_resume():
             return jsonify({"error": "Could not extract text from PDF. Make sure it's not a scanned image."}), 400
 
         lang_instruction = LANG_INSTRUCTIONS.get(language, LANG_INSTRUCTIONS["english"])
+        personality_prompt = PERSONALITY_PROMPTS.get(personality, PERSONALITY_PROMPTS["default"])
+
         prompt = ROAST_PROMPT.format(
+            personality_prompt=personality_prompt,
             lang_instruction=lang_instruction,
             resume_text=resume_text[:4000]
         )
@@ -130,7 +146,7 @@ def roast_resume():
             model="llama-3.3-70b-versatile",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1500,
-            temperature=0.3,
+            temperature=0.7,
         )
 
         roast_text = response.choices[0].message.content
