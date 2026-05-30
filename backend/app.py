@@ -101,7 +101,7 @@ Now give your roast in this EXACT format:
 
 def calculate_score(resume_text):
     text_lower = resume_text.lower()
-    score = 40  # base score
+    score = 40
 
     # CGPA
     cgpa_match = re.search(r'(\d+\.?\d*)\s*(?:cgpa|gpa|grade)', text_lower)
@@ -135,12 +135,10 @@ def calculate_score(resume_text):
         score += 8
 
     # GitHub
-    if 'github' in text_lower:
-        score += 3
+    if 'github' in text_lower: score += 3
 
     # Open source
-    if 'open source' in text_lower or 'opensource' in text_lower:
-        score += 4
+    if 'open source' in text_lower or 'opensource' in text_lower: score += 4
 
     # Deployed
     if any(x in text_lower for x in ['deployed', 'live', 'production', 'netlify', 'vercel', 'heroku', 'aws', 'cloud run']):
@@ -151,8 +149,7 @@ def calculate_score(resume_text):
         score += 3
 
     # Hackathons
-    if 'hackathon' in text_lower:
-        score += 4
+    if 'hackathon' in text_lower: score += 4
 
     return max(0, min(100, score))
 
@@ -172,13 +169,13 @@ def calculate_verdict(resume_text):
 
     # Internship
     if 'internship' in text_lower or 'intern ' in text_lower:
-        score += 20
+        score += 15
 
     # Projects
     project_count = text_lower.count('project')
-    if project_count >= 4: score += 20
-    elif project_count >= 2: score += 10
-    else: score += 5
+    if project_count >= 4: score += 15
+    elif project_count >= 2: score += 8
+    else: score += 3
 
     # Top companies
     top_companies = ['google', 'microsoft', 'amazon', 'meta', 'apple', 'flipkart', 'uber', 'swiggy', 'zomato', 'razorpay', 'adobe', 'netflix']
@@ -189,34 +186,31 @@ def calculate_verdict(resume_text):
 
     # DSA
     if any(x in text_lower for x in ['leetcode', 'codeforces', 'codechef', 'competitive programming', 'hackerrank']):
-        score += 10
+        score += 8
 
     # GitHub
-    if 'github' in text_lower:
-        score += 5
+    if 'github' in text_lower: score += 3
 
     # Open source
-    if 'open source' in text_lower or 'opensource' in text_lower:
-        score += 5
+    if 'open source' in text_lower or 'opensource' in text_lower: score += 4
 
     # Deployed
     if any(x in text_lower for x in ['deployed', 'live', 'production', 'netlify', 'vercel', 'heroku', 'aws', 'cloud run']):
-        score += 5
+        score += 4
 
     # Certifications
     if any(x in text_lower for x in ['aws certified', 'google cloud', 'azure certified', 'certification']):
-        score += 5
+        score += 3
 
     # Hackathons
-    if 'hackathon' in text_lower:
-        score += 5
+    if 'hackathon' in text_lower: score += 4
 
-    # Verdict
-    if score >= 70:
+    # Stricter thresholds
+    if score >= 85:
         return "🌟 FAANG Possible"
-    elif score >= 45:
+    elif score >= 60:
         return "💰 Product Company Ready"
-    elif score >= 25:
+    elif score >= 30:
         return "🚀 Startup Ready"
     else:
         return "🏭 Entry Level"
