@@ -1,5 +1,4 @@
-
-         import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import "./App.css";
 import Blog from "./Blog";
@@ -24,7 +23,7 @@ const FAQS = [
   { q: "How is the roast generated?", a: "We use Groq AI to analyze your resume and generate brutally honest, yet actionable feedback. It's like having a senior engineer friend with zero filter." },
   { q: "Why is the feedback so harsh?", a: "Because sugarcoating doesn't get you jobs. The roast format makes the feedback memorable and actually useful. Every criticism comes with an implicit fix." },
   { q: "What's the difference between English and Hindi+English mode?", a: "Hinglish mode delivers the roast in a mix of Hindi and English — perfect for desi freshers who want the feedback to hit different. Bilkul seedha." },
-  { q: "How accurate is the score?", a: "The score is an AI-generated heuristic based on resume quality signals. It's directionally correct — a 30 is genuinely worse than an 80 — but don't treat it as gospel." },
+  { q: "How accurate is the score?", a: "The score is calculated based on real resume signals — CGPA, projects, internships, DSA, GitHub and more. It's directionally correct but not gospel." },
 ];
 
 const SAMPLE_SECTIONS = [
@@ -36,7 +35,7 @@ const SAMPLE_SECTIONS = [
 const PERSONALITIES = [
   { id: "default", emoji: "🔥", name: "Savage Engineer", desc: "Brutally honest senior dev" },
   { id: "gordon", emoji: "👨‍🍳", name: "Gordon Ramsay", desc: "THIS RESUME IS RAW!" },
-  "parent": """You are a stereotypical disappointed parent reviewing their child's resume. Be dramatically disappointed but loving underneath. Use phrases like "Why only 7.5 GPA? Your cousin is already at Google!", "This is shameful!", "We spent so much on your education and THIS is what you give us?", "You are breaking my heart with this resume!". Be over-dramatic and guilt-tripping. {lang_instruction} — if English, use English parent phrases. If Hinglish, use Hindi+English mix like 'beta', 'log kya kahenge'.""",
+  { id: "parent", emoji: "👨‍👩‍👧", name: "Disappointed Parent", desc: "Log kya kahenge?" },
   { id: "techbro", emoji: "🤵", name: "Tech Bro Recruiter", desc: "Not disruptive enough" },
   { id: "senior", emoji: "😤", name: "Toxic Senior Dev", desc: "I rewrote this in a weekend" },
 ];
@@ -61,30 +60,21 @@ function parseRoast(text) {
   return sections.length > 0 ? sections : [{ key: "full", title: "ROAST RESULTS", color: "#ff4444", content: text }];
 }
 
-function extractScore(text) {
-  const m = text.match(/(?:score[:\s]+)?(\d{1,3})\s*\/\s*100/i) || text.match(/(\d{1,3})\s*out of\s*100/i);
-  if (m) return Math.min(100, Math.max(0, parseInt(m[1])));
-  if (/faang/i.test(text)) return 74 + Math.floor(Math.random() * 18);
-  if (/product co/i.test(text)) return 55 + Math.floor(Math.random() * 16);
-  if (/startup/i.test(text)) return 40 + Math.floor(Math.random() * 16);
-  return 18 + Math.floor(Math.random() * 24);
+function getVerdictClass(verdict) {
+  if (!verdict) return "tcs";
+  const v = verdict.toLowerCase();
+  if (v.includes("faang")) return "faang";
+  if (v.includes("product")) return "product";
+  if (v.includes("startup")) return "startup";
+  return "tcs";
 }
 
-function extractVerdict(text) {
-  // Only look at last 400 characters where the verdict actually is
-  const verdictSection = text.split("🎯").pop() || text.slice(-400);
-  
-  // Check specific full phrases FIRST before partial matches
-  if (/faang possible/i.test(verdictSection)) return "FAANG Possible";
-  if (/product company ready/i.test(verdictSection)) return "Product Co.";
-  if (/startup ready/i.test(verdictSection)) return "Startup Ready";
-  if (/entry level/i.test(verdictSection)) return "Entry Level";
-  
-  // Fallback partial matches
-  if (/faang/i.test(verdictSection)) return "FAANG Possible";
-  if (/product co/i.test(verdictSection)) return "Product Co.";
-  if (/startup/i.test(verdictSection)) return "Startup Ready";
-  
+function getVerdictLabel(verdict) {
+  if (!verdict) return "Entry Level";
+  const v = verdict.toLowerCase();
+  if (v.includes("faang")) return "FAANG Possible";
+  if (v.includes("product")) return "Product Co.";
+  if (v.includes("startup")) return "Startup Ready";
   return "Entry Level";
 }
 
@@ -268,6 +258,8 @@ function MainApp() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [roast, setRoast] = useState(null);
+  const [score, setScore] = useState(0);
+  const [verdict, setVerdict] = useState("");
   const [error, setError] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [language, setLanguage] = useState("english");
@@ -323,8 +315,12 @@ function MainApp() {
       const data = await res.json();
       if (data.success) {
         setRoast(data.roast);
-        const v = extractVerdict(data.roast);
-        if (v === "FAANG Possible") {
+        // Use Python calculated score and verdict from backend
+        setScore(data.score || 0);
+        setVerdict(data.verdict || "Entry Level");
+
+        const verdictLabel = getVerdictLabel(data.verdict || "");
+        if (verdictLabel === "FAANG Possible") {
           setShowConfetti(true);
           setTimeout(() => setShowConfetti(false), 4500);
           addToast("FAANG Possible! You might actually get hired!", "success", "🌟");
@@ -352,7 +348,9 @@ function MainApp() {
   };
 
   const handleReset = () => {
-    setFile(null); setRoast(null); setError(null); setShowConfetti(false);
+    setFile(null); setRoast(null); setError(null);
+    setScore(0); setVerdict("");
+    setShowConfetti(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -367,11 +365,10 @@ function MainApp() {
     ctx.strokeStyle = "rgba(255,68,68,0.5)"; ctx.lineWidth = 2; ctx.strokeRect(1, 1, 798, 458);
     ctx.fillStyle = "#ff4444"; ctx.font = "bold 34px sans-serif"; ctx.fillText("🔥 Roast My Resume", 40, 66);
     ctx.fillStyle = "#9090a8"; ctx.font = "16px sans-serif"; ctx.fillText("macoostudy.info", 40, 92);
-    const sc = extractScore(roast); const vd = extractVerdict(roast);
-    const scoreColor = sc >= 70 ? "#00e676" : sc >= 45 ? "#ffd700" : "#ff4444";
-    ctx.fillStyle = scoreColor; ctx.font = "bold 60px sans-serif"; ctx.fillText(`${sc}`, 690, 90);
+    const scoreColor = score >= 70 ? "#00e676" : score >= 45 ? "#ffd700" : "#ff4444";
+    ctx.fillStyle = scoreColor; ctx.font = "bold 60px sans-serif"; ctx.fillText(`${score}`, 690, 90);
     ctx.font = "16px sans-serif"; ctx.fillStyle = "#9090a8"; ctx.fillText("/100", 710, 112);
-    ctx.fillStyle = "#ffd700"; ctx.font = "bold 20px sans-serif"; ctx.fillText(`Verdict: ${vd}`, 40, 148);
+    ctx.fillStyle = "#ffd700"; ctx.font = "bold 20px sans-serif"; ctx.fillText(`Verdict: ${getVerdictLabel(verdict)}`, 40, 148);
     const ps = parseRoast(roast); const first = ps.find(s => s.key === "roast");
     if (first) {
       ctx.fillStyle = "#e0e0ea"; ctx.font = "15px sans-serif";
@@ -397,9 +394,8 @@ function MainApp() {
   };
 
   const parsedSections = roast ? parseRoast(roast) : [];
-  const score = roast ? extractScore(roast) : 0;
-  const verdict = roast ? extractVerdict(roast) : "";
-  const verdictClass = verdict === "FAANG Possible" ? "faang" : verdict === "Product Co." ? "product" : verdict === "Startup Ready" ? "startup" : "tcs";
+  const verdictLabel = getVerdictLabel(verdict);
+  const verdictClass = getVerdictClass(verdict);
 
   return (
     <div className="app">
@@ -603,7 +599,7 @@ function MainApp() {
               <CircularScore score={score} animate={scoreAnimate} />
               <div className="verdict-info">
                 <div className={`verdict-badge-large ${verdictClass}`}>
-                  {verdictClass === "faang" ? "🌟" : verdictClass === "product" ? "💰" : verdictClass === "startup" ? "🚀" : "🏭"} {verdict}
+                  {verdictClass === "faang" ? "🌟" : verdictClass === "product" ? "💰" : verdictClass === "startup" ? "🚀" : "🏭"} {verdictLabel}
                 </div>
                 <p className="verdict-description">
                   {verdictClass === "faang" ? "Genuinely impressive. Apply everywhere." :
@@ -611,6 +607,7 @@ function MainApp() {
                    verdictClass === "startup" ? "Good bones. Show more impact." :
                    "Needs serious work. Read the guide carefully."}
                 </p>
+                <p className="score-note">⚡ Score based on resume signals</p>
               </div>
             </div>
             <div className="roast-cards">
