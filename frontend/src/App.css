@@ -1157,3 +1157,66 @@ body {
 .lang-dot {
   color: var(--text2);
 }
+.personality-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 0 1rem;
+}
+
+.personality-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text2);
+  text-align: center;
+}
+
+.personality-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.personality-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.personality-btn:hover {
+  border-color: rgba(255,68,68,0.4);
+  background: rgba(255,68,68,0.05);
+}
+
+.personality-btn.active {
+  border-color: var(--fire);
+  background: rgba(255,68,68,0.1);
+  box-shadow: 0 0 12px rgba(255,68,68,0.2);
+}
+
+.personality-emoji {
+  font-size: 24px;
+}
+
+.personality-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.personality-desc {
+  font-size: 10px;
+  color: var(--text2);
+}
