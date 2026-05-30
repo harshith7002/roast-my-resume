@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+
+         import React, { useState, useRef, useEffect, useCallback } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import "./App.css";
 import Blog from "./Blog";
@@ -32,6 +33,14 @@ const SAMPLE_SECTIONS = [
   { emoji: "📈", title: "GLOW UP GUIDE", color: "#448aff", content: "Replace tutorial projects with something that solves a real problem. Add metrics: '200 users', '50ms response time'. Ditch the Objective section — everyone knows you want a job." },
 ];
 
+const PERSONALITIES = [
+  { id: "default", emoji: "🔥", name: "Savage Engineer", desc: "Brutally honest senior dev" },
+  { id: "gordon", emoji: "👨‍🍳", name: "Gordon Ramsay", desc: "THIS RESUME IS RAW!" },
+  { id: "parent", emoji: "👨‍👩‍👧", name: "Disappointed Parent", desc: "Log kya kahenge beta?" },
+  { id: "techbro", emoji: "🤵", name: "Tech Bro Recruiter", desc: "Not disruptive enough" },
+  { id: "senior", emoji: "😤", name: "Toxic Senior Dev", desc: "I rewrote this in a weekend" },
+];
+
 function parseRoast(text) {
   const sections = [];
   const patterns = [
@@ -62,13 +71,20 @@ function extractScore(text) {
 }
 
 function extractVerdict(text) {
-  const verdictSection = text.split("🎯").pop() || text;
+  // Only look at last 400 characters where the verdict actually is
+  const verdictSection = text.split("🎯").pop() || text.slice(-400);
+  
+  // Check specific full phrases FIRST before partial matches
   if (/faang possible/i.test(verdictSection)) return "FAANG Possible";
-  if (/faang/i.test(verdictSection)) return "FAANG Possible";
   if (/product company ready/i.test(verdictSection)) return "Product Co.";
-  if (/product co/i.test(verdictSection)) return "Product Co.";
   if (/startup ready/i.test(verdictSection)) return "Startup Ready";
+  if (/entry level/i.test(verdictSection)) return "Entry Level";
+  
+  // Fallback partial matches
+  if (/faang/i.test(verdictSection)) return "FAANG Possible";
+  if (/product co/i.test(verdictSection)) return "Product Co.";
   if (/startup/i.test(verdictSection)) return "Startup Ready";
+  
   return "Entry Level";
 }
 
@@ -255,6 +271,7 @@ function MainApp() {
   const [error, setError] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [language, setLanguage] = useState("english");
+  const [personality, setPersonality] = useState("default");
   const [toasts, setToasts] = useState([]);
   const [showConfetti, setShowConfetti] = useState(false);
   const [scoreAnimate, setScoreAnimate] = useState(false);
@@ -300,6 +317,7 @@ function MainApp() {
     const formData = new FormData();
     formData.append("resume", file);
     formData.append("language", language);
+    formData.append("personality", personality);
     try {
       const res = await fetch(`${BACKEND_URL}/api/roast`, { method: "POST", body: formData });
       const data = await res.json();
@@ -453,7 +471,25 @@ function MainApp() {
 
             {error && <div className="error-box">⚠️ {error}</div>}
 
-            {/* ── Language Section ── */}
+            {/* Personality Selector */}
+            <div className="personality-section">
+              <p className="personality-label">🎭 Choose your roaster</p>
+              <div className="personality-grid">
+                {PERSONALITIES.map(p => (
+                  <button
+                    key={p.id}
+                    className={`personality-btn${personality === p.id ? " active" : ""}`}
+                    onClick={() => setPersonality(p.id)}
+                  >
+                    <span className="personality-emoji">{p.emoji}</span>
+                    <span className="personality-name">{p.name}</span>
+                    <span className="personality-desc">{p.desc}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Language Section */}
             <div className="language-section">
               <p className="language-label">🌐 Choose your roast language</p>
               <p className="language-hint">✨ 34+ languages — including all Indian regional languages!</p>
