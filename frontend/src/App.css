@@ -1226,3 +1226,55 @@ body {
   opacity: 0.7;
   margin-top: 4px;
 }
+.ats-score-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #16161f;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin: 16px 0;
+  width: 100%;
+}
+
+.ats-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ats-label {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.ats-hint {
+  font-size: 13px;
+  color: var(--text2);
+}
+
+.ats-right {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.ats-value {
+  font-size: 48px;
+  font-weight: 800;
+  font-family: var(--font-display);
+}
+
+.ats-max {
+  font-size: 18px;
+  color: var(--text2);
+}
+
+.score-note {
+  font-size: 11px;
+  color: var(--text2);
+  opacity: 0.7;
+  margin-top: 4px;
+}
