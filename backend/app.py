@@ -147,9 +147,8 @@ Give your roast in this EXACT format:
 [2 sentences explaining why in your character's voice]
 """
 
-
 def evaluate_resume_with_ai(resume_text):
-    """Use AI to accurately evaluate resume verdict — much better than keyword matching"""
+    """Use AI to accurately evaluate resume — much better than keyword matching"""
     try:
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
@@ -157,26 +156,30 @@ def evaluate_resume_with_ai(resume_text):
                 "role": "user",
                 "content": EVALUATION_PROMPT.format(resume_text=resume_text[:3000])
             }],
-            max_tokens=150,
-            temperature=0.1,
+            max_tokens=300,
+            temperature=0.1,  # Very low for consistency
         )
 
         eval_text = response.choices[0].message.content.strip()
+        # Clean any markdown
         eval_text = re.sub(r'```json|```', '', eval_text).strip()
+        # Extract JSON
         json_match = re.search(r'\{.*\}', eval_text, re.DOTALL)
-
         if json_match:
             eval_data = json.loads(json_match.group())
-            verdict = eval_data.get('verdict', 'Entry Level')
+            verdict = eval_data.get('verdict', 'Startup Ready')
+            ats_score = int(eval_data.get('ats_score', 50))
+            ats_score = max(0, min(100, ats_score))
 
+            # Format verdict with emoji
             if 'FAANG' in verdict:
-                return "🌟 FAANG Possible"
+                formatted_verdict = "🌟 FAANG Possible"
             elif 'Product' in verdict:
-                return "💰 Product Company Ready"
+                formatted_verdict = "💰 Product Company Ready"
             elif 'Startup' in verdict:
-                return "🚀 Startup Ready"
+                formatted_verdict = "🚀 Startup Ready"
             else:
-                return "🏭 Entry Level"
+                formatted_verdict = "🏭 Entry Level"
 
     except Exception as e:
         print(f"AI evaluation failed: {e}")
