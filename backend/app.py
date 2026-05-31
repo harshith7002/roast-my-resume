@@ -161,26 +161,35 @@ def evaluate_resume_with_ai(resume_text):
     else: score += 2
 
     # DSA
-    if 'leetcode' in text_lower or 'codeforces' in text_lower: score += 12
-    elif 'hackerrank' in text_lower or 'codechef' in text_lower: score += 5
+    if 'leetcode' in text_lower or 'codeforces' in text_lower:
+        score += 12
+    elif 'hackerrank' in text_lower or 'codechef' in text_lower:
+        score += 5
 
     # Open source / hackathon wins
-    if 'open source' in text_lower: score += 8
-    if any(x in text_lower for x in ['winner','won','first place','rank 1']): score += 10
-    elif 'hackathon' in text_lower: score += 4
+    if 'open source' in text_lower:
+        score += 8
+    if any(x in text_lower for x in ['winner', 'won', 'first place', 'rank 1']):
+        score += 10
+    elif 'hackathon' in text_lower:
+        score += 4
 
     # GitHub + certifications
-    if 'github' in text_lower: score += 3
-    if any(x in text_lower for x in ['aws certified','google certified','azure certified']): score += 4
+    if 'github' in text_lower:
+        score += 3
+    if any(x in text_lower for x in ['aws certified', 'google certified', 'azure certified']):
+        score += 4
 
     print(f"[VERDICT SCORE]: {score}")
 
-    if score >= 80: return "🌟 FAANG Possible"
-    elif score >= 50: return "💰 Product Company Ready"
-    elif score >= 25: return "🚀 Startup Ready"
-    else: return "🏭 Entry Level"
-
-
+    if score >= 80:
+        return "🌟 FAANG Possible"
+    elif score >= 50:
+        return "💰 Product Company Ready"
+    elif score >= 25:
+        return "🚀 Startup Ready"
+    else:
+        return "🏭 Entry Level"
 def calculate_ats_score(resume_text):
     """ATS Score — Python rule-based for consistency"""
     text_lower = resume_text.lower()
