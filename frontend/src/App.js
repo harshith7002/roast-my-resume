@@ -173,6 +173,41 @@ function FAQItem({ q, a }) {
   );
 }
 
+// ── Personality Modal ─────────────────────────────────────────────────────────
+function PersonalityModal({ onSelect, onClose }) {
+  const [selected, setSelected] = useState("default");
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={e => e.stopPropagation()}>
+        <h2 className="modal-title">🎭 Who's roasting your resume?</h2>
+        <p className="modal-subtitle">Pick your roaster before we begin</p>
+        <div className="modal-personality-grid">
+          {PERSONALITIES.map(p => (
+            <button
+              key={p.id}
+              className={`personality-btn${selected === p.id ? " active" : ""}`}
+              onClick={() => setSelected(p.id)}
+            >
+              <span className="personality-emoji">{p.emoji}</span>
+              <span className="personality-name">{p.name}</span>
+              <span className="personality-desc">{p.desc}</span>
+            </button>
+          ))}
+        </div>
+        <button
+          className="modal-confirm-btn"
+          onClick={() => onSelect(selected)}
+        >
+          🔥 Start Roasting!
+        </button>
+        <button className="modal-cancel-btn" onClick={onClose}>
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
 const BASE_COUNT = 1247;
 function RoastCounter() {
   const [count, setCount] = useState(BASE_COUNT);
@@ -265,6 +300,7 @@ function MainApp() {
   const [dragOver, setDragOver] = useState(false);
   const [language, setLanguage] = useState("english");
   const [personality, setPersonality] = useState("default");
+  const [showModal, setShowModal] = useState(false);
   const [toasts, setToasts] = useState([]);
   const [showConfetti, setShowConfetti] = useState(false);
   const [scoreAnimate, setScoreAnimate] = useState(false);
@@ -304,13 +340,26 @@ function MainApp() {
 
   const handleDrop = (e) => { e.preventDefault(); setDragOver(false); handleFile(e.dataTransfer.files[0]); };
 
-  const handleSubmit = async () => {
+  // Show modal when roast button clicked
+  const handleRoastClick = () => {
+    if (!file) return;
+    setShowModal(true);
+  };
+
+  // After personality selected in modal
+  const handlePersonalitySelect = async (selectedPersonality) => {
+    setShowModal(false);
+    setPersonality(selectedPersonality);
+    await handleSubmit(selectedPersonality);
+  };
+
+  const handleSubmit = async (selectedPersonality = personality) => {
     if (!file) return;
     setLoading(true); setRoast(null); setError(null); setLoadingMsgIdx(0);
     const formData = new FormData();
     formData.append("resume", file);
     formData.append("language", language);
-    formData.append("personality", personality);
+    formData.append("personality", selectedPersonality);
     try {
       const res = await fetch(`${BACKEND_URL}/api/roast`, { method: "POST", body: formData });
       const data = await res.json();
@@ -319,7 +368,6 @@ function MainApp() {
         setScore(data.score || 0);
         setVerdict(data.verdict || "Entry Level");
         setAtsScore(data.ats_score || 0);
-
         const verdictLabel = getVerdictLabel(data.verdict || "");
         if (verdictLabel === "FAANG Possible") {
           setShowConfetti(true);
@@ -406,6 +454,15 @@ function MainApp() {
       <div className="bg-mesh" aria-hidden="true" />
       <div className="bg-grid" aria-hidden="true" />
       <FireParticles />
+
+      {/* Personality Modal */}
+      {showModal && (
+        <PersonalityModal
+          onSelect={handlePersonalitySelect}
+          onClose={() => setShowModal(false)}
+        />
+      )}
+
       <header className="header">
         <div className="header-badges-row">
           <RoastCounter />
@@ -469,24 +526,6 @@ function MainApp() {
 
             {error && <div className="error-box">⚠️ {error}</div>}
 
-            {/* Personality Selector */}
-            <div className="personality-section">
-              <p className="personality-label">🎭 Choose your roaster</p>
-              <div className="personality-grid">
-                {PERSONALITIES.map(p => (
-                  <button
-                    key={p.id}
-                    className={`personality-btn${personality === p.id ? " active" : ""}`}
-                    onClick={() => setPersonality(p.id)}
-                  >
-                    <span className="personality-emoji">{p.emoji}</span>
-                    <span className="personality-name">{p.name}</span>
-                    <span className="personality-desc">{p.desc}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* Language Section */}
             <div className="language-section">
               <p className="language-label">🌐 Choose your roast language</p>
@@ -542,9 +581,12 @@ function MainApp() {
                 <span className="lang-dot">•</span>
                 <span>🌍 23 International languages</span>
               </div>
+
+              {/* Roast button now opens modal */}
               <button
                 className={`roast-btn${loading ? " loading" : ""}${!file ? " disabled" : ""}`}
-                onClick={handleSubmit} disabled={!file || loading}
+                onClick={handleRoastClick}
+                disabled={!file || loading}
               >
                 {loading ? (
                   <span className="btn-loading"><span className="fire-spinner">🔥</span>Roasting...</span>
@@ -598,21 +640,17 @@ function MainApp() {
               <p className="results-subtitle">Brace yourself...</p>
             </div>
 
-            {/* Score + Verdict Row */}
-            <div className="score-verdict-row">
-              <CircularScore score={score} animate={scoreAnimate} />
-              <div className="verdict-info">
-                <div className={`verdict-badge-large ${verdictClass}`}>
-                  {verdictClass === "faang" ? "🌟" : verdictClass === "product" ? "💰" : verdictClass === "startup" ? "🚀" : "🏭"} {verdictLabel}
-                </div>
-                <p className="verdict-description">
-                  {verdictClass === "faang" ? "Genuinely impressive. Apply everywhere." :
-                   verdictClass === "product" ? "Solid resume. Polish the gaps." :
-                   verdictClass === "startup" ? "Good bones. Show more impact." :
-                   "Needs serious work. Read the guide carefully."}
-                </p>
-                <p className="score-note">⚡ Score based on resume signals</p>
+            {/* Verdict Only Row */}
+            <div className="verdict-only-row">
+              <div className={`verdict-badge-large ${verdictClass}`}>
+                {verdictClass === "faang" ? "🌟" : verdictClass === "product" ? "💰" : verdictClass === "startup" ? "🚀" : "🏭"} {verdictLabel}
               </div>
+              <p className="verdict-description">
+                {verdictClass === "faang" ? "Genuinely impressive. Apply everywhere." :
+                 verdictClass === "product" ? "Solid resume. Polish the gaps." :
+                 verdictClass === "startup" ? "Good bones. Show more impact." :
+                 "Needs serious work. Read the guide carefully."}
+              </p>
             </div>
 
             {/* ATS Score Box */}
