@@ -5,6 +5,7 @@ from pypdf import PdfReader
 import io
 import os
 import re
+import json
 
 app = Flask(__name__)
 CORS(app)
@@ -35,270 +36,160 @@ LANG_INSTRUCTIONS = {
     "malay": "Write entirely in Malay.",
     "filipino": "Write entirely in Filipino.",
     "swahili": "Write entirely in Swahili.",
-    "hinglish": "Write in Hinglish — a fun natural mix of Hindi and English the way Indian college students actually talk. Like 'Yaar tera resume dekh ke lagta hai tu TCS jayega' mixed with English technical terms.",
-    "tanglish": "Write in Tanglish — a fun natural mix of Tamil and English the way Tamil people actually speak. Mix Tamil words naturally with English technical terms.",
-    "tenglish": "Write in Tenglish — a fun natural mix of Telugu and English the way Telugu people actually speak. Mix Telugu words naturally with English technical terms.",
-    "benglish": "Write in Benglish — a fun natural mix of Bengali and English the way Bengali people actually speak. Mix Bengali words naturally with English technical terms.",
-    "manglish": "Write in Manglish — a fun natural mix of Malayalam and English the way Malayali people actually speak. Mix Malayalam words naturally with English technical terms.",
-    "kanglish": "Write in Kanglish — a fun natural mix of Kannada and English the way Kannada people actually speak. Mix Kannada words naturally with English technical terms.",
-    "punglish": "Write in Punglish — a fun natural mix of Punjabi and English the way Punjabi people actually speak. Mix Punjabi words naturally with English technical terms.",
-    "marathish": "Write in a fun natural mix of Marathi and English the way Marathi people actually speak. Mix Marathi words naturally with English technical terms.",
-    "gujarish": "Write in a fun natural mix of Gujarati and English the way Gujarati people actually speak. Mix Gujarati words naturally with English technical terms.",
-    "orish": "Write in a fun natural mix of Odia and English the way Odia people actually speak. Mix Odia words naturally with English technical terms.",
-    "assamese": "Write in a fun natural mix of Assamese and English the way Assamese people actually speak. Mix Assamese words naturally with English technical terms.",
+    "hinglish": "Write in Hinglish — a fun natural mix of Hindi and English the way Indian college students actually talk.",
+    "tanglish": "Write in Tanglish — a fun natural mix of Tamil and English the way Tamil people actually speak.",
+    "tenglish": "Write in Tenglish — a fun natural mix of Telugu and English the way Telugu people actually speak.",
+    "benglish": "Write in Benglish — a fun natural mix of Bengali and English the way Bengali people actually speak.",
+    "manglish": "Write in Manglish — a fun natural mix of Malayalam and English the way Malayali people actually speak.",
+    "kanglish": "Write in Kanglish — a fun natural mix of Kannada and English the way Kannada people actually speak.",
+    "punglish": "Write in Punglish — a fun natural mix of Punjabi and English the way Punjabi people actually speak.",
+    "marathish": "Write in a fun natural mix of Marathi and English the way Marathi people actually speak.",
+    "gujarish": "Write in a fun natural mix of Gujarati and English the way Gujarati people actually speak.",
+    "orish": "Write in a fun natural mix of Odia and English the way Odia people actually speak.",
+    "assamese": "Write in a fun natural mix of Assamese and English the way Assamese people actually speak.",
 }
 
 PERSONALITY_PROMPTS = {
     "default": """You are a brutally honest but hilarious senior software engineer who has seen thousands of fresher resumes. You roast resumes in a funny, savage but ultimately helpful way. No Hindi words unless the language instruction says so.""",
-
-    "gordon": """You are Gordon Ramsay, but instead of reviewing food, you are reviewing a resume. Be ABSOLUTELY SAVAGE. Use ALL CAPS for emphasis. Use phrases like "THIS IS RAW!", "YOU DONKEY!", "BLOODY HELL!", "This resume is so bad it makes me want to THROW IT IN THE BIN!". Be dramatic, explosive, and hilariously harsh. Every mistake is a catastrophe. No Hindi words unless the language instruction says so.""",
-
-    "parent": """You are a stereotypically disappointed parent reviewing their child's resume. Be dramatically disappointed but loving underneath. Use phrases like "Why only 7.5 GPA? Your cousin is already at Google!", "We spent so much on your education and THIS is what you give us?", "You are breaking my heart with this resume!", "I told you to study harder!". Be over-dramatic and guilt-tripping. IMPORTANT: Only use Hindi words like 'beta', 'log kya kahenge' if the language instruction says Hinglish. For English mode, use only English.""",
-
-    "techbro": """You are a passive-aggressive Silicon Valley Tech Bro recruiter. Use excessive corporate jargon: "leverage", "disruptive", "bandwidth", "circle back", "move the needle", "low-hanging fruit", "synergy", "scalable", "pivot". Be condescending but mask it with corporate politeness. Say things like "I'm just going to be transparent with you...", "This resume lacks the disruptive energy we're looking for at our unicorn startup.", "Let's unpack why this doesn't move the needle." No Hindi words unless the language instruction says so.""",
-
-    "senior": """You are a toxic, burnt-out senior developer with 15 years of experience who has zero patience. Say things like "I rewrote this in a weekend", "We don't use that framework anymore, that's so 2019", "Junior mistake", "Did you even Google this?", "Back in my day we didn't need tutorials for this". Be condescending about every technology choice. No Hindi words unless the language instruction says so.""",
+    "gordon": """You are Gordon Ramsay, but instead of reviewing food, you are reviewing a resume. Be ABSOLUTELY SAVAGE. Use ALL CAPS for emphasis. Use phrases like "THIS IS RAW!", "YOU DONKEY!", "BLOODY HELL!", "This resume is so bad it makes me want to THROW IT IN THE BIN!". No Hindi words unless the language instruction says so.""",
+    "parent": """You are a stereotypically disappointed parent reviewing their child's resume. Use phrases like "Why only 7.5 GPA? Your cousin is already at Google!", "We spent so much on your education and THIS is what you give us?". IMPORTANT: Only use Hindi words like 'beta' if the language instruction says Hinglish. For English mode, use only English.""",
+    "techbro": """You are a passive-aggressive Silicon Valley Tech Bro recruiter. Use corporate jargon: "leverage", "disruptive", "bandwidth", "circle back", "move the needle", "synergy". Say things like "This resume lacks the disruptive energy we're looking for." No Hindi words unless the language instruction says so.""",
+    "senior": """You are a toxic burnt-out senior developer with 15 years experience. Say things like "I rewrote this in a weekend", "We don't use that framework anymore", "Junior mistake", "Did you even Google this?". No Hindi words unless the language instruction says so.""",
 }
+
+# AI evaluation prompt — much more accurate than Python keywords
+EVALUATION_PROMPT = """You are an expert Indian placement counselor with 10+ years experience evaluating thousands of resumes.
+
+Carefully read this resume and evaluate it:
+
+{resume_text}
+
+Return ONLY a valid JSON object with NO extra text, NO markdown, NO explanation:
+{{
+  "verdict": "Entry Level",
+  "ats_score": 45,
+  "reasoning": "one line explanation"
+}}
+
+STRICT RULES for verdict — be REALISTIC and HARSH:
+
+Entry Level (most freshers fall here):
+- No internship OR only irrelevant internship
+- Only tutorial projects (todo app, weather app, calculator)
+- CGPA below 7.0
+- No DSA practice
+- No deployed projects
+
+Startup Ready (decent but not exceptional):
+- At least 1 real internship OR 2-3 good projects
+- CGPA 7.0 to 8.0
+- Some DSA practice (LeetCode mentioned)
+- At least 1 deployed project
+- Basic tech stack
+
+Product Company Ready (strong profile):
+- Good internship at known company OR multiple strong deployed projects
+- CGPA 8.0+
+- Active DSA practice with good problem count
+- Strong tech stack with real projects
+- Open source OR hackathon wins
+
+FAANG Possible (extremely rare — top 2% of freshers):
+- Internship at top company (Google, Microsoft, Amazon, Meta, Flipkart, Uber etc)
+- CGPA 9.0+
+- Exceptional DSA (LeetCode 300+ or Codeforces 1600+)
+- Multiple impressive deployed projects with real users
+- Open source contributions
+
+ATS Score rules (0-100):
+- Check for technical keywords relevant to job market
+- Check for action verbs (developed, built, implemented, optimized)
+- Check for quantified metrics (%, numbers, user counts)
+- Check for proper contact info, LinkedIn, GitHub
+- Penalize: objective sections, hobbies, references, no metrics
+
+IMPORTANT: Most Indian CS freshers are Entry Level or Startup Ready. Be realistic!"""
 
 ROAST_PROMPT = """
 {personality_prompt}
 
 LANGUAGE RULE (STRICTLY FOLLOW): {lang_instruction}
 
-VERDICT RULE (CRITICAL - DO NOT CHANGE): The verdict for this resume has been pre-calculated as: **{python_verdict}**
-You MUST end with exactly this verdict. Do NOT change it under any circumstances.
+VERDICT (DO NOT CHANGE): {python_verdict}
 
-You understand:
-- CGPA grading systems (out of 10), college dynamics
-- Common resume mistakes (listing MS Word as a skill, "hobbies: listening to music, watching movies")
-- IT job market: service companies vs product startups vs FAANG/MAANG
-- Internship culture, hackathons, competitive programming
-
-Here is the resume text:
+Resume text:
 {resume_text}
 
-Now give your roast in this EXACT format:
+Give your roast in this EXACT format:
 
 🔥 THE ROAST
-[2-3 savage but funny opening lines in your character's voice. Be specific to THIS resume.]
+[2-3 savage funny opening lines specific to THIS resume]
 
 💀 HALL OF SHAME (Top 3 Brutal Mistakes)
-1. [Specific mistake from THIS resume - funny and savage in your character's voice]
-2. [Specific mistake from THIS resume - funny and savage in your character's voice]
-3. [Specific mistake from THIS resume - funny and savage in your character's voice]
+1. [Specific mistake from THIS resume]
+2. [Specific mistake from THIS resume]
+3. [Specific mistake from THIS resume]
 
 ✅ OKAY FINE, THIS IS DECENT
-[2-3 things that are actually good in THIS resume - still in character]
+[2-3 good things from THIS resume]
 
 📈 GLOW UP GUIDE (5 Specific Fixes)
-1. [Actionable improvement specific to THIS resume]
-2. [Actionable improvement specific to THIS resume]
-3. [Actionable improvement specific to THIS resume]
-4. [Actionable improvement specific to THIS resume]
-5. [Actionable improvement specific to THIS resume]
+1. [Actionable fix specific to THIS resume]
+2. [Actionable fix specific to THIS resume]
+3. [Actionable fix specific to THIS resume]
+4. [Actionable fix specific to THIS resume]
+5. [Actionable fix specific to THIS resume]
 
 🎯 FINAL VERDICT
 {python_verdict}
-[2 sentences explaining why, in your character's voice]
+[2 sentences explaining why in your character's voice]
 """
 
 
-def calculate_score(resume_text):
-    """Calculate overall resume quality score 0-100"""
-    text_lower = resume_text.lower()
-    score = 40  # base score
+def evaluate_resume_with_ai(resume_text):
+    """Use AI to accurately evaluate resume — much better than keyword matching"""
+    try:
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{
+                "role": "user",
+                "content": EVALUATION_PROMPT.format(resume_text=resume_text[:3000])
+            }],
+            max_tokens=300,
+            temperature=0.1,  # Very low for consistency
+        )
 
-    # CGPA (max +20)
-    cgpa_match = re.search(r'(\d+\.?\d*)\s*(?:cgpa|gpa|grade)', text_lower)
-    if cgpa_match:
-        cgpa = float(cgpa_match.group(1))
-        if cgpa >= 9.0: score += 20
-        elif cgpa >= 8.0: score += 15
-        elif cgpa >= 7.0: score += 10
-        elif cgpa >= 6.0: score += 5
-        else: score -= 10
+        eval_text = response.choices[0].message.content.strip()
+        # Clean any markdown
+        eval_text = re.sub(r'```json|```', '', eval_text).strip()
+        # Extract JSON
+        json_match = re.search(r'\{.*\}', eval_text, re.DOTALL)
+        if json_match:
+            eval_data = json.loads(json_match.group())
+            verdict = eval_data.get('verdict', 'Startup Ready')
+            ats_score = int(eval_data.get('ats_score', 50))
+            ats_score = max(0, min(100, ats_score))
 
-    # Internship (max +15)
-    if 'internship' in text_lower or 'intern ' in text_lower:
-        score += 15
+            # Format verdict with emoji
+            if 'FAANG' in verdict:
+                formatted_verdict = "🌟 FAANG Possible"
+            elif 'Product' in verdict:
+                formatted_verdict = "💰 Product Company Ready"
+            elif 'Startup' in verdict:
+                formatted_verdict = "🚀 Startup Ready"
+            else:
+                formatted_verdict = "🏭 Entry Level"
 
-    # Projects (max +15)
-    project_count = text_lower.count('project')
-    if project_count >= 4: score += 15
-    elif project_count >= 2: score += 8
-    else: score += 2
+            return formatted_verdict, ats_score
 
-    # Top companies (max +10)
-    top_companies = ['google', 'microsoft', 'amazon', 'meta', 'apple',
-                     'flipkart', 'uber', 'swiggy', 'zomato', 'razorpay', 'adobe', 'netflix']
-    for company in top_companies:
-        if company in text_lower:
-            score += 10
-            break
+    except Exception as e:
+        print(f"AI evaluation failed: {e}")
 
-    # DSA (max +8)
-    if any(x in text_lower for x in ['leetcode', 'codeforces', 'codechef', 'competitive programming', 'hackerrank']):
-        score += 8
-
-    # GitHub (max +3)
-    if 'github' in text_lower:
-        score += 3
-
-    # Open source (max +4)
-    if 'open source' in text_lower or 'opensource' in text_lower:
-        score += 4
-
-    # Deployed projects (max +4)
-    if any(x in text_lower for x in ['deployed', 'live', 'production', 'netlify', 'vercel', 'heroku', 'aws', 'cloud run']):
-        score += 4
-
-    # Certifications (max +3)
-    if any(x in text_lower for x in ['aws certified', 'google cloud', 'azure certified', 'certification']):
-        score += 3
-
-    # Hackathons (max +4)
-    if 'hackathon' in text_lower:
-        score += 4
-
-    return max(0, min(100, score))
-
-
-def calculate_verdict(resume_text):
-    text_lower = resume_text.lower()
-    score = 0
-
-    # CGPA (max +25)
-    cgpa_match = re.search(r'(\d+\.?\d*)\s*(?:cgpa|gpa|grade)', text_lower)
-    if cgpa_match:
-        cgpa = float(cgpa_match.group(1))
-        if cgpa >= 9.0: score += 25
-        elif cgpa >= 8.0: score += 15
-        elif cgpa >= 7.0: score += 10
-        elif cgpa >= 6.0: score += 5
-
-    # Internship (max +15)
-    if 'internship' in text_lower or 'intern ' in text_lower:
-        score += 15
-
-    # Projects (max +15)
-    project_count = text_lower.count('project')
-    if project_count >= 4: score += 15
-    elif project_count >= 2: score += 8
-    else: score += 3
-
-    # Top companies (max +15)
-    top_companies = ['google', 'microsoft', 'amazon', 'meta', 'apple',
-                     'flipkart', 'uber', 'swiggy', 'zomato', 'razorpay', 'adobe', 'netflix']
-    for company in top_companies:
-        if company in text_lower:
-            score += 15
-            break
-
-    # DSA (max +8)
-    if any(x in text_lower for x in ['leetcode', 'codeforces', 'codechef', 'competitive programming', 'hackerrank']):
-        score += 8
-
-    # GitHub (max +3)
-    if 'github' in text_lower: score += 3
-
-    # Open source (max +4)
-    if 'open source' in text_lower or 'opensource' in text_lower: score += 4
-
-    # Deployed (max +4)
-    if any(x in text_lower for x in ['deployed', 'live', 'production', 'netlify', 'vercel', 'heroku', 'aws', 'cloud run']):
-        score += 4
-
-    # Certifications (max +3)
-    if any(x in text_lower for x in ['aws certified', 'google cloud', 'azure certified', 'certification']):
-        score += 3
-
-    # Hackathons (max +4)
-    if 'hackathon' in text_lower: score += 4
-
-    # ATS score factor — if ATS is low, cap the verdict
-    ats = calculate_ats_score(resume_text)
-
-    # ATS gates — low ATS blocks higher verdicts
-    if ats < 40:
-        # Very poor ATS — max Entry Level
-        return "🏭 Entry Level"
-    elif ats < 55:
-        # Poor ATS — max Startup Ready
-        if score >= 85:
-            return "🚀 Startup Ready"
-        elif score >= 30:
-            return "🚀 Startup Ready"
-        else:
-            return "🏭 Entry Level"
-    else:
-        # Good ATS — full verdict range
-        if score >= 85:
-            return "🌟 FAANG Possible"
-        elif score >= 60:
-            return "💰 Product Company Ready"
-        elif score >= 30:
-            return "🚀 Startup Ready"
-        else:
-            return "🏭 Entry Level"
-
-
-def calculate_ats_score(resume_text):
-    text_lower = resume_text.lower()
-    score = 0
-
-    # Technical keywords (max +20) — stricter
-    tech_keywords = ['python', 'java', 'javascript', 'react', 'node', 'sql', 'aws',
-                     'docker', 'git', 'api', 'machine learning', 'deep learning',
-                     'flask', 'django', 'mongodb', 'mysql', 'postgresql', 'typescript',
-                     'kubernetes', 'ci/cd', 'rest', 'graphql', 'redis', 'linux']
-    keyword_count = sum(1 for k in tech_keywords if k in text_lower)
-    if keyword_count >= 10: score += 20
-    elif keyword_count >= 7: score += 14
-    elif keyword_count >= 4: score += 8
-    else: score += 3
-
-    # Action verbs (max +15) — stricter
-    action_verbs = ['developed', 'built', 'designed', 'implemented', 'created',
-                    'led', 'managed', 'optimized', 'improved', 'deployed',
-                    'architected', 'engineered', 'launched', 'delivered', 'reduced',
-                    'increased', 'automated', 'integrated', 'maintained', 'collaborated']
-    verb_count = sum(1 for v in action_verbs if v in text_lower)
-    if verb_count >= 8: score += 15
-    elif verb_count >= 5: score += 10
-    elif verb_count >= 3: score += 6
-    else: score += 0
-
-    # Quantified metrics (max +25) — most important for ATS
-    metrics = re.findall(r'\d+%|\d+x|\d+\+|\$\d+|\d+\s*(?:users|requests|ms|seconds|hours)', text_lower)
-    if len(metrics) >= 6: score += 25
-    elif len(metrics) >= 4: score += 18
-    elif len(metrics) >= 2: score += 10
-    elif len(metrics) >= 1: score += 5
-    else: score += 0  # No metrics = big penalty
-
-    # Contact info (max +10)
-    if '@' in text_lower: score += 4
-    if 'linkedin' in text_lower: score += 3
-    if 'github' in text_lower: score += 3
-
-    # Education (max +10)
-    if any(x in text_lower for x in ['b.tech', 'b.e', 'bachelor', 'computer science', 'engineering']):
-        score += 10
-
-    # Standard sections (max +10)
-    if 'experience' in text_lower or 'internship' in text_lower: score += 5
-    if 'project' in text_lower: score += 5
-
-    # Penalty for missing things
-    if 'objective' in text_lower: score -= 5  # Outdated section
-    if 'reference' in text_lower: score -= 3  # Waste of space
-    if 'hobbies' in text_lower: score -= 5   # Irrelevant
-
-    return max(0, min(100, score))
+    # Fallback to basic Python if AI fails
+    return "🚀 Startup Ready", 50
 
 
 def extract_text_from_pdf(pdf_bytes):
-    """Extract text content from PDF bytes"""
     reader = PdfReader(io.BytesIO(pdf_bytes))
     text = ""
     for page in reader.pages:
@@ -328,16 +219,13 @@ def roast_resume():
         if len(resume_text) < 100:
             return jsonify({"error": "Could not extract text from PDF. Make sure it's not a scanned image."}), 400
 
-        # Get language and personality settings
         lang_instruction = LANG_INSTRUCTIONS.get(language, LANG_INSTRUCTIONS["english"])
         personality_prompt = PERSONALITY_PROMPTS.get(personality, PERSONALITY_PROMPTS["default"])
 
-        # Calculate all scores in Python — consistent across all languages
-        python_score = calculate_score(resume_text)
-        python_verdict = calculate_verdict(resume_text)
-        python_ats = calculate_ats_score(resume_text)
+        # AI evaluates verdict and ATS accurately
+        python_verdict, python_ats = evaluate_resume_with_ai(resume_text)
 
-        # Build prompt
+        # Build roast prompt
         prompt = ROAST_PROMPT.format(
             personality_prompt=personality_prompt,
             lang_instruction=lang_instruction,
@@ -345,7 +233,7 @@ def roast_resume():
             resume_text=resume_text[:4000]
         )
 
-        # Call Groq AI for roast text only
+        # AI generates roast text
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[{"role": "user", "content": prompt}],
@@ -358,7 +246,6 @@ def roast_resume():
         return jsonify({
             "roast": roast_text,
             "success": True,
-            "score": python_score,
             "verdict": python_verdict,
             "ats_score": python_ats
         })
