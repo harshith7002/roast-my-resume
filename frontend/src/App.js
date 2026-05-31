@@ -260,6 +260,7 @@ function MainApp() {
   const [roast, setRoast] = useState(null);
   const [score, setScore] = useState(0);
   const [verdict, setVerdict] = useState("");
+  const [atsScore, setAtsScore] = useState(0);
   const [error, setError] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [language, setLanguage] = useState("english");
@@ -315,9 +316,9 @@ function MainApp() {
       const data = await res.json();
       if (data.success) {
         setRoast(data.roast);
-        // Use Python calculated score and verdict from backend
         setScore(data.score || 0);
         setVerdict(data.verdict || "Entry Level");
+        setAtsScore(data.ats_score || 0);
 
         const verdictLabel = getVerdictLabel(data.verdict || "");
         if (verdictLabel === "FAANG Possible") {
@@ -349,7 +350,7 @@ function MainApp() {
 
   const handleReset = () => {
     setFile(null); setRoast(null); setError(null);
-    setScore(0); setVerdict("");
+    setScore(0); setVerdict(""); setAtsScore(0);
     setShowConfetti(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -357,34 +358,35 @@ function MainApp() {
   const handleShareImage = () => {
     addToast("Generating share card...", "info", "🎨");
     const canvas = document.createElement("canvas");
-    canvas.width = 800; canvas.height = 460;
+    canvas.width = 800; canvas.height = 480;
     const ctx = canvas.getContext("2d");
-    const bg = ctx.createLinearGradient(0, 0, 800, 460);
+    const bg = ctx.createLinearGradient(0, 0, 800, 480);
     bg.addColorStop(0, "#0a0a0f"); bg.addColorStop(1, "#1a0808");
-    ctx.fillStyle = bg; ctx.fillRect(0, 0, 800, 460);
-    ctx.strokeStyle = "rgba(255,68,68,0.5)"; ctx.lineWidth = 2; ctx.strokeRect(1, 1, 798, 458);
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, 800, 480);
+    ctx.strokeStyle = "rgba(255,68,68,0.5)"; ctx.lineWidth = 2; ctx.strokeRect(1, 1, 798, 478);
     ctx.fillStyle = "#ff4444"; ctx.font = "bold 34px sans-serif"; ctx.fillText("🔥 Roast My Resume", 40, 66);
     ctx.fillStyle = "#9090a8"; ctx.font = "16px sans-serif"; ctx.fillText("macoostudy.info", 40, 92);
     const scoreColor = score >= 70 ? "#00e676" : score >= 45 ? "#ffd700" : "#ff4444";
-    ctx.fillStyle = scoreColor; ctx.font = "bold 60px sans-serif"; ctx.fillText(`${score}`, 690, 90);
+    ctx.fillStyle = scoreColor; ctx.font = "bold 60px sans-serif"; ctx.fillText(`${score}`, 650, 90);
     ctx.font = "16px sans-serif"; ctx.fillStyle = "#9090a8"; ctx.fillText("/100", 710, 112);
     ctx.fillStyle = "#ffd700"; ctx.font = "bold 20px sans-serif"; ctx.fillText(`Verdict: ${getVerdictLabel(verdict)}`, 40, 148);
+    ctx.fillStyle = "#448aff"; ctx.font = "16px sans-serif"; ctx.fillText(`ATS Score: ${atsScore}/100`, 40, 178);
     const ps = parseRoast(roast); const first = ps.find(s => s.key === "roast");
     if (first) {
       ctx.fillStyle = "#e0e0ea"; ctx.font = "15px sans-serif";
       const words = first.content.replace(/^🔥[^\n]*\n?/, "").split(" ");
-      let line = "", y = 205;
+      let line = "", y = 220;
       for (const w of words) {
         const test = line + w + " ";
         if (ctx.measureText(test).width > 720 && line) {
           ctx.fillText(line.trim(), 40, y); line = w + " "; y += 26;
-          if (y > 360) { ctx.fillText("...", 40, y); break; }
+          if (y > 370) { ctx.fillText("...", 40, y); break; }
         } else line = test;
       }
-      if (y <= 360) ctx.fillText(line.trim(), 40, y);
+      if (y <= 370) ctx.fillText(line.trim(), 40, y);
     }
     ctx.fillStyle = "rgba(255,68,68,0.6)"; ctx.font = "13px sans-serif";
-    ctx.fillText("Try it free → macoostudy.info", 40, 430);
+    ctx.fillText("Try it free → macoostudy.info", 40, 450);
     canvas.toBlob(blob => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a"); a.href = url; a.download = "roast-result.png"; a.click();
@@ -595,6 +597,8 @@ function MainApp() {
               <h2 className="results-title">Your Roast is Ready 😂</h2>
               <p className="results-subtitle">Brace yourself...</p>
             </div>
+
+            {/* Score + Verdict Row */}
             <div className="score-verdict-row">
               <CircularScore score={score} animate={scoreAnimate} />
               <div className="verdict-info">
@@ -610,6 +614,28 @@ function MainApp() {
                 <p className="score-note">⚡ Score based on resume signals</p>
               </div>
             </div>
+
+            {/* ATS Score Box */}
+            <div className="ats-score-box">
+              <div className="ats-left">
+                <span className="ats-label">📊 ATS Score</span>
+                <span className="ats-hint">
+                  {atsScore >= 80 ? "✅ ATS Friendly — will pass most filters" :
+                   atsScore >= 60 ? "⚠️ Needs more keywords to pass ATS" :
+                   "❌ ATS will likely filter you out"}
+                </span>
+              </div>
+              <div className="ats-right">
+                <span className="ats-value" style={{
+                  color: atsScore >= 80 ? "#00e676" : atsScore >= 60 ? "#ffd700" : "#ff4444"
+                }}>
+                  {atsScore}
+                </span>
+                <span className="ats-max">/100</span>
+              </div>
+            </div>
+
+            {/* Roast Cards */}
             <div className="roast-cards">
               {parsedSections.map((section, idx) => (
                 <div key={section.key} className="roast-card" style={{ "--card-color": section.color, animationDelay: `${idx * 0.14}s` }}>
@@ -623,6 +649,7 @@ function MainApp() {
                 </div>
               ))}
             </div>
+
             <div className="results-actions">
               <button className="action-btn copy-btn" onClick={handleCopy}>📋 Copy & Share</button>
               <button className="action-btn share-img-btn" onClick={handleShareImage}>🎨 Share as Image</button>
@@ -631,6 +658,7 @@ function MainApp() {
             <div className="share-nudge">Share your roast in your college group chat 😂</div>
           </div>
         )}
+
         <section className="faq-section">
           <h3 className="faq-heading">Frequently Asked Questions</h3>
           {FAQS.map((f, i) => <FAQItem key={i} q={f.q} a={f.a} />)}
