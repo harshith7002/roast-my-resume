@@ -164,7 +164,6 @@ def calculate_score(resume_text):
 
 
 def calculate_verdict(resume_text):
-    """Calculate placement verdict based on resume signals"""
     text_lower = resume_text.lower()
     score = 0
 
@@ -200,12 +199,10 @@ def calculate_verdict(resume_text):
         score += 8
 
     # GitHub (max +3)
-    if 'github' in text_lower:
-        score += 3
+    if 'github' in text_lower: score += 3
 
     # Open source (max +4)
-    if 'open source' in text_lower or 'opensource' in text_lower:
-        score += 4
+    if 'open source' in text_lower or 'opensource' in text_lower: score += 4
 
     # Deployed (max +4)
     if any(x in text_lower for x in ['deployed', 'live', 'production', 'netlify', 'vercel', 'heroku', 'aws', 'cloud run']):
@@ -216,18 +213,33 @@ def calculate_verdict(resume_text):
         score += 3
 
     # Hackathons (max +4)
-    if 'hackathon' in text_lower:
-        score += 4
+    if 'hackathon' in text_lower: score += 4
 
-    # Strict thresholds
-    if score >= 85:
-        return "🌟 FAANG Possible"
-    elif score >= 60:
-        return "💰 Product Company Ready"
-    elif score >= 30:
-        return "🚀 Startup Ready"
-    else:
+    # ATS score factor — if ATS is low, cap the verdict
+    ats = calculate_ats_score(resume_text)
+
+    # ATS gates — low ATS blocks higher verdicts
+    if ats < 40:
+        # Very poor ATS — max Entry Level
         return "🏭 Entry Level"
+    elif ats < 55:
+        # Poor ATS — max Startup Ready
+        if score >= 85:
+            return "🚀 Startup Ready"
+        elif score >= 30:
+            return "🚀 Startup Ready"
+        else:
+            return "🏭 Entry Level"
+    else:
+        # Good ATS — full verdict range
+        if score >= 85:
+            return "🌟 FAANG Possible"
+        elif score >= 60:
+            return "💰 Product Company Ready"
+        elif score >= 30:
+            return "🚀 Startup Ready"
+        else:
+            return "🏭 Entry Level"
 
 
 def calculate_ats_score(resume_text):
