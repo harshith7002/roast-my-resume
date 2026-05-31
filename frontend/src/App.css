@@ -1416,3 +1416,38 @@ body {
   font-size: 18px;
   color: var(--text2);
 }
+.sample-roast-section {
+  width: 100%;
+  background: #16161f;
+  border: 1px solid rgba(255,68,68,0.2);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.sample-roast-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.sample-roast-heading {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.sample-roast-subheading {
+  font-size: 13px;
+  color: var(--text2);
+  margin: 4px 0 0 0;
+}
+
+.sample-roast-body {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
