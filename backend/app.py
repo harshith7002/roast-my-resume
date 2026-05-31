@@ -131,43 +131,54 @@ Give your roast in this EXACT format:
 
 
 def evaluate_resume_with_ai(resume_text):
-    """Use AI to accurately evaluate resume verdict"""
-    try:
-        response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=[{
-                "role": "user",
-                "content": EVALUATION_PROMPT.format(resume_text=resume_text[:2000])
-            }],
-            max_tokens=50,
-            temperature=0.0,  # Zero temp = most deterministic
-        )
-        eval_text = response.choices[0].message.content.strip()
-        print(f"[EVALUATION] Raw AI response: {eval_text}")  # Debug
+    text_lower = resume_text.lower()
+    score = 0
 
-        eval_text = re.sub(r'```json|```', '', eval_text).strip()
-        json_match = re.search(r'\{.*?\}', eval_text, re.DOTALL)
+    # CGPA
+    cgpa_match = re.search(r'(\d+\.?\d*)\s*(?:cgpa|gpa)', text_lower)
+    if cgpa_match:
+        cgpa = float(cgpa_match.group(1))
+        if cgpa >= 9.0: score += 30
+        elif cgpa >= 8.5: score += 22
+        elif cgpa >= 8.0: score += 15
+        elif cgpa >= 7.0: score += 8
+        elif cgpa >= 6.0: score += 3
 
-        if json_match:
-            eval_data = json.loads(json_match.group())
-            verdict = eval_data.get('verdict', 'Entry Level')
-            print(f"[EVALUATION] Parsed verdict: {verdict}")  # Debug
+    # Internship at known company
+    top = ['google','microsoft','amazon','meta','flipkart','uber',
+           'swiggy','zomato','razorpay','adobe','samsung','oracle','ibm']
+    if any(c in text_lower for c in top) and 'intern' in text_lower:
+        score += 35
+    elif 'internship' in text_lower or 'intern ' in text_lower:
+        score += 15
 
-            if 'FAANG' in verdict:
-                return "🌟 FAANG Possible"
-            elif 'Product' in verdict:
-                return "💰 Product Company Ready"
-            elif 'Startup' in verdict:
-                return "🚀 Startup Ready"
-            else:
-                return "🏭 Entry Level"
-        else:
-            print(f"[EVALUATION] No JSON found in: {eval_text}")
-            return "🚀 Startup Ready"
+    # Projects
+    proj = text_lower.count('project')
+    deployed = any(x in text_lower for x in ['deployed','live','netlify','vercel','heroku','render'])
+    if proj >= 4 and deployed: score += 20
+    elif proj >= 2 and deployed: score += 14
+    elif proj >= 2: score += 8
+    else: score += 2
 
-    except Exception as e:
-        print(f"[EVALUATION] Failed: {e}")
-        return "🚀 Startup Ready"
+    # DSA
+    if 'leetcode' in text_lower or 'codeforces' in text_lower: score += 12
+    elif 'hackerrank' in text_lower or 'codechef' in text_lower: score += 5
+
+    # Open source / hackathon wins
+    if 'open source' in text_lower: score += 8
+    if any(x in text_lower for x in ['winner','won','first place','rank 1']): score += 10
+    elif 'hackathon' in text_lower: score += 4
+
+    # GitHub + certifications
+    if 'github' in text_lower: score += 3
+    if any(x in text_lower for x in ['aws certified','google certified','azure certified']): score += 4
+
+    print(f"[VERDICT SCORE]: {score}")
+
+    if score >= 80: return "🌟 FAANG Possible"
+    elif score >= 50: return "💰 Product Company Ready"
+    elif score >= 25: return "🚀 Startup Ready"
+    else: return "🏭 Entry Level"
 
 
 def calculate_ats_score(resume_text):
