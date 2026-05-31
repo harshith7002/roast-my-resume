@@ -26,12 +26,6 @@ const FAQS = [
   { q: "How accurate is the verdict?", a: "The verdict is evaluated by AI based on your actual resume content — CGPA, projects, internships, DSA, and more. It's realistic and honest, not sugar-coated." },
 ];
 
-const SAMPLE_SECTIONS = [
-  { emoji: "🔥", title: "THE ROAST", color: "#ff4444", content: "Your Projects section lists a Todo App, a Weather App, and a Calculator. Congratulations, you've recreated every YouTube tutorial. At least add a README so we know you opened VS Code at some point." },
-  { emoji: "✅", title: "OKAY FINE", color: "#00e676", content: "The contact section is clean and your GitHub link actually works. That puts you ahead of 40% of submissions." },
-  { emoji: "📈", title: "GLOW UP GUIDE", color: "#448aff", content: "Replace tutorial projects with something that solves a real problem. Add metrics: '200 users', '50ms response time'. Ditch the Objective section — everyone knows you want a job." },
-];
-
 const PERSONALITIES = [
   { id: "default", emoji: "🔥", name: "Savage Engineer", desc: "Brutally honest senior dev" },
   { id: "gordon", emoji: "👨‍🍳", name: "Gordon Ramsay", desc: "THIS RESUME IS RAW!" },
@@ -39,6 +33,101 @@ const PERSONALITIES = [
   { id: "techbro", emoji: "🤵", name: "Tech Bro Recruiter", desc: "Not disruptive enough" },
   { id: "senior", emoji: "😤", name: "Toxic Senior Dev", desc: "I rewrote this in a weekend" },
 ];
+
+// Sample roast data — shows users what output looks like
+const SAMPLE_ROAST_DATA = {
+  verdict: "startup",
+  verdictLabel: "🚀 Startup Ready",
+  ats: 42,
+  sections: [
+    {
+      emoji: "🔥",
+      title: "THE ROAST",
+      color: "#ff4444",
+      content: "Rahul has listed 'MS Word' and 'MS PowerPoint' as technical skills in 2024. Bro, my grandmother knows MS Word. You also listed 'Team Player' and 'Hard Working' — congratulations, you've described every human being on the planet."
+    },
+    {
+      emoji: "💀",
+      title: "HALL OF SHAME",
+      color: "#ff8c00",
+      content: "1. Your Projects section has a Todo App, a Weather App and a Calculator — the holy trinity of tutorial projects 😂\n2. Objective section says 'seeking a challenging position' — everyone wants that Rahul\n3. Listed 'Listening to Music' and 'Watching Movies' as hobbies — so does literally everyone on earth"
+    },
+    {
+      emoji: "✅",
+      title: "OKAY FINE, THIS IS DECENT",
+      color: "#00e676",
+      content: "GitHub link actually works and has some commits. Contact info is clean. At least you have a LinkedIn profile."
+    },
+    {
+      emoji: "📈",
+      title: "GLOW UP GUIDE",
+      color: "#448aff",
+      content: "1. Remove MS Word from skills immediately — it's embarrassing\n2. Replace todo app with something real — a deployed project with actual users\n3. Add numbers everywhere — '500 users', '40% faster', '99% uptime'\n4. Delete the Objective section entirely\n5. Add LeetCode profile and problem count"
+    },
+  ]
+};
+
+function SampleRoastSection() {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="sample-roast-section">
+      <div className="sample-roast-header-row">
+        <div>
+          <h3 className="sample-roast-heading">👀 See a real roast</h3>
+          <p className="sample-roast-subheading">This is exactly what your resume roast looks like</p>
+        </div>
+        <button className="sample-toggle-btn" onClick={() => setShow(s => !s)}>
+          {show ? "▲ Hide" : "▼ Show sample"}
+        </button>
+      </div>
+
+      {show && (
+        <div className="sample-roast-body">
+          {/* Verdict */}
+          <div className="verdict-only-row">
+            <div className="verdict-badge-large startup">
+              🚀 Startup Ready
+            </div>
+            <p className="verdict-description">Good bones. Show more impact.</p>
+          </div>
+
+          {/* ATS Score */}
+          <div className="ats-score-box">
+            <div className="ats-left">
+              <span className="ats-label">📊 ATS Score</span>
+              <span className="ats-hint">❌ ATS will likely filter you out</span>
+            </div>
+            <div className="ats-right">
+              <span className="ats-value" style={{ color: "#ff4444" }}>42</span>
+              <span className="ats-max">/100</span>
+            </div>
+          </div>
+
+          {/* Roast Cards */}
+          {SAMPLE_ROAST_DATA.sections.map((s, i) => (
+            <div key={i} className="roast-card" style={{ "--card-color": s.color, animationDelay: `${i * 0.1}s` }}>
+              <div className="card-content">
+                <p className="card-line card-heading">{s.emoji} {s.title}</p>
+                {s.content.split("\n").map((line, j) => (
+                  line.trim() && <p key={j} className="card-line">{line}</p>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {/* CTA */}
+          <button
+            className="roast-btn"
+            style={{ marginTop: "8px" }}
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          >
+            🔥 Get My Resume Roasted!
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function parseRoast(text) {
   const sections = [];
@@ -240,7 +329,7 @@ function About() {
         <ul>
           <li>Frontend: React</li>
           <li>Backend: Flask (Python)</li>
-          <li>AI: Groq AI (LLaMA 3.3)</li>
+          <li>AI: Groq AI (LLaMA 3.1)</li>
           <li>Hosting: Netlify + Render</li>
         </ul>
         <p>Built with ❤️ for CS freshers worldwide. <a href="https://macoostudy.info">macoostudy.info</a></p>
@@ -264,7 +353,6 @@ function MainApp() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [fileDropped, setFileDropped] = useState(false);
   const [loadingMsgIdx, setLoadingMsgIdx] = useState(0);
-  const [showSample, setShowSample] = useState(false);
   const fileRef = useRef();
   const resultsRef = useRef();
 
@@ -446,6 +534,10 @@ function MainApp() {
       <main className="main">
         {!roast ? (
           <div className="upload-section">
+
+            {/* Sample Roast — shows before upload to convert visitors */}
+            <SampleRoastSection />
+
             <div
               className={`upload-card${dragOver ? " drag-over" : ""}${file ? " has-file" : ""}${fileDropped ? " fire-burst" : ""}`}
               onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
@@ -549,33 +641,17 @@ function MainApp() {
               </div>
             )}
 
-            <div className="sample-section">
-              <div className="sample-card">
-                <div className="sample-title">Sample Verdict Types</div>
-                <div className="sample-verdicts">
-                  <span className="verdict-badge tcs">🏭 Entry Level</span>
-                  <span className="verdict-badge startup">🚀 Startup Ready</span>
-                  <span className="verdict-badge product">💰 Product Co.</span>
-                  <span className="verdict-badge faang">🌟 FAANG Possible</span>
-                </div>
+            {/* Verdict types preview */}
+            <div className="sample-card" style={{ marginTop: "16px" }}>
+              <div className="sample-title">What verdict will you get?</div>
+              <div className="sample-verdicts">
+                <span className="verdict-badge tcs">🏭 Entry Level</span>
+                <span className="verdict-badge startup">🚀 Startup Ready</span>
+                <span className="verdict-badge product">💰 Product Co.</span>
+                <span className="verdict-badge faang">🌟 FAANG Possible</span>
               </div>
-              <button className="sample-toggle-btn" onClick={() => setShowSample(s => !s)}>
-                {showSample ? "▲ Hide sample" : "👀 See a sample roast"}
-              </button>
-              {showSample && (
-                <div className="sample-roast-preview">
-                  <div className="sample-roast-header">
-                    <span className="sample-roast-label">SAMPLE ROAST</span>
-                  </div>
-                  {SAMPLE_SECTIONS.map((s, i) => (
-                    <div key={i} className="roast-card sample-roast-card" style={{ "--card-color": s.color, animationDelay: `${i * 0.1}s` }}>
-                      <p className="card-heading">{s.emoji} {s.title}</p>
-                      <p className="card-line">{s.content}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
+
           </div>
         ) : (
           <div className="results-section" ref={resultsRef}>
