@@ -148,43 +148,34 @@ Give your roast in this EXACT format:
 """
 
 def evaluate_resume_with_ai(resume_text):
-    """Use AI to accurately evaluate resume — much better than keyword matching"""
     try:
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="llama-3.1-8b-instant",
             messages=[{
                 "role": "user",
-                "content": EVALUATION_PROMPT.format(resume_text=resume_text[:3000])
+                "content": EVALUATION_PROMPT.format(resume_text=resume_text[:2000])
             }],
-            max_tokens=300,
-            temperature=0.1,  # Very low for consistency
+            max_tokens=100,
+            temperature=0.1,
         )
-
         eval_text = response.choices[0].message.content.strip()
-        # Clean any markdown
         eval_text = re.sub(r'```json|```', '', eval_text).strip()
-        # Extract JSON
         json_match = re.search(r'\{.*\}', eval_text, re.DOTALL)
         if json_match:
             eval_data = json.loads(json_match.group())
-            verdict = eval_data.get('verdict', 'Startup Ready')
-            ats_score = int(eval_data.get('ats_score', 50))
-            ats_score = max(0, min(100, ats_score))
-
-            # Format verdict with emoji
+            verdict = eval_data.get('verdict', 'Entry Level')
             if 'FAANG' in verdict:
-                formatted_verdict = "🌟 FAANG Possible"
+                return "🌟 FAANG Possible"
             elif 'Product' in verdict:
-                formatted_verdict = "💰 Product Company Ready"
+                return "💰 Product Company Ready"
             elif 'Startup' in verdict:
-                formatted_verdict = "🚀 Startup Ready"
+                return "🚀 Startup Ready"
             else:
-                formatted_verdict = "🏭 Entry Level"
-
+                return "🏭 Entry Level"
     except Exception as e:
         print(f"AI evaluation failed: {e}")
 
-    return "🏭 Entry Level"
+    return "🏭 Entry Level"  # fallback only
 
 
 def calculate_ats_score(resume_text):
