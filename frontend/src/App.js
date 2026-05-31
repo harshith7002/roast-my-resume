@@ -23,7 +23,7 @@ const FAQS = [
   { q: "How is the roast generated?", a: "We use Groq AI to analyze your resume and generate brutally honest, yet actionable feedback. It's like having a senior engineer friend with zero filter." },
   { q: "Why is the feedback so harsh?", a: "Because sugarcoating doesn't get you jobs. The roast format makes the feedback memorable and actually useful. Every criticism comes with an implicit fix." },
   { q: "What's the difference between English and Hindi+English mode?", a: "Hinglish mode delivers the roast in a mix of Hindi and English — perfect for desi freshers who want the feedback to hit different. Bilkul seedha." },
-  { q: "How accurate is the score?", a: "The score is calculated based on real resume signals — CGPA, projects, internships, DSA, GitHub and more. It's directionally correct but not gospel." },
+  { q: "How accurate is the verdict?", a: "The verdict is evaluated by AI based on your actual resume content — CGPA, projects, internships, DSA, and more. It's realistic and honest, not sugar-coated." },
 ];
 
 const SAMPLE_SECTIONS = [
@@ -91,40 +91,6 @@ function Toast({ toasts }) {
   );
 }
 
-function CircularScore({ score, animate }) {
-  const radius = 52;
-  const circ = 2 * Math.PI * radius;
-  const [displayed, setDisplayed] = useState(0);
-  useEffect(() => {
-    if (!animate) return;
-    let start = null;
-    const duration = 1400;
-    const tick = (ts) => {
-      if (!start) start = ts;
-      const p = Math.min((ts - start) / duration, 1);
-      setDisplayed(Math.round(p * score));
-      if (p < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  }, [animate, score]);
-  const offset = circ - (displayed / 100) * circ;
-  const color = score >= 70 ? "#00e676" : score >= 45 ? "#ffd700" : score >= 28 ? "#ff8c00" : "#ff4444";
-  return (
-    <div className="circular-score">
-      <svg width="128" height="128" viewBox="0 0 128 128">
-        <circle cx="64" cy="64" r={radius} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="10" />
-        <circle cx="64" cy="64" r={radius} fill="none" stroke={color} strokeWidth="10" strokeLinecap="round"
-          strokeDasharray={circ} strokeDashoffset={offset} transform="rotate(-90 64 64)"
-          style={{ transition: "stroke-dashoffset 0.04s linear", filter: `drop-shadow(0 0 10px ${color})` }} />
-      </svg>
-      <div className="score-center">
-        <span className="score-number" style={{ color }}>{displayed}</span>
-        <span className="score-label">/100</span>
-      </div>
-    </div>
-  );
-}
-
 function Confetti({ active }) {
   const COLORS = ["#ff4444","#ff8c00","#ffd700","#00e676","#448aff","#ce93d8","#ff69b4"];
   if (!active) return null;
@@ -173,7 +139,6 @@ function FAQItem({ q, a }) {
   );
 }
 
-// ── Personality Modal ─────────────────────────────────────────────────────────
 function PersonalityModal({ onSelect, onClose }) {
   const [selected, setSelected] = useState("default");
   return (
@@ -194,15 +159,10 @@ function PersonalityModal({ onSelect, onClose }) {
             </button>
           ))}
         </div>
-        <button
-          className="modal-confirm-btn"
-          onClick={() => onSelect(selected)}
-        >
+        <button className="modal-confirm-btn" onClick={() => onSelect(selected)}>
           🔥 Start Roasting!
         </button>
-        <button className="modal-cancel-btn" onClick={onClose}>
-          Cancel
-        </button>
+        <button className="modal-cancel-btn" onClick={onClose}>Cancel</button>
       </div>
     </div>
   );
@@ -293,7 +253,6 @@ function MainApp() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [roast, setRoast] = useState(null);
-  const [score, setScore] = useState(0);
   const [verdict, setVerdict] = useState("");
   const [atsScore, setAtsScore] = useState(0);
   const [error, setError] = useState(null);
@@ -303,7 +262,6 @@ function MainApp() {
   const [showModal, setShowModal] = useState(false);
   const [toasts, setToasts] = useState([]);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [scoreAnimate, setScoreAnimate] = useState(false);
   const [fileDropped, setFileDropped] = useState(false);
   const [loadingMsgIdx, setLoadingMsgIdx] = useState(0);
   const [showSample, setShowSample] = useState(false);
@@ -315,11 +273,6 @@ function MainApp() {
     const id = setInterval(() => setLoadingMsgIdx(i => (i + 1) % LOADING_MESSAGES.length), 2200);
     return () => clearInterval(id);
   }, [loading]);
-
-  useEffect(() => {
-    if (roast) setTimeout(() => setScoreAnimate(true), 500);
-    else setScoreAnimate(false);
-  }, [roast]);
 
   const addToast = useCallback((message, type = "info", icon = "ℹ️") => {
     const id = Date.now();
@@ -340,13 +293,11 @@ function MainApp() {
 
   const handleDrop = (e) => { e.preventDefault(); setDragOver(false); handleFile(e.dataTransfer.files[0]); };
 
-  // Show modal when roast button clicked
   const handleRoastClick = () => {
     if (!file) return;
     setShowModal(true);
   };
 
-  // After personality selected in modal
   const handlePersonalitySelect = async (selectedPersonality) => {
     setShowModal(false);
     setPersonality(selectedPersonality);
@@ -365,8 +316,7 @@ function MainApp() {
       const data = await res.json();
       if (data.success) {
         setRoast(data.roast);
-        setScore(data.score || 0);
-        setVerdict(data.verdict || "Entry Level");
+        setVerdict(data.verdict || "🏭 Entry Level");
         setAtsScore(data.ats_score || 0);
         const verdictLabel = getVerdictLabel(data.verdict || "");
         if (verdictLabel === "FAANG Possible") {
@@ -398,7 +348,7 @@ function MainApp() {
 
   const handleReset = () => {
     setFile(null); setRoast(null); setError(null);
-    setScore(0); setVerdict(""); setAtsScore(0);
+    setVerdict(""); setAtsScore(0);
     setShowConfetti(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -406,19 +356,18 @@ function MainApp() {
   const handleShareImage = () => {
     addToast("Generating share card...", "info", "🎨");
     const canvas = document.createElement("canvas");
-    canvas.width = 800; canvas.height = 480;
+    canvas.width = 800; canvas.height = 460;
     const ctx = canvas.getContext("2d");
-    const bg = ctx.createLinearGradient(0, 0, 800, 480);
+    const bg = ctx.createLinearGradient(0, 0, 800, 460);
     bg.addColorStop(0, "#0a0a0f"); bg.addColorStop(1, "#1a0808");
-    ctx.fillStyle = bg; ctx.fillRect(0, 0, 800, 480);
-    ctx.strokeStyle = "rgba(255,68,68,0.5)"; ctx.lineWidth = 2; ctx.strokeRect(1, 1, 798, 478);
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, 800, 460);
+    ctx.strokeStyle = "rgba(255,68,68,0.5)"; ctx.lineWidth = 2; ctx.strokeRect(1, 1, 798, 458);
     ctx.fillStyle = "#ff4444"; ctx.font = "bold 34px sans-serif"; ctx.fillText("🔥 Roast My Resume", 40, 66);
     ctx.fillStyle = "#9090a8"; ctx.font = "16px sans-serif"; ctx.fillText("macoostudy.info", 40, 92);
-    const scoreColor = score >= 70 ? "#00e676" : score >= 45 ? "#ffd700" : "#ff4444";
-    ctx.fillStyle = scoreColor; ctx.font = "bold 60px sans-serif"; ctx.fillText(`${score}`, 650, 90);
-    ctx.font = "16px sans-serif"; ctx.fillStyle = "#9090a8"; ctx.fillText("/100", 710, 112);
-    ctx.fillStyle = "#ffd700"; ctx.font = "bold 20px sans-serif"; ctx.fillText(`Verdict: ${getVerdictLabel(verdict)}`, 40, 148);
-    ctx.fillStyle = "#448aff"; ctx.font = "16px sans-serif"; ctx.fillText(`ATS Score: ${atsScore}/100`, 40, 178);
+    ctx.fillStyle = "#ffd700"; ctx.font = "bold 28px sans-serif";
+    ctx.fillText(`Verdict: ${getVerdictLabel(verdict)}`, 40, 140);
+    ctx.fillStyle = "#448aff"; ctx.font = "18px sans-serif";
+    ctx.fillText(`ATS Score: ${atsScore}/100`, 40, 175);
     const ps = parseRoast(roast); const first = ps.find(s => s.key === "roast");
     if (first) {
       ctx.fillStyle = "#e0e0ea"; ctx.font = "15px sans-serif";
@@ -434,7 +383,7 @@ function MainApp() {
       if (y <= 370) ctx.fillText(line.trim(), 40, y);
     }
     ctx.fillStyle = "rgba(255,68,68,0.6)"; ctx.font = "13px sans-serif";
-    ctx.fillText("Try it free → macoostudy.info", 40, 450);
+    ctx.fillText("Try it free → macoostudy.info", 40, 430);
     canvas.toBlob(blob => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a"); a.href = url; a.download = "roast-result.png"; a.click();
@@ -455,7 +404,6 @@ function MainApp() {
       <div className="bg-grid" aria-hidden="true" />
       <FireParticles />
 
-      {/* Personality Modal */}
       {showModal && (
         <PersonalityModal
           onSelect={handlePersonalitySelect}
@@ -526,7 +474,6 @@ function MainApp() {
 
             {error && <div className="error-box">⚠️ {error}</div>}
 
-            {/* Language Section */}
             <div className="language-section">
               <p className="language-label">🌐 Choose your roast language</p>
               <p className="language-hint">✨ 34+ languages — including all Indian regional languages!</p>
@@ -581,8 +528,6 @@ function MainApp() {
                 <span className="lang-dot">•</span>
                 <span>🌍 23 International languages</span>
               </div>
-
-              {/* Roast button now opens modal */}
               <button
                 className={`roast-btn${loading ? " loading" : ""}${!file ? " disabled" : ""}`}
                 onClick={handleRoastClick}
@@ -621,7 +566,6 @@ function MainApp() {
                 <div className="sample-roast-preview">
                   <div className="sample-roast-header">
                     <span className="sample-roast-label">SAMPLE ROAST</span>
-                    <span className="sample-roast-score">Score: 34/100</span>
                   </div>
                   {SAMPLE_SECTIONS.map((s, i) => (
                     <div key={i} className="roast-card sample-roast-card" style={{ "--card-color": s.color, animationDelay: `${i * 0.1}s` }}>
@@ -640,7 +584,6 @@ function MainApp() {
               <p className="results-subtitle">Brace yourself...</p>
             </div>
 
-            {/* Verdict Only Row */}
             <div className="verdict-only-row">
               <div className={`verdict-badge-large ${verdictClass}`}>
                 {verdictClass === "faang" ? "🌟" : verdictClass === "product" ? "💰" : verdictClass === "startup" ? "🚀" : "🏭"} {verdictLabel}
@@ -653,7 +596,6 @@ function MainApp() {
               </p>
             </div>
 
-            {/* ATS Score Box */}
             <div className="ats-score-box">
               <div className="ats-left">
                 <span className="ats-label">📊 ATS Score</span>
@@ -673,7 +615,6 @@ function MainApp() {
               </div>
             </div>
 
-            {/* Roast Cards */}
             <div className="roast-cards">
               {parsedSections.map((section, idx) => (
                 <div key={section.key} className="roast-card" style={{ "--card-color": section.color, animationDelay: `${idx * 0.14}s` }}>
