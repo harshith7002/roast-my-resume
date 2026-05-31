@@ -1278,3 +1278,141 @@ body {
   opacity: 0.7;
   margin-top: 4px;
 }
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-box {
+  background: #16161f;
+  border: 1px solid rgba(255,68,68,0.3);
+  border-radius: 24px;
+  padding: 32px 24px;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 0 60px rgba(255,68,68,0.15);
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--text);
+  text-align: center;
+  margin: 0;
+}
+
+.modal-subtitle {
+  color: var(--text2);
+  font-size: 14px;
+  text-align: center;
+  margin: 0;
+}
+
+.modal-personality-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  width: 100%;
+}
+
+.modal-confirm-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--fire);
+  border: none;
+  border-radius: 100px;
+  color: white;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modal-confirm-btn:hover {
+  background: #ff6666;
+  transform: translateY(-1px);
+}
+
+.modal-cancel-btn {
+  background: none;
+  border: none;
+  color: var(--text2);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.modal-cancel-btn:hover {
+  color: var(--text);
+}
+
+.verdict-only-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  background: #16161f;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.ats-score-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #16161f;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin: 16px 0;
+  width: 100%;
+}
+
+.ats-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ats-label {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.ats-hint {
+  font-size: 13px;
+  color: var(--text2);
+}
+
+.ats-right {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.ats-value {
+  font-size: 48px;
+  font-weight: 800;
+  font-family: var(--font-display);
+}
+
+.ats-max {
+  font-size: 18px;
+  color: var(--text2);
+}
