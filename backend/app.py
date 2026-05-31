@@ -231,51 +231,56 @@ def calculate_verdict(resume_text):
 
 
 def calculate_ats_score(resume_text):
-    """Calculate ATS (Applicant Tracking System) compatibility score"""
     text_lower = resume_text.lower()
     score = 0
 
-    # Technical keywords (max +25)
+    # Technical keywords (max +20) — stricter
     tech_keywords = ['python', 'java', 'javascript', 'react', 'node', 'sql', 'aws',
                      'docker', 'git', 'api', 'machine learning', 'deep learning',
                      'flask', 'django', 'mongodb', 'mysql', 'postgresql', 'typescript',
                      'kubernetes', 'ci/cd', 'rest', 'graphql', 'redis', 'linux']
     keyword_count = sum(1 for k in tech_keywords if k in text_lower)
-    if keyword_count >= 8: score += 25
-    elif keyword_count >= 5: score += 18
-    elif keyword_count >= 3: score += 10
+    if keyword_count >= 10: score += 20
+    elif keyword_count >= 7: score += 14
+    elif keyword_count >= 4: score += 8
     else: score += 3
 
-    # Action verbs (max +20)
+    # Action verbs (max +15) — stricter
     action_verbs = ['developed', 'built', 'designed', 'implemented', 'created',
                     'led', 'managed', 'optimized', 'improved', 'deployed',
                     'architected', 'engineered', 'launched', 'delivered', 'reduced',
                     'increased', 'automated', 'integrated', 'maintained', 'collaborated']
     verb_count = sum(1 for v in action_verbs if v in text_lower)
-    if verb_count >= 6: score += 20
-    elif verb_count >= 4: score += 15
-    elif verb_count >= 2: score += 8
-    else: score += 2
-
-    # Quantified metrics (max +20)
-    metrics = re.findall(r'\d+%|\d+x|\d+\+|\$\d+|\d+\s*(?:users|requests|ms|seconds|hours)', text_lower)
-    if len(metrics) >= 5: score += 20
-    elif len(metrics) >= 3: score += 15
-    elif len(metrics) >= 1: score += 8
+    if verb_count >= 8: score += 15
+    elif verb_count >= 5: score += 10
+    elif verb_count >= 3: score += 6
     else: score += 0
 
-    # Contact info (max +15)
-    if '@' in text_lower: score += 5
-    if 'linkedin' in text_lower: score += 5
-    if 'github' in text_lower: score += 5
+    # Quantified metrics (max +25) — most important for ATS
+    metrics = re.findall(r'\d+%|\d+x|\d+\+|\$\d+|\d+\s*(?:users|requests|ms|seconds|hours)', text_lower)
+    if len(metrics) >= 6: score += 25
+    elif len(metrics) >= 4: score += 18
+    elif len(metrics) >= 2: score += 10
+    elif len(metrics) >= 1: score += 5
+    else: score += 0  # No metrics = big penalty
 
-    # Education section (max +10)
+    # Contact info (max +10)
+    if '@' in text_lower: score += 4
+    if 'linkedin' in text_lower: score += 3
+    if 'github' in text_lower: score += 3
+
+    # Education (max +10)
     if any(x in text_lower for x in ['b.tech', 'b.e', 'bachelor', 'computer science', 'engineering']):
         score += 10
 
     # Standard sections (max +10)
     if 'experience' in text_lower or 'internship' in text_lower: score += 5
     if 'project' in text_lower: score += 5
+
+    # Penalty for missing things
+    if 'objective' in text_lower: score -= 5  # Outdated section
+    if 'reference' in text_lower: score -= 3  # Waste of space
+    if 'hobbies' in text_lower: score -= 5   # Irrelevant
 
     return max(0, min(100, score))
 
