@@ -657,3 +657,25 @@ body {
   .lb-ats { margin-left: 0; }
   .fire-btn { font-size: 18px; padding: 18px; }
 }
+.lb-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.share-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.6);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.share-btn:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #fff;
+}
