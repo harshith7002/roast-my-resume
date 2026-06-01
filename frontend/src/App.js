@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
 import "./App.css";
-import Blog from "./Blog";
+import Blog from "./pages/Blog";
+import Leaderboard from "./pages/Leaderboard";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import About from "./pages/About";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 
@@ -32,102 +35,25 @@ const PERSONALITIES = [
   { id: "parent", emoji: "👨‍👩‍👧", name: "Disappointed Parent", desc: "Log kya kahenge?" },
   { id: "techbro", emoji: "🤵", name: "Tech Bro Recruiter", desc: "Not disruptive enough" },
   { id: "senior", emoji: "😤", name: "Toxic Senior Dev", desc: "I rewrote this in a weekend" },
+  { id: "elon", emoji: "🚀", name: "Elon Musk", desc: "Delete 90% of your resume" },
 ];
 
-// Sample roast data — shows users what output looks like
+const BADGES = [
+  { id: "survived_gordon", emoji: "👨‍🍳", label: "Survived Gordon Ramsay", condition: (p) => p === "gordon" },
+  { id: "faang_aspirant", emoji: "🌟", label: "FAANG Aspirant", condition: (_, v) => v?.includes("FAANG") },
+  { id: "hall_of_shame", emoji: "💀", label: "Hall of Shame", condition: (_, v) => v?.includes("Entry") },
+  { id: "startup_material", emoji: "🚀", label: "Startup Material", condition: (_, v) => v?.includes("Startup") },
+  { id: "roast_veteran", emoji: "🔥", label: "Roast Veteran", condition: () => (parseInt(localStorage.getItem("roastCount") || 0)) >= 5 },
+];
+
 const SAMPLE_ROAST_DATA = {
-  verdict: "startup",
-  verdictLabel: "🚀 Startup Ready",
-  ats: 42,
   sections: [
-    {
-      emoji: "🔥",
-      title: "THE ROAST",
-      color: "#ff4444",
-      content: "Rahul has listed 'MS Word' and 'MS PowerPoint' as technical skills in 2024. Bro, my grandmother knows MS Word. You also listed 'Team Player' and 'Hard Working' — congratulations, you've described every human being on the planet."
-    },
-    {
-      emoji: "💀",
-      title: "HALL OF SHAME",
-      color: "#ff8c00",
-      content: "1. Your Projects section has a Todo App, a Weather App and a Calculator — the holy trinity of tutorial projects 😂\n2. Objective section says 'seeking a challenging position' — everyone wants that Rahul\n3. Listed 'Listening to Music' and 'Watching Movies' as hobbies — so does literally everyone on earth"
-    },
-    {
-      emoji: "✅",
-      title: "OKAY FINE, THIS IS DECENT",
-      color: "#00e676",
-      content: "GitHub link actually works and has some commits. Contact info is clean. At least you have a LinkedIn profile."
-    },
-    {
-      emoji: "📈",
-      title: "GLOW UP GUIDE",
-      color: "#448aff",
-      content: "1. Remove MS Word from skills immediately — it's embarrassing\n2. Replace todo app with something real — a deployed project with actual users\n3. Add numbers everywhere — '500 users', '40% faster', '99% uptime'\n4. Delete the Objective section entirely\n5. Add LeetCode profile and problem count"
-    },
+    { emoji: "🔥", title: "THE ROAST", color: "#ff4444", content: "Rahul has listed 'MS Word' and 'MS PowerPoint' as technical skills in 2024. Bro, my grandmother knows MS Word. You also listed 'Team Player' — congratulations, you've described every human being alive." },
+    { emoji: "💀", title: "HALL OF SHAME", color: "#ff8c00", content: "1. Todo App, Weather App and Calculator — the holy trinity of tutorial projects 😂\n2. Objective: 'seeking a challenging position' — everyone wants that Rahul\n3. 'Listening to Music' as hobby — so does literally everyone on earth" },
+    { emoji: "✅", title: "OKAY FINE, THIS IS DECENT", color: "#00e676", content: "GitHub link actually works and has some commits. Contact info is clean. At least you have a LinkedIn." },
+    { emoji: "📈", title: "GLOW UP GUIDE", color: "#448aff", content: "1. Remove MS Word from skills immediately\n2. Replace todo app with a deployed project with real users\n3. Add numbers — '500 users', '40% faster'\n4. Delete the Objective section\n5. Add LeetCode profile and problem count" },
   ]
 };
-
-function SampleRoastSection() {
-  const [show, setShow] = useState(false);
-  return (
-    <div className="sample-roast-section">
-      <div className="sample-roast-header-row">
-        <div>
-          <h3 className="sample-roast-heading">👀 See a real roast</h3>
-          <p className="sample-roast-subheading">This is exactly what your resume roast looks like</p>
-        </div>
-        <button className="sample-toggle-btn" onClick={() => setShow(s => !s)}>
-          {show ? "▲ Hide" : "▼ Show sample"}
-        </button>
-      </div>
-
-      {show && (
-        <div className="sample-roast-body">
-          {/* Verdict */}
-          <div className="verdict-only-row">
-            <div className="verdict-badge-large startup">
-              🚀 Startup Ready
-            </div>
-            <p className="verdict-description">Good bones. Show more impact.</p>
-          </div>
-
-          {/* ATS Score */}
-          <div className="ats-score-box">
-            <div className="ats-left">
-              <span className="ats-label">📊 ATS Score</span>
-              <span className="ats-hint">❌ ATS will likely filter you out</span>
-            </div>
-            <div className="ats-right">
-              <span className="ats-value" style={{ color: "#ff4444" }}>42</span>
-              <span className="ats-max">/100</span>
-            </div>
-          </div>
-
-          {/* Roast Cards */}
-          {SAMPLE_ROAST_DATA.sections.map((s, i) => (
-            <div key={i} className="roast-card" style={{ "--card-color": s.color, animationDelay: `${i * 0.1}s` }}>
-              <div className="card-content">
-                <p className="card-line card-heading">{s.emoji} {s.title}</p>
-                {s.content.split("\n").map((line, j) => (
-                  line.trim() && <p key={j} className="card-line">{line}</p>
-                ))}
-              </div>
-            </div>
-          ))}
-
-          {/* CTA */}
-          <button
-            className="roast-btn"
-            style={{ marginTop: "8px" }}
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          >
-            🔥 Get My Resume Roasted!
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
 
 function parseRoast(text) {
   const sections = [];
@@ -140,9 +66,7 @@ function parseRoast(text) {
   ];
   patterns.forEach(({ key, emoji, title, color }, i) => {
     const nextEmoji = patterns[i + 1]?.emoji;
-    const regex = nextEmoji
-      ? new RegExp(`${emoji}[\\s\\S]*?(?=${nextEmoji})`, "g")
-      : new RegExp(`${emoji}[\\s\\S]*$`, "g");
+    const regex = nextEmoji ? new RegExp(`${emoji}[\\s\\S]*?(?=${nextEmoji})`, "g") : new RegExp(`${emoji}[\\s\\S]*$`, "g");
     const match = text.match(regex);
     if (match) sections.push({ key, title, color, content: match[0].trim() });
   });
@@ -167,6 +91,70 @@ function getVerdictLabel(verdict) {
   return "Entry Level";
 }
 
+// ── Navbar ────────────────────────────────────────────────────────────────────
+function Navbar() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+  const isActive = (path) => location.pathname === path;
+
+  return (
+    <nav className="navbar">
+      <Link to="/" className="navbar-brand">
+        <span className="brand-fire">🔥</span>
+        <span className="brand-text">RoastMyResume</span>
+      </Link>
+      <div className={`navbar-links${menuOpen ? " open" : ""}`}>
+        <Link to="/" className={`nav-link${isActive("/") ? " active" : ""}`} onClick={() => setMenuOpen(false)}>Roast</Link>
+        <Link to="/leaderboard" className={`nav-link${isActive("/leaderboard") ? " active" : ""}`} onClick={() => setMenuOpen(false)}>🏆 Leaderboard</Link>
+        <Link to="/blog" className={`nav-link${isActive("/blog") ? " active" : ""}`} onClick={() => setMenuOpen(false)}>Blog</Link>
+        <Link to="/about" className={`nav-link${isActive("/about") ? " active" : ""}`} onClick={() => setMenuOpen(false)}>About</Link>
+        <a href="https://buymeacoffee.com/macoostudy" target="_blank" rel="noopener noreferrer" className="nav-chai-btn" onClick={() => setMenuOpen(false)}>☕ Chai</a>
+      </div>
+      <button className="navbar-hamburger" onClick={() => setMenuOpen(o => !o)} aria-label="Menu">
+        <span /><span /><span />
+      </button>
+    </nav>
+  );
+}
+
+// ── Footer ────────────────────────────────────────────────────────────────────
+function Footer() {
+  return (
+    <footer className="footer-v2">
+      <div className="footer-top">
+        <div className="footer-brand">
+          <span className="footer-logo">🔥 RoastMyResume</span>
+          <p className="footer-tagline">Brutal honesty. Actionable fixes. Zero sugarcoating.</p>
+          <a href="https://buymeacoffee.com/macoostudy" target="_blank" rel="noopener noreferrer" className="footer-chai-btn">☕ Buy me a chai</a>
+        </div>
+        <div className="footer-links-grid">
+          <div className="footer-col">
+            <h4>Tool</h4>
+            <Link to="/">Roast My Resume</Link>
+            <Link to="/leaderboard">Leaderboard</Link>
+          </div>
+          <div className="footer-col">
+            <h4>Info</h4>
+            <Link to="/blog">Blog</Link>
+            <Link to="/about">About</Link>
+            <Link to="/privacy">Privacy</Link>
+          </div>
+          <div className="footer-col">
+            <h4>Connect</h4>
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">Twitter</a>
+            <a href="https://github.com/harshith7002" target="_blank" rel="noopener noreferrer">GitHub</a>
+          </div>
+        </div>
+      </div>
+      <div className="footer-bottom">
+        <p>© 2026 RoastMyResume • Built for CS freshers worldwide 🌍</p>
+        <p>Built with ❤️ by <a href="https://portfolio-saiharshith.netlify.app" target="_blank" rel="noopener noreferrer">Harshith</a></p>
+      </div>
+    </footer>
+  );
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
 function Toast({ toasts }) {
   return (
     <div className="toast-container" aria-live="polite">
@@ -180,8 +168,9 @@ function Toast({ toasts }) {
   );
 }
 
+// ── Confetti ──────────────────────────────────────────────────────────────────
 function Confetti({ active }) {
-  const COLORS = ["#ff4444","#ff8c00","#ffd700","#00e676","#448aff","#ce93d8","#ff69b4"];
+  const COLORS = ["#ff4444", "#ff8c00", "#ffd700", "#00e676", "#448aff", "#ce93d8", "#ff69b4"];
   if (!active) return null;
   const pieces = Array.from({ length: 90 }, (_, i) => ({
     id: i, x: Math.random() * 100, color: COLORS[i % COLORS.length],
@@ -201,6 +190,7 @@ function Confetti({ active }) {
   );
 }
 
+// ── Fire Particles ────────────────────────────────────────────────────────────
 function FireParticles() {
   const particles = Array.from({ length: 22 }, (_, i) => ({
     id: i, x: Math.random() * 100, delay: Math.random() * 6,
@@ -218,6 +208,7 @@ function FireParticles() {
   );
 }
 
+// ── FAQ Item ──────────────────────────────────────────────────────────────────
 function FAQItem({ q, a }) {
   const [open, setOpen] = useState(false);
   return (
@@ -228,6 +219,7 @@ function FAQItem({ q, a }) {
   );
 }
 
+// ── Personality Modal ─────────────────────────────────────────────────────────
 function PersonalityModal({ onSelect, onClose }) {
   const [selected, setSelected] = useState("default");
   return (
@@ -237,26 +229,124 @@ function PersonalityModal({ onSelect, onClose }) {
         <p className="modal-subtitle">Pick your roaster before we begin</p>
         <div className="modal-personality-grid">
           {PERSONALITIES.map(p => (
-            <button
-              key={p.id}
-              className={`personality-btn${selected === p.id ? " active" : ""}`}
-              onClick={() => setSelected(p.id)}
-            >
+            <button key={p.id} className={`personality-btn${selected === p.id ? " active" : ""}`} onClick={() => setSelected(p.id)}>
               <span className="personality-emoji">{p.emoji}</span>
               <span className="personality-name">{p.name}</span>
               <span className="personality-desc">{p.desc}</span>
             </button>
           ))}
         </div>
-        <button className="modal-confirm-btn" onClick={() => onSelect(selected)}>
-          🔥 Start Roasting!
-        </button>
+        <button className="modal-confirm-btn" onClick={() => onSelect(selected)}>🔥 Start Roasting!</button>
         <button className="modal-cancel-btn" onClick={onClose}>Cancel</button>
       </div>
     </div>
   );
 }
 
+// ── Streak Widget ─────────────────────────────────────────────────────────────
+function StreakWidget() {
+  const [streak, setStreak] = useState(0);
+  useEffect(() => {
+    const s = parseInt(localStorage.getItem("streak") || "0");
+    setStreak(s);
+  }, []);
+  if (streak === 0) return null;
+  return (
+    <div className="streak-widget">
+      <span className="streak-fire">🔥</span>
+      <span className="streak-count">{streak}</span>
+      <span className="streak-label">day streak!</span>
+    </div>
+  );
+}
+
+// ── Badge Display ─────────────────────────────────────────────────────────────
+function BadgeDisplay({ earned }) {
+  if (!earned || earned.length === 0) return null;
+  return (
+    <div className="badges-row">
+      <p className="badges-label">🎖️ Badges Earned:</p>
+      <div className="badges-list">
+        {earned.map(b => (
+          <div key={b.id} className="badge-item">
+            <span className="badge-emoji">{b.emoji}</span>
+            <span className="badge-label">{b.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Roast of the Day ──────────────────────────────────────────────────────────
+function RoastOfTheDay() {
+  const roasts = [
+    "\"You listed MS Word as a skill. In 2024. Remarkable.\"",
+    "\"Your projects section is a YouTube tutorial graveyard.\"",
+    "\"import numpy as np = AI Engineer? Please stop.\"",
+    "\"Objective: Seeking a challenging position. Everyone wants that bro.\"",
+    "\"Hobbies: Listening to music, watching movies. Groundbreaking.\"",
+  ];
+  const today = new Date().getDay();
+  return (
+    <div className="rotd-section">
+      <div className="rotd-header">
+        <span className="rotd-badge">🔥 ROAST OF THE DAY</span>
+      </div>
+      <p className="rotd-text">{roasts[today]}</p>
+      <p className="rotd-cta">Upload your resume to get your own roast! 👆</p>
+    </div>
+  );
+}
+
+// ── Sample Roast ──────────────────────────────────────────────────────────────
+function SampleRoastSection() {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="sample-roast-section">
+      <div className="sample-roast-header-row">
+        <div>
+          <h3 className="sample-roast-heading">👀 See a real roast</h3>
+          <p className="sample-roast-subheading">This is exactly what your resume roast looks like</p>
+        </div>
+        <button className="sample-toggle-btn" onClick={() => setShow(s => !s)}>
+          {show ? "▲ Hide" : "▼ Show sample"}
+        </button>
+      </div>
+      {show && (
+        <div className="sample-roast-body">
+          <div className="verdict-only-row">
+            <div className="verdict-badge-large startup">🚀 Startup Ready</div>
+            <p className="verdict-description">Good bones. Show more impact.</p>
+          </div>
+          <div className="ats-score-box">
+            <div className="ats-left">
+              <span className="ats-label">📊 ATS Score</span>
+              <span className="ats-hint">❌ ATS will likely filter you out</span>
+            </div>
+            <div className="ats-right">
+              <span className="ats-value" style={{ color: "#ff4444" }}>42</span>
+              <span className="ats-max">/100</span>
+            </div>
+          </div>
+          {SAMPLE_ROAST_DATA.sections.map((s, i) => (
+            <div key={i} className="roast-card" style={{ "--card-color": s.color, animationDelay: `${i * 0.1}s` }}>
+              <div className="card-content">
+                <p className="card-line card-heading">{s.emoji} {s.title}</p>
+                {s.content.split("\n").map((line, j) => line.trim() && <p key={j} className="card-line">{line}</p>)}
+              </div>
+            </div>
+          ))}
+          <button className="roast-btn" style={{ marginTop: "8px" }} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+            🔥 Get My Resume Roasted!
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Roast Counter ─────────────────────────────────────────────────────────────
 const BASE_COUNT = 1247;
 function RoastCounter() {
   const [count, setCount] = useState(BASE_COUNT);
@@ -273,71 +363,60 @@ function RoastCounter() {
   );
 }
 
-function PrivacyPolicy() {
+// ── Submit to Leaderboard Modal ───────────────────────────────────────────────
+function LeaderboardSubmitModal({ roastText, verdict, atsScore, onClose }) {
+  const [name, setName] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = () => {
+    const entry = {
+      id: Date.now(),
+      name: name.trim() || "Anonymous Fresher",
+      roastSnippet: roastText.slice(0, 200),
+      verdict,
+      atsScore,
+      votes: 0,
+      date: new Date().toISOString(),
+    };
+    const existing = JSON.parse(localStorage.getItem("leaderboard") || "[]");
+    existing.unshift(entry);
+    localStorage.setItem("leaderboard", JSON.stringify(existing.slice(0, 50)));
+    setSubmitted(true);
+  };
+
   return (
-    <div className="app">
-      <FireParticles />
-      <div className="static-page">
-        <Link to="/" className="back-link">← Back to Roast My Resume</Link>
-        <h1>Privacy Policy</h1>
-        <p className="static-date">Last updated: May 29, 2026</p>
-        <h2>1. Information We Collect</h2>
-        <p>macoostudy.info does not collect, store, or sell any personal information. When you upload a resume, it is processed in memory and immediately discarded. We never store your resume on our servers.</p>
-        <h2>2. How We Use Information</h2>
-        <p>Your resume text is sent to our AI service (Groq AI) solely to generate feedback. No data is retained after the session ends.</p>
-        <h2>3. Cookies & Tracking</h2>
-        <p>We use Google Analytics to understand site traffic. This may use cookies to track anonymous usage data. We also use Google AdSense which may use cookies to serve relevant ads. You can opt out of personalized ads via Google's ad settings.</p>
-        <h2>4. Third Party Services</h2>
-        <ul>
-          <li>Google Analytics — for traffic analysis</li>
-          <li>Google AdSense — for serving ads</li>
-          <li>Groq AI — for generating resume feedback</li>
-        </ul>
-        <h2>5. Data Security</h2>
-        <p>Your resume is never stored, logged, or shared with any third party other than the AI service used to generate feedback.</p>
-        <h2>6. Children's Privacy</h2>
-        <p>Our service is not directed to children under 13. We do not knowingly collect information from children.</p>
-        <h2>7. Changes to This Policy</h2>
-        <p>We may update this policy from time to time. Changes will be posted on this page.</p>
-        <h2>8. Contact</h2>
-        <p>For any questions about this privacy policy, contact us at macoostudy.info</p>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={e => e.stopPropagation()}>
+        {!submitted ? (
+          <>
+            <h2 className="modal-title">🏆 Submit to Leaderboard</h2>
+            <p className="modal-subtitle">Share your roast with the community!</p>
+            <input
+              className="lb-name-input"
+              placeholder="Your name or nickname (e.g. TCS Waala Bhai 😂)"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              maxLength={30}
+            />
+            <button className="modal-confirm-btn" onClick={handleSubmit}>🏆 Submit!</button>
+            <button className="modal-cancel-btn" onClick={onClose}>Maybe later</button>
+          </>
+        ) : (
+          <>
+            <h2 className="modal-title">🎉 Submitted!</h2>
+            <p className="modal-subtitle">Your roast is now on the leaderboard!</p>
+            <Link to="/leaderboard" className="modal-confirm-btn" style={{ textDecoration: "none", textAlign: "center" }} onClick={onClose}>
+              View Leaderboard 🏆
+            </Link>
+            <button className="modal-cancel-btn" onClick={onClose}>Close</button>
+          </>
+        )}
       </div>
     </div>
   );
 }
 
-function About() {
-  return (
-    <div className="app">
-      <FireParticles />
-      <div className="static-page">
-        <Link to="/" className="back-link">← Back to Roast My Resume</Link>
-        <h1>About Roast My Resume 🔥</h1>
-        <p>Roast My Resume is a free AI-powered tool that gives brutally honest resume feedback to CS freshers. No sugarcoating. No "add more action verbs." Just real, actionable feedback.</p>
-        <h2>Why We Built This</h2>
-        <p>Most resume feedback tools are either too expensive or too generic. We built this so every CS student gets the kind of honest feedback that only a senior engineer friend would give.</p>
-        <h2>How It Works</h2>
-        <ol>
-          <li>Upload your resume as a PDF</li>
-          <li>Our AI analyzes it in ~15 seconds</li>
-          <li>Get a brutal roast + actionable feedback</li>
-          <li>Improve your resume and get hired!</li>
-        </ol>
-        <h2>Privacy First</h2>
-        <p>Your resume is never stored. It's processed in memory and immediately discarded after analysis.</p>
-        <h2>Tech Stack</h2>
-        <ul>
-          <li>Frontend: React</li>
-          <li>Backend: Flask (Python)</li>
-          <li>AI: Groq AI (LLaMA 3.1)</li>
-          <li>Hosting: Netlify + Render</li>
-        </ul>
-        <p>Built with ❤️ for CS freshers worldwide. <a href="https://macoostudy.info">macoostudy.info</a></p>
-      </div>
-    </div>
-  );
-}
-
+// ── Main App ──────────────────────────────────────────────────────────────────
 function MainApp() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -349,10 +428,13 @@ function MainApp() {
   const [language, setLanguage] = useState("english");
   const [personality, setPersonality] = useState("default");
   const [showModal, setShowModal] = useState(false);
+  const [showLBModal, setShowLBModal] = useState(false);
   const [toasts, setToasts] = useState([]);
   const [showConfetti, setShowConfetti] = useState(false);
   const [fileDropped, setFileDropped] = useState(false);
   const [loadingMsgIdx, setLoadingMsgIdx] = useState(0);
+  const [earnedBadges, setEarnedBadges] = useState([]);
+  const [usedPersonality, setUsedPersonality] = useState("default");
   const fileRef = useRef();
   const resultsRef = useRef();
 
@@ -380,15 +462,12 @@ function MainApp() {
   };
 
   const handleDrop = (e) => { e.preventDefault(); setDragOver(false); handleFile(e.dataTransfer.files[0]); };
-
-  const handleRoastClick = () => {
-    if (!file) return;
-    setShowModal(true);
-  };
+  const handleRoastClick = () => { if (!file) return; setShowModal(true); };
 
   const handlePersonalitySelect = async (selectedPersonality) => {
     setShowModal(false);
     setPersonality(selectedPersonality);
+    setUsedPersonality(selectedPersonality);
     await handleSubmit(selectedPersonality);
   };
 
@@ -406,6 +485,24 @@ function MainApp() {
         setRoast(data.roast);
         setVerdict(data.verdict || "🏭 Entry Level");
         setAtsScore(data.ats_score || 0);
+
+        // Calculate badges
+        const earned = BADGES.filter(b => b.condition(selectedPersonality, data.verdict));
+        setEarnedBadges(earned);
+
+        // Update streak
+        const lastRoast = localStorage.getItem("lastRoastDate");
+        const today = new Date().toDateString();
+        const streak = parseInt(localStorage.getItem("streak") || "0");
+        if (lastRoast === today) {
+          // same day, no change
+        } else if (lastRoast === new Date(Date.now() - 86400000).toDateString()) {
+          localStorage.setItem("streak", streak + 1);
+        } else {
+          localStorage.setItem("streak", 1);
+        }
+        localStorage.setItem("lastRoastDate", today);
+
         const verdictLabel = getVerdictLabel(data.verdict || "");
         if (verdictLabel === "FAANG Possible") {
           setShowConfetti(true);
@@ -436,7 +533,7 @@ function MainApp() {
 
   const handleReset = () => {
     setFile(null); setRoast(null); setError(null);
-    setVerdict(""); setAtsScore(0);
+    setVerdict(""); setAtsScore(0); setEarnedBadges([]);
     setShowConfetti(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -475,8 +572,7 @@ function MainApp() {
     canvas.toBlob(blob => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a"); a.href = url; a.download = "roast-result.png"; a.click();
-      URL.revokeObjectURL(url);
-      addToast("Share card downloaded!", "success", "🎉");
+      URL.revokeObjectURL(url); addToast("Share card downloaded!", "success", "🎉");
     });
   };
 
@@ -485,37 +581,26 @@ function MainApp() {
   const verdictClass = getVerdictClass(verdict);
 
   return (
-    <div className="app">
+    <div className="page-content">
       <Confetti active={showConfetti} />
       <Toast toasts={toasts} />
-      <div className="bg-mesh" aria-hidden="true" />
-      <div className="bg-grid" aria-hidden="true" />
       <FireParticles />
 
-      {showModal && (
-        <PersonalityModal
-          onSelect={handlePersonalitySelect}
-          onClose={() => setShowModal(false)}
-        />
-      )}
+      {showModal && <PersonalityModal onSelect={handlePersonalitySelect} onClose={() => setShowModal(false)} />}
+      {showLBModal && <LeaderboardSubmitModal roastText={roast} verdict={verdict} atsScore={atsScore} onClose={() => setShowLBModal(false)} />}
 
       <header className="header">
         <div className="header-badges-row">
           <RoastCounter />
+          <StreakWidget />
           <div className="header-badge">🌍 Made for CS Freshers</div>
         </div>
         <h1 className="title" aria-label="Roast My Resume">
-          {"Roast".split("").map((l, i) => (
-            <span key={`r${i}`} className="title-letter title-roast" style={{ animationDelay: `${i * 0.07}s` }}>{l}</span>
-          ))}
+          {"Roast".split("").map((l, i) => <span key={`r${i}`} className="title-letter title-roast" style={{ animationDelay: `${i * 0.07}s` }}>{l}</span>)}
           <span className="title-letter title-space"> </span>
-          {"My".split("").map((l, i) => (
-            <span key={`m${i}`} className="title-letter title-my" style={{ animationDelay: `${0.38 + i * 0.07}s` }}>{l}</span>
-          ))}
+          {"My".split("").map((l, i) => <span key={`m${i}`} className="title-letter title-my" style={{ animationDelay: `${0.38 + i * 0.07}s` }}>{l}</span>)}
           <span className="title-letter title-space"> </span>
-          {"Resume".split("").map((l, i) => (
-            <span key={`re${i}`} className="title-letter title-resume" style={{ animationDelay: `${0.56 + i * 0.07}s` }}>{l}</span>
-          ))}
+          {"Resume".split("").map((l, i) => <span key={`re${i}`} className="title-letter title-resume" style={{ animationDelay: `${0.56 + i * 0.07}s` }}>{l}</span>)}
           <span className="fire-emoji" style={{ animationDelay: "1.05s" }}>🔥</span>
         </h1>
         <p className="subtitle">
@@ -534,8 +619,7 @@ function MainApp() {
       <main className="main">
         {!roast ? (
           <div className="upload-section">
-
-            {/* Sample Roast — shows before upload to convert visitors */}
+            <RoastOfTheDay />
             <SampleRoastSection />
 
             <div
@@ -570,11 +654,7 @@ function MainApp() {
               <p className="language-label">🌐 Choose your roast language</p>
               <p className="language-hint">✨ 34+ languages — including all Indian regional languages!</p>
               <div className="language-select-wrap">
-                <select
-                  className="language-select"
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                >
+                <select className="language-select" value={language} onChange={(e) => setLanguage(e.target.value)}>
                   <option value="english">🌍 English (Default)</option>
                   <optgroup label="━━━ 🇮🇳 Indian Languages + English ━━━">
                     <option value="hinglish">🇮🇳 Hindi + English</option>
@@ -622,26 +702,20 @@ function MainApp() {
               </div>
               <button
                 className={`roast-btn${loading ? " loading" : ""}${!file ? " disabled" : ""}`}
-                onClick={handleRoastClick}
-                disabled={!file || loading}
+                onClick={handleRoastClick} disabled={!file || loading}
               >
-                {loading ? (
-                  <span className="btn-loading"><span className="fire-spinner">🔥</span>Roasting...</span>
-                ) : "🔥 Roast My Resume"}
+                {loading ? <span className="btn-loading"><span className="fire-spinner">🔥</span>Roasting...</span> : "🔥 Roast My Resume"}
               </button>
             </div>
 
             {loading && (
               <div className="loading-state">
                 <div className="loading-msg" key={loadingMsgIdx}>{LOADING_MESSAGES[loadingMsgIdx]}</div>
-                <div className="progress-bar-container">
-                  <div className="progress-bar-fill" style={{ animationDuration: "15s" }} />
-                </div>
+                <div className="progress-bar-container"><div className="progress-bar-fill" style={{ animationDuration: "15s" }} /></div>
                 <p className="loading-hint">☕ Grab a chai, this takes ~15 seconds...</p>
               </div>
             )}
 
-            {/* Verdict types preview */}
             <div className="sample-card" style={{ marginTop: "16px" }}>
               <div className="sample-title">What verdict will you get?</div>
               <div className="sample-verdicts">
@@ -651,7 +725,6 @@ function MainApp() {
                 <span className="verdict-badge faang">🌟 FAANG Possible</span>
               </div>
             </div>
-
           </div>
         ) : (
           <div className="results-section" ref={resultsRef}>
@@ -682,23 +755,19 @@ function MainApp() {
                 </span>
               </div>
               <div className="ats-right">
-                <span className="ats-value" style={{
-                  color: atsScore >= 80 ? "#00e676" : atsScore >= 60 ? "#ffd700" : "#ff4444"
-                }}>
-                  {atsScore}
-                </span>
+                <span className="ats-value" style={{ color: atsScore >= 80 ? "#00e676" : atsScore >= 60 ? "#ffd700" : "#ff4444" }}>{atsScore}</span>
                 <span className="ats-max">/100</span>
               </div>
             </div>
+
+            <BadgeDisplay earned={earnedBadges} />
 
             <div className="roast-cards">
               {parsedSections.map((section, idx) => (
                 <div key={section.key} className="roast-card" style={{ "--card-color": section.color, animationDelay: `${idx * 0.14}s` }}>
                   <div className="card-content">
                     {section.content.split("\n").map((line, i) =>
-                      line.trim() && (
-                        <p key={i} className={`card-line${/^[🔥💀✅📈🎯]/.test(line) ? " card-heading" : ""}`}>{line}</p>
-                      )
+                      line.trim() && <p key={i} className={`card-line${/^[🔥💀✅📈🎯]/.test(line) ? " card-heading" : ""}`}>{line}</p>
                     )}
                   </div>
                 </div>
@@ -706,9 +775,14 @@ function MainApp() {
             </div>
 
             <div className="results-actions">
-              <button className="action-btn copy-btn" onClick={handleCopy}>📋 Copy & Share</button>
-              <button className="action-btn share-img-btn" onClick={handleShareImage}>🎨 Share as Image</button>
+              <button className="action-btn copy-btn" onClick={handleCopy}>📋 Copy</button>
+              <button className="action-btn share-img-btn" onClick={handleShareImage}>🎨 Share Card</button>
+              <button className="action-btn lb-btn" onClick={() => setShowLBModal(true)}>🏆 Leaderboard</button>
               <button className="action-btn reset-btn" onClick={handleReset}>🔄 Roast Another</button>
+            </div>
+
+            <div className="chai-nudge">
+              Loved the roast? <a href="https://buymeacoffee.com/macoostudy" target="_blank" rel="noopener noreferrer">☕ Buy me a chai!</a>
             </div>
             <div className="share-nudge">Share your roast in your college group chat 😂</div>
           </div>
@@ -719,31 +793,27 @@ function MainApp() {
           {FAQS.map((f, i) => <FAQItem key={i} q={f.q} a={f.a} />)}
         </section>
       </main>
-
-      <footer className="footer">
-        <p>Built for CS freshers • <a href="https://macoostudy.info">macoostudy.info</a></p>
-        <div className="footer-links">
-          <Link to="/blog">Blog</Link>
-          <span>•</span>
-          <Link to="/privacy">Privacy Policy</Link>
-          <span>•</span>
-          <Link to="/about">About</Link>
-        </div>
-        <p className="footer-note">Your resume is not stored.</p>
-      </footer>
     </div>
   );
 }
 
+// ── App Shell ─────────────────────────────────────────────────────────────────
 export default function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<MainApp />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/privacy" element={<PrivacyPolicy />} />
-        <Route path="/about" element={<About />} />
-      </Routes>
+      <div className="app">
+        <div className="bg-mesh" aria-hidden="true" />
+        <div className="bg-grid" aria-hidden="true" />
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<MainApp />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/about" element={<About />} />
+        </Routes>
+        <Footer />
+      </div>
     </Router>
   );
 }
