@@ -1,4 +1,4 @@
- import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
 import "./App.css";
 import Leaderboard from "./pages/Leaderboard";
@@ -130,6 +130,89 @@ function verdictKey(v = "") {
   if (l.includes("product")) return "product";
   if (l.includes("startup")) return "startup";
   return "entry";
+}
+
+/* ── Sample drawer ────────────────────────────────────────────── */
+function SampleDrawer({ open, onClose, onUpload }) {
+  // Lock body scroll when open
+  useEffect(() => {
+    if (open) document.body.style.overflow = "hidden";
+    else       document.body.style.overflow = "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
+  if (!open) return null;
+
+  return (
+    <div
+      style={{
+        position: "fixed", inset: 0, zIndex: 600,
+        background: "rgba(0,0,0,0.75)",
+        backdropFilter: "blur(10px)",
+        display: "flex", alignItems: "flex-end", justifyContent: "center",
+      }}
+      onClick={onClose}
+    >
+      <div
+        className="sample-drawer"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Handle bar */}
+        <div className="sample-drawer-handle" />
+
+        {/* Header */}
+        <div className="sample-drawer-header">
+          <div>
+            <p className="sample-drawer-title">👀 Real Roast Preview</p>
+            <p className="sample-drawer-sub">This is exactly what your result looks like</p>
+          </div>
+          <button className="sample-drawer-close" onClick={onClose}>✕</button>
+        </div>
+
+        {/* Scrollable body */}
+        <div className="sample-drawer-body">
+          <div className="verdict-card" style={{ "--vc-color": "#5599ff" }}>
+            <div className="verdict-pill startup" style={{ margin: "0 auto" }}>🚀 STARTUP READY</div>
+            <p className="verdict-desc" style={{ marginTop: 8 }}>Good bones. Show more impact.</p>
+          </div>
+
+          <div className="ats-card">
+            <div className="ats-info">
+              <span className="ats-title">📊 ATS Score</span>
+              <span className="ats-subtitle">❌ ATS will likely filter you out</span>
+            </div>
+            <div>
+              <span className="ats-number" style={{ color: "#ff6b00" }}>42</span>
+              <span className="ats-denom">/100</span>
+            </div>
+          </div>
+
+          {SAMPLE_DATA.map((s, i) => (
+            <div
+              key={i}
+              className="roast-card"
+              style={{ "--rc-color": s.color, animationDelay: `${i * 0.08}s` }}
+            >
+              <div className="rc-lines">
+                <p className="rc-line rc-heading">{s.emoji} {s.title}</p>
+                {s.text.split("\n").map((l, j) => (
+                  <p key={j} className="rc-line">{l}</p>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          <button
+            className="fire-btn"
+            style={{ marginTop: 4 }}
+            onClick={() => { onUpload(); onClose(); }}
+          >
+            🔥 GET MY RESUME ROASTED
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 /* ── Ember particles ──────────────────────────────────────────── */
@@ -420,7 +503,7 @@ function RoastCounter() {
 }
 
 /* ── Main app ─────────────────────────────────────────────────── */
-function MainApp() {
+function MainApp({ showSampleDrawer = () => {}, registerUpload = () => {} }) {
   const [file, setFile]           = useState(null);
   const [loading, setLoading]     = useState(false);
   const [roast, setRoast]         = useState(null);
@@ -436,11 +519,15 @@ function MainApp() {
   const [confetti, setConfetti]   = useState(false);
   const [burst, setBurst]         = useState(false);
   const [msgIdx, setMsgIdx]       = useState(0);
-  const [showSample, setShowSample] = useState(false);
   const [badges, setBadges]       = useState([]);
   const [roastSnippet, setRoastSnippet] = useState("");
   const fileRef    = useRef();
   const resultsRef = useRef();
+
+  // Register upload trigger so root SampleDrawer can fire the file picker
+  useEffect(() => {
+    registerUpload(() => fileRef.current?.click());
+  }, [registerUpload]);
 
   useEffect(() => {
     if (!loading) return;
@@ -629,53 +716,12 @@ function MainApp() {
           <button className="btn-primary" onClick={() => { fileRef.current?.click(); setShowSample(false); }}>
             📂 Upload Resume — It's Free
           </button>
-          <button className="btn-secondary" onClick={() => setShowSample(true)}>
+          <button className="btn-secondary" onClick={showSampleDrawer}>
             👀 See Sample
           </button>
         </div>
       </header>
 
-      {/* ── Sample drawer (slide-in from bottom) ── */}
-      {showSample && (
-        <div className="sample-drawer-overlay" onClick={() => setShowSample(false)}>
-          <div className="sample-drawer" onClick={e => e.stopPropagation()}>
-            <div className="sample-drawer-header">
-              <div>
-                <p className="sample-drawer-title">👀 Real Roast Preview</p>
-                <p className="sample-drawer-sub">This is exactly what your result looks like</p>
-              </div>
-              <button className="sample-drawer-close" onClick={() => setShowSample(false)}>✕</button>
-            </div>
-            <div className="sample-drawer-body">
-              <div className="verdict-card">
-                <div className="verdict-pill startup" style={{ margin: "0 auto" }}>🚀 STARTUP READY</div>
-                <p className="verdict-desc" style={{ marginTop: 8 }}>Good bones. Show more impact.</p>
-              </div>
-              <div className="ats-card">
-                <div className="ats-info">
-                  <span className="ats-title">📊 ATS Score</span>
-                  <span className="ats-subtitle">❌ ATS will likely filter you out</span>
-                </div>
-                <div>
-                  <span className="ats-number" style={{ color: "#ff6b00" }}>42</span>
-                  <span className="ats-denom">/100</span>
-                </div>
-              </div>
-              {SAMPLE_DATA.map((s, i) => (
-                <div key={i} className="roast-card" style={{ "--rc-color": s.color, animationDelay: `${i * 0.08}s` }}>
-                  <div className="rc-lines">
-                    <p className="rc-line rc-heading">{s.emoji} {s.title}</p>
-                    {s.text.split("\n").map((l, j) => <p key={j} className="rc-line">{l}</p>)}
-                  </div>
-                </div>
-              ))}
-              <button className="fire-btn" onClick={() => { fileRef.current?.click(); setShowSample(false); }}>
-                🔥 GET MY RESUME ROASTED
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ── Upload — directly below hero ── */}
       {!roast && (
@@ -933,14 +979,30 @@ function MainApp() {
 
 /* ── Root ─────────────────────────────────────────────────────── */
 export default function App() {
+  const [showSample, setShowSample] = useState(false);
+  const uploadRef = useRef(null);   // forwarded into MainApp
+
   return (
     <Router>
       <div className="app">
         <div className="bg-canvas" aria-hidden="true" />
         <div className="bg-grid"   aria-hidden="true" />
         <Navbar />
+
+        {/* Drawer lives at root — never clipped by any child stacking context */}
+        <SampleDrawer
+          open={showSample}
+          onClose={() => setShowSample(false)}
+          onUpload={() => uploadRef.current?.()}
+        />
+
         <Routes>
-          <Route path="/"            element={<MainApp />} />
+          <Route path="/"            element={
+            <MainApp
+              showSampleDrawer={() => setShowSample(true)}
+              registerUpload={fn => { uploadRef.current = fn; }}
+            />
+          } />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/blog"        element={<Blog />} />
           <Route path="/privacy"     element={<PrivacyPolicy />} />
@@ -951,3 +1013,4 @@ export default function App() {
     </Router>
   );
 }
+
