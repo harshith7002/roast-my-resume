@@ -224,9 +224,8 @@ function Navbar() {
       </div>
 
       <div className="navbar-right">
-      
-        <a href="https://buymeacoffee.com/macoostudy" target="_blank" rel="noopener noreferrer" className="nav-cta">
-          ☕ Buy Me a Coffee
+        <a href="https://portfolio-saiharshith.netlify.app" target="_blank" rel="noopener noreferrer" className="nav-built-by">
+          Built by Sai ↗
         </a>
         <button className="hamburger" onClick={() => setOpen(o => !o)} aria-label="Menu">
           <span /><span /><span />
@@ -460,6 +459,11 @@ function MainApp() {
       setFile(f); setErr(null); setBurst(true);
       setTimeout(() => setBurst(false), 600);
       toast(`${f.name} loaded!`, "📄");
+      // GA tracking
+      if (window.gtag) window.gtag('event', 'resume_uploaded', {
+        event_category: 'engagement',
+        event_label: 'PDF Selected'
+      });
     } else {
       toast("PDF files only, genius.", "⚠️");
       setErr("Please upload a PDF file only!");
@@ -485,6 +489,11 @@ function MainApp() {
       if (data.success) {
         setRoast(data.roast);
         setVerdict(data.verdict || "Entry Level");
+        // GA tracking
+        if (window.gtag) window.gtag('event', 'roast_completed', {
+          event_category: 'engagement',
+          event_label: data.verdict || 'unknown'
+        });
         setAts(data.ats_score || 0);
 
         // Extract snippet for leaderboard
