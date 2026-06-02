@@ -224,9 +224,7 @@ function Navbar() {
       </div>
 
       <div className="navbar-right">
-        <a href="https://portfolio-saiharshith.netlify.app" target="_blank" rel="noopener noreferrer" className="nav-built-by">
-          Built by Sai ↗
-        </a>
+      
         <a href="https://buymeacoffee.com/macoostudy" target="_blank" rel="noopener noreferrer" className="nav-cta">
           ☕ Buy Me a Coffee
         </a>
