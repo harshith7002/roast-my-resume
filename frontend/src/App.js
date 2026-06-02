@@ -960,9 +960,7 @@ function MainApp({ showSampleDrawer = () => {}, registerUpload = () => {} }) {
 
           <p className="coffee-row">
             Loved the roast?{" "}
-            <a href="https://buymeacoffee.com/macoostudy" target="_blank" rel="noopener noreferrer">
-              ☕ Buy me a coffee!
-            </a>
+            
           </p>
           <p className="share-hint">// share your roast in the college group chat 😂</p>
         </div>
