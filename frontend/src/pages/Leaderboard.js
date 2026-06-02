@@ -73,11 +73,26 @@ export default function Leaderboard() {
         {/* Empty state or list */}
         {entries.length === 0 ? (
           <div className="lb-empty">
-            <p className="lb-empty-icon">🔥</p>
-            <p className="lb-empty-title">No roasts yet!</p>
+            <div className="lb-empty-icon">🔥</div>
+            <h2 className="lb-empty-title">No roasts yet!</h2>
             <p className="lb-empty-sub">
-              Be the first to get roasted and enter the leaderboard!
+              Be the first to get your resume roasted and enter the community leaderboard.
+              The funniest roast wins bragging rights.
             </p>
+            <div className="lb-empty-stats">
+              <div className="lb-empty-stat">
+                <span className="lb-empty-stat-num">34+</span>
+                <span className="lb-empty-stat-lbl">Languages</span>
+              </div>
+              <div className="lb-empty-stat">
+                <span className="lb-empty-stat-num">6</span>
+                <span className="lb-empty-stat-lbl">Personalities</span>
+              </div>
+              <div className="lb-empty-stat">
+                <span className="lb-empty-stat-num">Free</span>
+                <span className="lb-empty-stat-lbl">Always</span>
+              </div>
+            </div>
             <Link to="/" className="lb-cta">🔥 Get Roasted First</Link>
           </div>
         ) : (
