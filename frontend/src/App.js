@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
 import "./App.css";
 import Leaderboard from "./pages/Leaderboard";
@@ -626,14 +626,56 @@ function MainApp() {
         </div>
 
         <div className="hero-cta-row">
-          <button className="btn-primary" onClick={() => fileRef.current?.click()}>
+          <button className="btn-primary" onClick={() => { fileRef.current?.click(); setShowSample(false); }}>
             📂 Upload Resume — It's Free
           </button>
-          <a href="#sample" className="btn-secondary" onClick={e => { e.preventDefault(); setShowSample(true); }}>
+          <button className="btn-secondary" onClick={() => setShowSample(true)}>
             👀 See Sample
-          </a>
+          </button>
         </div>
       </header>
+
+      {/* ── Sample drawer (slide-in from bottom) ── */}
+      {showSample && (
+        <div className="sample-drawer-overlay" onClick={() => setShowSample(false)}>
+          <div className="sample-drawer" onClick={e => e.stopPropagation()}>
+            <div className="sample-drawer-header">
+              <div>
+                <p className="sample-drawer-title">👀 Real Roast Preview</p>
+                <p className="sample-drawer-sub">This is exactly what your result looks like</p>
+              </div>
+              <button className="sample-drawer-close" onClick={() => setShowSample(false)}>✕</button>
+            </div>
+            <div className="sample-drawer-body">
+              <div className="verdict-card">
+                <div className="verdict-pill startup" style={{ margin: "0 auto" }}>🚀 STARTUP READY</div>
+                <p className="verdict-desc" style={{ marginTop: 8 }}>Good bones. Show more impact.</p>
+              </div>
+              <div className="ats-card">
+                <div className="ats-info">
+                  <span className="ats-title">📊 ATS Score</span>
+                  <span className="ats-subtitle">❌ ATS will likely filter you out</span>
+                </div>
+                <div>
+                  <span className="ats-number" style={{ color: "#ff6b00" }}>42</span>
+                  <span className="ats-denom">/100</span>
+                </div>
+              </div>
+              {SAMPLE_DATA.map((s, i) => (
+                <div key={i} className="roast-card" style={{ "--rc-color": s.color, animationDelay: `${i * 0.08}s` }}>
+                  <div className="rc-lines">
+                    <p className="rc-line rc-heading">{s.emoji} {s.title}</p>
+                    {s.text.split("\n").map((l, j) => <p key={j} className="rc-line">{l}</p>)}
+                  </div>
+                </div>
+              ))}
+              <button className="fire-btn" onClick={() => { fileRef.current?.click(); setShowSample(false); }}>
+                🔥 GET MY RESUME ROASTED
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Upload — directly below hero ── */}
       {!roast && (
@@ -794,47 +836,6 @@ function MainApp() {
         </div>
       )}
 
-      {/* ── Sample Preview ── */}
-      {!roast && (
-        <div className="sample-preview" id="sample">
-          <div className="sample-toggle-row" onClick={() => setShowSample(s => !s)}>
-            <div className="stl-left">
-              <span className="stl-title">👀 See a real roast</span>
-              <span className="stl-sub">This is exactly what your result looks like</span>
-            </div>
-            <span className={`stl-arrow${showSample ? " open" : ""}`}>▼</span>
-          </div>
-          {showSample && (
-            <div className="sample-body">
-              <div className="verdict-card">
-                <div className="verdict-pill startup" style={{ margin: "0 auto" }}>🚀 STARTUP READY</div>
-                <p className="verdict-desc" style={{ marginTop: 8 }}>Good bones. Show more impact.</p>
-              </div>
-              <div className="ats-card">
-                <div className="ats-info">
-                  <span className="ats-title">📊 ATS Score</span>
-                  <span className="ats-subtitle">❌ ATS will likely filter you out</span>
-                </div>
-                <div>
-                  <span className="ats-number" style={{ color: "#ff6b00" }}>42</span>
-                  <span className="ats-denom">/100</span>
-                </div>
-              </div>
-              {SAMPLE_DATA.map((s, i) => (
-                <div key={i} className="roast-card" style={{ "--rc-color": s.color, animationDelay: `${i * 0.1}s` }}>
-                  <div className="rc-lines">
-                    <p className="rc-line rc-heading">{s.emoji} {s.title}</p>
-                    {s.text.split("\n").map((l, j) => <p key={j} className="rc-line">{l}</p>)}
-                  </div>
-                </div>
-              ))}
-              <button className="fire-btn" onClick={() => { fileRef.current?.click(); setShowSample(false); }}>
-                🔥 GET MY RESUME ROASTED
-              </button>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* ── Results ── */}
       {roast && (
