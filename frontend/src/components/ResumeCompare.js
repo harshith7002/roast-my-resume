@@ -32,6 +32,7 @@ export default function ResumeCompare() {
   }
 
   return (
+    <div className="page-wrap">
     <div className="compare-page">
       <div className="compare-hero">
         <h1>⚖️ Resume Version Comparison</h1>
@@ -112,6 +113,7 @@ export default function ResumeCompare() {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }
