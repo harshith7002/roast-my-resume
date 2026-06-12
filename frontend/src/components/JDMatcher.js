@@ -112,6 +112,7 @@ export default function JDMatcher() {
   }
 
   return (
+    <div className="page-wrap">
     <div className="jd-matcher-page">
       <div className="jd-hero">
         <h1>🎯 JD Matcher</h1>
@@ -275,6 +276,7 @@ export default function JDMatcher() {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }
