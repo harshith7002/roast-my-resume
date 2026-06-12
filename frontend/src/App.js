@@ -11,6 +11,7 @@ import ResumeHistory from "./components/ResumeHistory";
 import ResumeCompare from "./components/ResumeCompare";
 import EmailCapture from "./components/EmailCapture";
 import { getUser, setUser } from "./utils/storage";
+import { saveLbEntry } from "./utils/leaderboard";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 const BASE_COUNT  = 1247;
@@ -69,37 +70,6 @@ const SAMPLE_DATA = [
   { emoji: "✅", title: "OKAY FINE",     color: "#00d68f", text: "GitHub link works and has some commits. Contact info is clean. At least you have a LinkedIn profile." },
   { emoji: "📈", title: "GLOW UP GUIDE", color: "#5599ff", text: "1. Remove MS Word from skills immediately\n2. Deploy something real with actual users\n3. Add numbers — '500 users', '40% faster'\n4. Delete the Objective section\n5. Add LeetCode problem count" },
 ];
-
-/* ── Leaderboard seed data (shown if no real entries yet) ──────── */
-export const LB_SEED = [
-  { id: "s1", name: "TCS Waala Bhai 😂",   quote: "You listed MS Word as a skill in 2024. My grandmother knows MS Word. You expect 15 LPA with this?", verdict: "entry",   ats: 28, votes: 234, ts: 0 },
-  { id: "s2", name: "Anonymous Fresher",    quote: "Your projects section is a YouTube tutorial graveyard. Todo App, Weather App — the holy trinity of doing absolutely nothing original.", verdict: "startup", ats: 45, votes: 189, ts: 0 },
-  { id: "s3", name: "import numpy enjoyer", quote: "You imported NumPy once and called yourself an AI/ML Enthusiast. That's like taking an Uber once and calling yourself a transport entrepreneur.", verdict: "entry",   ats: 32, votes: 156, ts: 0 },
-  { id: "s4", name: "Placement Padega 🔥",  quote: "Hobbies: Listening to music, watching movies, reading books. You've described every human being on planet Earth.", verdict: "startup", ats: 51, votes: 134, ts: 0 },
-  { id: "s5", name: "Rahul from DTU",       quote: "Objective: 'seeking a challenging position to utilize my skills'. That's not an objective, that's a statement of obvious desire.", verdict: "product", ats: 67, votes: 98,  ts: 0 },
-  { id: "s6", name: "CGPA 6.2 ka Don",      quote: "CGPA 6.2 and targeting FAANG. I respect the confidence. The universe does not.", verdict: "entry",   ats: 24, votes: 87,  ts: 0 },
-  { id: "s7", name: "Full Stack Faker",      quote: "Listed React, Node, Python, Rust, Go, Kubernetes, and Docker. Built a static HTML page. Pick a struggle.", verdict: "startup", ats: 55, votes: 71,  ts: 0 },
-];
-
-/* ── localStorage helpers ─────────────────────────────────────── */
-export function getLbEntries() {
-  try {
-    const stored = JSON.parse(localStorage.getItem("lb_entries") || "[]");
-    // Merge: real entries first, then seeds not already displaced
-    const realIds = new Set(stored.map(e => e.id));
-    const seeds   = LB_SEED.filter(s => !realIds.has(s.id));
-    return [...stored, ...seeds].sort((a, b) => b.votes - a.votes);
-  } catch { return [...LB_SEED]; }
-}
-
-export function saveLbEntry(entry) {
-  try {
-    const stored = JSON.parse(localStorage.getItem("lb_entries") || "[]");
-    localStorage.setItem("lb_entries", JSON.stringify([entry, ...stored]));
-    // Bump global roast count display
-    window.dispatchEvent(new Event("lb_updated"));
-  } catch {}
-}
 
 /* ── Helpers ──────────────────────────────────────────────────── */
 function parseRoast(text) {
@@ -513,7 +483,7 @@ function RoastCounter() {
 }
 
 /* ── Main app ─────────────────────────────────────────────────── */
-function MainApp({ showSampleDrawer = () => {}, registerUpload = () => {} }) {
+function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, registerUpload = () => {} }) {
   const [file, setFile]           = useState(null);
   const [loading, setLoading]     = useState(false);
   const [roast, setRoast]         = useState(null);
@@ -737,7 +707,7 @@ function MainApp({ showSampleDrawer = () => {}, registerUpload = () => {} }) {
         </div>
 
         <div className="hero-cta-row">
-          <button className="btn-primary" onClick={() => { fileRef.current?.click(); setShowSample(false); }}>
+          <button className="btn-primary" onClick={() => { closeSampleDrawer(); fileRef.current?.click(); }}>
             📂 Upload Resume — It's Free
           </button>
           <button className="btn-secondary" onClick={showSampleDrawer}>
@@ -1002,7 +972,8 @@ function MainApp({ showSampleDrawer = () => {}, registerUpload = () => {} }) {
 /* ── Root ─────────────────────────────────────────────────────── */
 export default function App() {
   const [showSample, setShowSample] = useState(false);
-  const uploadRef = useRef(null);   // forwarded into MainApp
+  const uploadRef = useRef(null);
+  const registerUpload = useCallback((fn) => { uploadRef.current = fn; }, []);
 
   return (
     <Router>
@@ -1022,7 +993,8 @@ export default function App() {
           <Route path="/"            element={
             <MainApp
               showSampleDrawer={() => setShowSample(true)}
-              registerUpload={fn => { uploadRef.current = fn; }}
+              closeSampleDrawer={() => setShowSample(false)}
+              registerUpload={registerUpload}
             />
           } />
           <Route path="/leaderboard" element={<Leaderboard />} />
