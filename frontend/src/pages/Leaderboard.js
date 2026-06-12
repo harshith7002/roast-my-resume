@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { getLbEntries } from "../utils/leaderboard";
 
 const MEDAL = ["🥇", "🥈", "🥉"];
 
@@ -19,10 +20,9 @@ export default function Leaderboard() {
   const [voted,   setVoted]   = useState({});
 
   const load = () => {
-    const v      = JSON.parse(localStorage.getItem("lb_voted")   || "{}");
-    const stored = JSON.parse(localStorage.getItem("lb_entries") || "[]");
+    const v = JSON.parse(localStorage.getItem("lb_voted") || "{}");
     setVoted(v);
-    setEntries(stored.sort((a, b) => b.votes - a.votes));
+    setEntries(getLbEntries());
   };
 
   useEffect(() => {
