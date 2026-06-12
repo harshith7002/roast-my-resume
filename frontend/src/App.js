@@ -5,6 +5,12 @@ import Leaderboard from "./pages/Leaderboard";
 import Blog from "./pages/Blog";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import About from "./pages/About";
+import JDMatcher from "./components/JDMatcher";
+import Dashboard from "./components/Dashboard";
+import ResumeHistory from "./components/ResumeHistory";
+import ResumeCompare from "./components/ResumeCompare";
+import EmailCapture from "./components/EmailCapture";
+import { getUser, setUser } from "./utils/storage";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 const BASE_COUNT  = 1247;
@@ -304,6 +310,10 @@ function Navbar() {
         <Link to="/blog"        className={active("/blog")}        onClick={() => setOpen(false)}>Blog</Link>
         <Link to="/about"       className={active("/about")}       onClick={() => setOpen(false)}>About</Link>
         <Link to="/leaderboard" className={active("/leaderboard")} onClick={() => setOpen(false)}>Leaderboard</Link>
+        <Link to="/jd-match"    className={active("/jd-match")}    onClick={() => setOpen(false)}>JD Match</Link>
+        <Link to="/compare"     className={active("/compare")}     onClick={() => setOpen(false)}>Compare</Link>
+        <Link to="/history"     className={active("/history")}     onClick={() => setOpen(false)}>History</Link>
+        <Link to="/dashboard"   className={active("/dashboard")}   onClick={() => setOpen(false)}>Dashboard</Link>
       </div>
 
       <div className="navbar-right">
@@ -513,6 +523,8 @@ function MainApp({ showSampleDrawer = () => {}, registerUpload = () => {} }) {
   const [over, setOver]           = useState(false);
   const [lang, setLang]           = useState("english");
   const [personality, setP]       = useState("default");
+  const [showEmailCapture, setShowEmailCapture] = useState(false);
+  const [pendingSubmit, setPendingSubmit] = useState(false);
   const [modal, setModal]         = useState(false);
   const [lbModal, setLbModal]     = useState(false);
   const [toasts, setToasts]       = useState([]);
@@ -558,7 +570,12 @@ function MainApp({ showSampleDrawer = () => {}, registerUpload = () => {} }) {
   };
 
   const handleDrop = (e) => { e.preventDefault(); setOver(false); handleFile(e.dataTransfer.files[0]); };
-  const onRoastClick = () => { if (!file) return; setModal(true); };
+  const onRoastClick = () => {
+    if (!file) return;
+    const u = getUser();
+    if (!u) { setPendingSubmit(true); setShowEmailCapture(true); return; }
+    setModal(true);
+  };
 
   const onPersonalitySelect = async (p) => {
     setModal(false); setP(p);
@@ -570,6 +587,7 @@ function MainApp({ showSampleDrawer = () => {}, registerUpload = () => {} }) {
     setLoading(true); setRoast(null); setErr(null); setMsgIdx(0);
     const fd = new FormData();
     fd.append("resume", file); fd.append("language", lang); fd.append("personality", p);
+    const u = getUser(); if (u?.user_id) fd.append("user_id", u.user_id);
     try {
       const res  = await fetch(`${BACKEND_URL}/api/roast`, { method: "POST", body: fd });
       const data = await res.json();
@@ -671,6 +689,12 @@ function MainApp({ showSampleDrawer = () => {}, registerUpload = () => {} }) {
       <Confetti on={confetti} />
       <Toasts items={toasts} />
       {modal    && <PersonalityModal onSelect={onPersonalitySelect} onClose={() => setModal(false)} />}
+      {showEmailCapture && (
+        <EmailCapture
+          source="pre_analysis"
+          onDone={() => { setShowEmailCapture(false); if (pendingSubmit) { setPendingSubmit(false); setModal(true); } }}
+        />
+      )}
       {lbModal  && (
         <LeaderboardModal
           roastSnippet={roastSnippet}
@@ -1005,6 +1029,10 @@ export default function App() {
           <Route path="/blog"        element={<Blog />} />
           <Route path="/privacy"     element={<PrivacyPolicy />} />
           <Route path="/about"       element={<About />} />
+          <Route path="/jd-match"   element={<JDMatcher />} />
+          <Route path="/compare"    element={<ResumeCompare />} />
+          <Route path="/history"    element={<ResumeHistory />} />
+          <Route path="/dashboard"  element={<Dashboard />} />
         </Routes>
         <Footer />
       </div>
