@@ -18,14 +18,20 @@ export default function Dashboard() {
   }, []);
 
   if (!user) return (
-    <div className="dashboard-empty">
+    <div className="page-wrap">
+      <div className="dashboard-empty">
       <div className="de-icon">📊</div>
       <h2>Your Dashboard</h2>
       <p>Upload a resume to start tracking your progress.</p>
+      </div>
     </div>
   );
 
-  if (loading) return <div className="dashboard-loading">Loading your stats...</div>;
+  if (loading) return (
+    <div className="page-wrap">
+      <div className="dashboard-loading">Loading your stats...</div>
+    </div>
+  );
 
   const stats = [
     { label: "Resumes Analyzed", value: data?.total_analyses ?? 0, icon: "📄", color: "#5599ff" },
@@ -35,6 +41,7 @@ export default function Dashboard() {
   ];
 
   return (
+    <div className="page-wrap">
     <div className="dashboard-page">
       <h1 className="dashboard-title">📊 Your Dashboard</h1>
       <p className="dashboard-email">{user.email}</p>
@@ -69,6 +76,7 @@ export default function Dashboard() {
           <p>No data yet. Run your first resume analysis or JD match to see stats here.</p>
         </div>
       )}
+    </div>
     </div>
   );
 }
