@@ -41,14 +41,17 @@ export default function ResumeHistory() {
   );
 
   if (!user) return (
-    <div className="history-empty">
+    <div className="page-wrap">
+      <div className="history-empty">
       <div className="he-icon">📂</div>
       <h2>Resume History</h2>
       <p>Your past analyses will appear here after you enter your email.</p>
+      </div>
     </div>
   );
 
   return (
+    <div className="page-wrap">
     <div className="history-page">
       <div className="history-header">
         <h1>📂 Resume History</h1>
@@ -118,6 +121,7 @@ export default function ResumeHistory() {
           );
         })}
       </div>
+    </div>
     </div>
   );
 }
