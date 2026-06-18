@@ -14,7 +14,8 @@ from functools import wraps
 import tempfile
 
 app = Flask(__name__)
-CORS(app)
+app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
+CORS(app, resources={r"/api/*": {"origins": os.environ.get("ALLOWED_ORIGINS", "*").split(",")}})
 
 client = Groq(api_key=os.environ.get("GROQ_API_KEY", "YOUR_GROQ_API_KEY_HERE"))
 
@@ -97,6 +98,35 @@ def track(event, user_id=None, meta=None):
         conn.close()
     except Exception:
         pass
+
+def valid_pdf_upload(file):
+    if not file or not file.filename:
+        return "Choose a PDF file."
+    if not file.filename.lower().endswith(".pdf"):
+        return "Only PDF files are supported."
+    return None
+
+def public_error(error):
+    message = str(error).lower()
+    if "429" in message or "rate_limit" in message:
+        return "The analysis service is busy. Please try again in a minute.", 429
+    if "api key" in message or "authentication" in message:
+        return "The analysis service is temporarily unavailable.", 503
+    return "We could not complete the analysis. Please try again.", 500
+
+@app.errorhandler(413)
+def too_large(_error):
+    return jsonify({"error": "The PDF must be smaller than 10 MB."}), 413
+
+@app.route("/api/events", methods=["POST"])
+def analytics_event():
+    data = request.get_json(silent=True) or {}
+    event = re.sub(r"[^a-z0-9_\-]", "", str(data.get("event", "")).lower())[:64]
+    if not event:
+        return jsonify({"error": "event required"}), 400
+    meta = data.get("meta") if isinstance(data.get("meta"), dict) else {}
+    track(event, data.get("user_id"), meta)
+    return jsonify({"success": True}), 201
 
 # ── Language / Personality config (unchanged) ────────────────────────────────
 
@@ -198,6 +228,10 @@ def calculate_ats_score(resume_text):
     return max(0, min(100, score))
 
 def extract_text_from_pdf(pdf_bytes):
+    if len(pdf_bytes) > 10 * 1024 * 1024:
+        raise ValueError("PDF is too large")
+    if not pdf_bytes.startswith(b"%PDF"):
+        raise ValueError("Invalid PDF")
     reader = PdfReader(io.BytesIO(pdf_bytes))
     text = ""
     for page in reader.pages:
@@ -255,8 +289,9 @@ def jd_match():
     jd_text = request.form.get("jd_text", "").strip()
     user_id = request.form.get("user_id")
 
-    if not file.filename.lower().endswith(".pdf"):
-        return jsonify({"error": "Please upload a PDF file"}), 400
+    validation_error = valid_pdf_upload(file)
+    if validation_error:
+        return jsonify({"error": validation_error}), 400
 
     try:
         pdf_bytes = file.read()
@@ -307,10 +342,8 @@ def jd_match():
     except json.JSONDecodeError as e:
         return jsonify({"error": "AI returned invalid response, please retry."}), 500
     except Exception as e:
-        err = str(e)
-        if '429' in err or 'rate_limit' in err:
-            return jsonify({"error": "Rate limited. Please try again in a moment."}), 429
-        return jsonify({"error": f"Something went wrong: {err}"}), 500
+        message, status = public_error(e)
+        return jsonify({"error": message}), status
 
 
 # ── Roast (existing, now also saves to DB) ────────────────────────────────────
@@ -351,8 +384,9 @@ def roast_resume():
     if "resume" not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
     file = request.files["resume"]
-    if not file.filename.lower().endswith(".pdf"):
-        return jsonify({"error": "Please upload a PDF file"}), 400
+    validation_error = valid_pdf_upload(file)
+    if validation_error:
+        return jsonify({"error": validation_error}), 400
 
     language    = request.form.get("language", "english")
     personality = request.form.get("personality", "default")
@@ -394,7 +428,7 @@ def roast_resume():
         conn.commit()
         conn.close()
 
-        track("resume_upload", user_id)
+        track("resume_upload_completed", user_id, {"ats_score": python_ats, "personality": personality, "language": language})
 
         return jsonify({
             "roast": roast_text,
@@ -405,10 +439,9 @@ def roast_resume():
         })
 
     except Exception as e:
-        err = str(e)
-        if '429' in err or 'rate_limit' in err:
-            return jsonify({"error": "Too many requests! Please try again in a few minutes."}), 429
-        return jsonify({"error": f"Something went wrong: {err}"}), 500
+        track("resume_upload_failed", user_id, {"reason": type(e).__name__})
+        message, status = public_error(e)
+        return jsonify({"error": message}), status
 
 
 # ── Resume History ────────────────────────────────────────────────────────────
@@ -511,11 +544,23 @@ def compare_resumes():
     if "resume_old" not in request.files or "resume_new" not in request.files:
         return jsonify({"error": "Both resume_old and resume_new are required"}), 400
 
+    old_file = request.files["resume_old"]
+    new_file = request.files["resume_new"]
+    for file in (old_file, new_file):
+        validation_error = valid_pdf_upload(file)
+        if validation_error:
+            return jsonify({"error": validation_error}), 400
+
+    user_id = request.form.get("user_id")
     try:
-        old_bytes = request.files["resume_old"].read()
-        new_bytes = request.files["resume_new"].read()
+        old_bytes = old_file.read()
+        new_bytes = new_file.read()
         old_text  = extract_text_from_pdf(old_bytes)
         new_text  = extract_text_from_pdf(new_bytes)
+        if len(old_text) < 100 or len(new_text) < 100:
+            return jsonify({"error": "We could not read enough text from one of the PDFs. Try text-based PDFs instead of scanned images."}), 400
+        if hashlib.sha256(old_bytes).digest() == hashlib.sha256(new_bytes).digest():
+            return jsonify({"error": "The two uploaded PDFs are identical."}), 400
 
         old_ats = calculate_ats_score(old_text)
         new_ats = calculate_ats_score(new_text)
@@ -549,17 +594,30 @@ Return ONLY valid JSON:
         raw = re.sub(r'\s*```$', '', raw)
         diff = json.loads(raw)
 
-        return jsonify({
+        analysis_id = uid()
+        result = {
             "success": True,
+            "analysis_id": analysis_id,
             "old_ats": old_ats,
             "new_ats": new_ats,
             "ats_delta": new_ats - old_ats,
             "old_verdict": old_verdict,
             "new_verdict": new_verdict,
             **diff
-        })
+        }
+        conn = get_db()
+        conn.execute(
+            "INSERT INTO analyses (id, user_id, type, filename, ats_score, verdict, result_json) VALUES (?,?,?,?,?,?,?)",
+            (analysis_id, user_id, "compare", f"{old_file.filename} -> {new_file.filename}", new_ats, new_verdict, json.dumps(result))
+        )
+        conn.commit()
+        conn.close()
+        track("compare_completed", user_id, {"ats_delta": new_ats - old_ats})
+        return jsonify(result)
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        track("compare_failed", user_id, {"reason": type(e).__name__})
+        message, status = public_error(e)
+        return jsonify({"error": message}), status
 
 
 # ── Analytics (admin) ─────────────────────────────────────────────────────────
