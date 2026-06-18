@@ -12,6 +12,7 @@ import time
 from datetime import datetime
 from functools import wraps
 import tempfile
+import difflib
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
@@ -237,6 +238,55 @@ def extract_text_from_pdf(pdf_bytes):
     for page in reader.pages:
         text += page.extract_text() or ""
     return text.strip()
+
+def fallback_resume_comparison(old_text, new_text, old_ats, new_ats):
+    """Produce a useful comparison even when the AI provider is unavailable."""
+    clean = lambda value: re.sub(r'\s+', ' ', value).strip()
+    old_lines = {clean(line) for line in old_text.splitlines() if len(clean(line)) >= 24}
+    new_lines = {clean(line) for line in new_text.splitlines() if len(clean(line)) >= 24}
+    added = sorted(new_lines - old_lines, key=len, reverse=True)
+    removed = sorted(old_lines - new_lines, key=len, reverse=True)
+
+    improvements = []
+    regressions = []
+    if new_ats > old_ats:
+        improvements.append(f"ATS readiness increased by {new_ats - old_ats} points.")
+    elif new_ats < old_ats:
+        regressions.append(f"ATS readiness decreased by {old_ats - new_ats} points.")
+
+    metric_pattern = re.compile(r'\d+%|\d+x|\d+\+|\$\d+|\d+\s*(?:users|requests|customers|projects)', re.I)
+    old_metrics = set(metric_pattern.findall(old_text))
+    new_metrics = set(metric_pattern.findall(new_text))
+    if len(new_metrics) > len(old_metrics):
+        improvements.append(f"Added {len(new_metrics) - len(old_metrics)} measurable impact statement(s).")
+    elif len(new_metrics) < len(old_metrics):
+        regressions.append(f"Removed {len(old_metrics) - len(new_metrics)} measurable impact statement(s).")
+
+    for line in added[:3]:
+        improvements.append(f"Added: {line[:180]}")
+    for line in removed[:2]:
+        regressions.append(f"Removed: {line[:180]}")
+
+    similarity = round(difflib.SequenceMatcher(None, old_text[:12000], new_text[:12000]).ratio() * 100)
+    unchanged = [f"The versions are approximately {similarity}% textually similar."]
+    if not improvements:
+        improvements.append("The updated version preserves the previous resume's core content.")
+    if not regressions:
+        regressions = []
+
+    if new_ats > old_ats:
+        recommendation = "Use the updated version and keep strengthening bullets with outcomes, scope, and metrics."
+    elif new_ats < old_ats:
+        recommendation = "Restore the strongest removed details before using the updated version."
+    else:
+        recommendation = "The ATS score is unchanged; focus next on quantified impact and role-specific keywords."
+
+    return {
+        "improvements": improvements[:5],
+        "regressions": regressions[:4],
+        "unchanged": unchanged,
+        "recommendation": recommendation,
+    }
 
 # ── JD Matcher ────────────────────────────────────────────────────────────────
 
@@ -552,6 +602,7 @@ def compare_resumes():
             return jsonify({"error": validation_error}), 400
 
     user_id = request.form.get("user_id")
+    app.logger.info("compare_started user_id=%s old=%s new=%s", user_id, old_file.filename, new_file.filename)
     try:
         old_bytes = old_file.read()
         new_bytes = new_file.read()
@@ -583,16 +634,24 @@ Return ONLY valid JSON:
   "recommendation": "string"
 }}"""
 
-        response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=[{"role": "user", "content": COMPARE_PROMPT}],
-            max_tokens=800,
-            temperature=0.2,
-        )
-        raw = response.choices[0].message.content.strip()
-        raw = re.sub(r'^```(?:json)?\s*', '', raw)
-        raw = re.sub(r'\s*```$', '', raw)
-        diff = json.loads(raw)
+        diff = fallback_resume_comparison(old_text, new_text, old_ats, new_ats)
+        api_key = os.environ.get("GROQ_API_KEY", "")
+        if api_key and api_key != "YOUR_GROQ_API_KEY_HERE":
+            try:
+                response = client.chat.completions.create(
+                    model="llama-3.1-8b-instant",
+                    messages=[{"role": "user", "content": COMPARE_PROMPT}],
+                    max_tokens=800,
+                    temperature=0.2,
+                )
+                raw = response.choices[0].message.content.strip()
+                raw = re.sub(r'^```(?:json)?\s*', '', raw)
+                raw = re.sub(r'\s*```$', '', raw)
+                ai_diff = json.loads(raw)
+                if isinstance(ai_diff, dict):
+                    diff.update({key: ai_diff[key] for key in ("improvements", "regressions", "unchanged", "recommendation") if ai_diff.get(key)})
+            except Exception as enrichment_error:
+                app.logger.warning("compare_ai_enrichment_failed type=%s", type(enrichment_error).__name__)
 
         analysis_id = uid()
         result = {
@@ -613,8 +672,10 @@ Return ONLY valid JSON:
         conn.commit()
         conn.close()
         track("compare_completed", user_id, {"ats_delta": new_ats - old_ats})
+        app.logger.info("compare_completed analysis_id=%s ats_delta=%s", analysis_id, new_ats - old_ats)
         return jsonify(result)
     except Exception as e:
+        app.logger.exception("compare_failed user_id=%s", user_id)
         track("compare_failed", user_id, {"reason": type(e).__name__})
         message, status = public_error(e)
         return jsonify({"error": message}), status
