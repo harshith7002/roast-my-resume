@@ -1,127 +1,78 @@
-import React, { useEffect, useState } from "react";
-import { getUser, getAnalysisCache } from "../utils/storage";
+import React, { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { apiFetch } from "../utils/api";
+import { getAnalysisCache, getUser, getVisitorId, removeAnalysisCache } from "../utils/storage";
 
-const BACKEND = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+function parseResult(analysis) {
+  if (analysis.result) return analysis.result;
+  try { return JSON.parse(analysis.result_json || "{}"); } catch { return {}; }
+}
 
 export default function ResumeHistory() {
-  const [analyses, setAnalyses] = useState([]);
+  const [analyses, setAnalyses] = useState(() => getAnalysisCache());
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [expanded, setExpanded] = useState(null);
-  const user = getUser();
 
   useEffect(() => {
-    if (!user?.user_id) {
-      // fall back to local cache
-      setAnalyses(getAnalysisCache());
-      setLoading(false);
-      return;
-    }
-    fetch(`${BACKEND}/api/history?user_id=${user.user_id}&search=${encodeURIComponent(search)}`)
-      .then(r => r.json())
-      .then(d => { setAnalyses(d.analyses || []); setLoading(false); })
-      .catch(() => { setAnalyses(getAnalysisCache()); setLoading(false); });
-  }, [search]);
+    let active = true;
+    const userId = getUser()?.user_id || getVisitorId();
+    apiFetch(`/api/history?user_id=${encodeURIComponent(userId)}`, { timeout: 12000 })
+      .then(data => {
+        if (!active) return;
+        const local = getAnalysisCache();
+        const merged = [...(data.analyses || []), ...local].filter((item, index, all) =>
+          all.findIndex(other => (other.id || other.cached_at) === (item.id || item.cached_at)) === index
+        );
+        setAnalyses(merged.sort((a, b) => new Date(b.created_at || b.cached_at) - new Date(a.created_at || a.cached_at)));
+      })
+      .catch(() => { if (active) { setError("Cloud history is unavailable. Showing history saved on this device."); setAnalyses(getAnalysisCache()); } })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
 
-  function getTypeEmoji(type) {
-    return type === "jd_match" ? "🎯" : type === "roast" ? "🔥" : "📄";
+  const filtered = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return analyses;
+    return analyses.filter(item => `${item.filename || ""} ${item.verdict || ""} ${item.type || ""}`.toLowerCase().includes(query));
+  }, [analyses, search]);
+
+  function removeLocal(id) {
+    removeAnalysisCache(id);
+    setAnalyses(items => items.filter(item => item.id !== id));
   }
-
-  function getScoreColor(score) {
-    if (!score) return "#666";
-    if (score >= 70) return "#00d68f";
-    if (score >= 50) return "#ffaa00";
-    return "#ff4757";
-  }
-
-  const filtered = analyses.filter(a =>
-    !search ||
-    (a.filename || "").toLowerCase().includes(search.toLowerCase()) ||
-    (a.verdict || "").toLowerCase().includes(search.toLowerCase())
-  );
-
-  if (!user) return (
-    <div className="page-wrap">
-      <div className="history-empty">
-      <div className="he-icon">📂</div>
-      <h2>Resume History</h2>
-      <p>Your past analyses will appear here after you enter your email.</p>
-      </div>
-    </div>
-  );
 
   return (
-    <div className="page-wrap">
-    <div className="history-page">
-      <div className="history-header">
-        <h1>📂 Resume History</h1>
-        <div className="history-search">
-          <input
-            type="text"
-            placeholder="🔍 Search by filename or verdict..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
+    <main className="page-wrap">
+      <div className="history-page">
+        <header className="history-header">
+          <div><span className="section-kicker">YOUR PROGRESS</span><h1>Analysis history</h1></div>
+          <label className="history-search"><span className="sr-only">Search analysis history</span><input type="search" placeholder="Search resumes…" value={search} onChange={event => setSearch(event.target.value)} /></label>
+        </header>
+        <p className="history-privacy">History is tied to this browser unless you choose to save it with an email.</p>
+        {error && <div className="notice" role="status">{error}</div>}
+        {loading && analyses.length === 0 && <div className="history-loading" aria-live="polite">Loading your history…</div>}
+        {!loading && filtered.length === 0 && (
+          <div className="history-empty-state"><h2>{search ? "No matching analyses" : "No analyses yet"}</h2><p>{search ? "Try a different search." : "Your completed roasts, JD matches, and comparisons will appear here."}</p><Link className="btn-primary" to="/">Analyze a resume</Link></div>
+        )}
+        <div className="history-list">
+          {filtered.map(analysis => {
+            const id = analysis.id || analysis.cached_at;
+            const result = parseResult(analysis);
+            const isExpanded = expanded === id;
+            return (
+              <article className={`history-item ${isExpanded ? "expanded" : ""}`} key={id}>
+                <button className="hi-header" type="button" aria-expanded={isExpanded} onClick={() => setExpanded(isExpanded ? null : id)}>
+                  <div className="hi-left"><span className="hi-type" aria-hidden="true">{analysis.type === "jd_match" ? "🎯" : analysis.type === "compare" ? "↔" : "🔥"}</span><div><div className="hi-filename">{analysis.filename || "Resume analysis"}</div><time className="hi-date">{new Date(analysis.created_at || analysis.cached_at).toLocaleString()}</time></div></div>
+                  <div className="hi-right">{analysis.ats_score != null && <span className="hi-score">{analysis.ats_score} score</span>}<span className="hi-chevron" aria-hidden="true">{isExpanded ? "−" : "+"}</span></div>
+                </button>
+                {isExpanded && <div className="hi-body">{analysis.verdict && <p><strong>{analysis.verdict}</strong></p>}{result.summary && <p>{result.summary}</p>}{result.roast && <pre className="hi-roast-text">{result.roast}</pre>}{result.recommendation && <p>{result.recommendation}</p>}{String(id).startsWith("local_") || analysis.cached_at ? <button className="history-delete" type="button" onClick={() => removeLocal(id)}>Remove from this device</button> : null}</div>}
+              </article>
+            );
+          })}
         </div>
       </div>
-
-      {loading && <div className="history-loading">Loading history...</div>}
-
-      {!loading && filtered.length === 0 && (
-        <div className="history-empty-state">
-          <p>No analyses found{search ? " for that search" : " yet"}.</p>
-        </div>
-      )}
-
-      <div className="history-list">
-        {filtered.map((a, i) => {
-          const parsed = (() => { try { return JSON.parse(a.result_json || "{}"); } catch { return a.result || {}; } })();
-          const isExpanded = expanded === i;
-          return (
-            <div key={i} className={`history-item ${isExpanded ? "expanded" : ""}`}>
-              <div className="hi-header" onClick={() => setExpanded(isExpanded ? null : i)}>
-                <div className="hi-left">
-                  <span className="hi-type">{getTypeEmoji(a.type)}</span>
-                  <div>
-                    <div className="hi-filename">{a.filename || "Resume"}</div>
-                    <div className="hi-date">{(a.created_at || a.cached_at || "").slice(0, 16).replace("T", " ")}</div>
-                  </div>
-                </div>
-                <div className="hi-right">
-                  {a.ats_score != null && (
-                    <span className="hi-score" style={{ color: getScoreColor(a.ats_score) }}>
-                      ATS {a.ats_score}%
-                    </span>
-                  )}
-                  {a.verdict && <span className="hi-verdict">{a.verdict}</span>}
-                  <span className="hi-chevron">{isExpanded ? "▲" : "▼"}</span>
-                </div>
-              </div>
-
-              {isExpanded && (
-                <div className="hi-body">
-                  {a.type === "jd_match" && parsed.summary && (
-                    <div className="hi-detail">
-                      <strong>Match: {parsed.match_score}%</strong>
-                      <p>{parsed.summary}</p>
-                      {parsed.missing_skills?.length > 0 && (
-                        <div>
-                          <strong>Missing:</strong>{" "}
-                          {parsed.missing_skills.slice(0, 5).map(s => s.skill).join(", ")}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  {a.type === "roast" && parsed.roast && (
-                    <pre className="hi-roast-text">{parsed.roast.slice(0, 600)}...</pre>
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-    </div>
+    </main>
   );
 }
