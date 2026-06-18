@@ -47,10 +47,14 @@ export default function ResumeHistory() {
     <main className="page-wrap">
       <div className="history-page">
         <header className="history-header">
-          <div><span className="section-kicker">YOUR PROGRESS</span><h1>Analysis history</h1></div>
+          <div><span className="section-kicker">YOUR PROGRESS</span><h1>Analysis History</h1></div>
           <label className="history-search"><span className="sr-only">Search analysis history</span><input type="search" placeholder="Search resumes…" value={search} onChange={event => setSearch(event.target.value)} /></label>
         </header>
-        <p className="history-privacy">History is tied to this browser unless you choose to save it with an email.</p>
+        <div className="notice" role="note" style={{display:'flex',alignItems:'center',gap:'8px'}}>
+          <span>📋</span>
+          <span><strong>Session-based history</strong> — tied to this browser only. Your resumes are never stored on our servers.</span>
+        </div>
+
         {error && <div className="notice" role="status">{error}</div>}
         {loading && analyses.length === 0 && <div className="history-loading" aria-live="polite">Loading your history…</div>}
         {!loading && filtered.length === 0 && (
