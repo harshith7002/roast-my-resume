@@ -1,31 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-import { getUser } from "../utils/storage";
-
-const BACKEND = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+import { getUser, getVisitorId } from "../utils/storage";
+import { apiFetch } from "../utils/api";
 
 export default function Dashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const user = getUser();
 
   useEffect(() => {
-    if (!user?.user_id) { setLoading(false); return; }
-    fetch(`${BACKEND}/api/dashboard?user_id=${user.user_id}`)
-      .then(r => r.json())
+    const userId = user?.user_id || getVisitorId();
+    apiFetch(`/api/dashboard?user_id=${encodeURIComponent(userId)}`, { timeout: 12000 })
       .then(d => { setData(d); setLoading(false); })
-      .catch(() => setLoading(false));
+      .catch(requestError => { setError(requestError.message); setLoading(false); });
   }, []);
-
-  if (!user) return (
-    <div className="page-wrap">
-      <div className="dashboard-empty">
-      <div className="de-icon">📊</div>
-      <h2>Your Dashboard</h2>
-      <p>Upload a resume to start tracking your progress.</p>
-      </div>
-    </div>
-  );
 
   if (loading) return (
     <div className="page-wrap">
@@ -44,7 +33,8 @@ export default function Dashboard() {
     <div className="page-wrap">
     <div className="dashboard-page">
       <h1 className="dashboard-title">📊 Your Dashboard</h1>
-      <p className="dashboard-email">{user.email}</p>
+      <p className="dashboard-email">{user?.email || "Progress saved on this device"}</p>
+      {error && <div className="notice" role="status">Stats are temporarily unavailable. Your local history is still safe.</div>}
 
       <div className="stat-cards">
         {stats.map((s, i) => (
