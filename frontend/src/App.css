@@ -66,7 +66,7 @@ body {
 .bg-canvas {
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background:
-    radial-gradient(ellipse 90% 50% at 50% -5%,  rgba(255, 107,  0, 0.28) 0%, transparent 60%),
+    radial-gradient(ellipse 90% 50% at 50% -5%,  rgba(255, 107,  0, 0.20) 0%, transparent 60%),
     radial-gradient(ellipse 55% 40% at 15% 55%,  rgba(255, 107,  0, 0.10) 0%, transparent 55%),
     radial-gradient(ellipse 60% 40% at 88% 80%,  rgba(255, 170,  0, 0.10) 0%, transparent 50%),
     radial-gradient(ellipse 70% 70% at 50% 100%, rgba( 34,  21,  0, 0.80) 0%, transparent 70%),
@@ -243,12 +243,12 @@ body {
   position: relative;
 }
 
-/* Subtle background texture */
+/* Background texture — office/professional, visible enough to read subconsciously */
 .hero::before {
   content: '';
   position: absolute; inset: 0;
   background: url('https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200') center/cover no-repeat;
-  opacity: 0.06; z-index: -1;
+  opacity: 0.14; z-index: -1;
 }
 
 /* Trust strip — very first thing above the fold */
@@ -638,7 +638,7 @@ body {
 .faq-section { max-width: 580px; margin: 0 auto; padding: 52px 16px 36px; }
 .faq-title { font-family: 'Playfair Display', Georgia, serif; font-size: 30px; font-weight: 900; font-style: italic; color: var(--cream); margin-bottom: 20px; text-align: center; }
 .faq-item { border-bottom: 1px solid var(--border); }
-.faq-q { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 0; cursor: pointer; font-size: 14.5px; font-weight: 600; color: var(--cream); transition: color 0.2s; }
+.faq-q { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 0; cursor: pointer; font-size: 14.5px; font-weight: 600; color: var(--cream); transition: color 0.2s; background: none; border: none; width: 100%; text-align: left; font-family: inherit; }
 .faq-q:hover { color: var(--fire); }
 .faq-arrow { color: var(--cream-30); font-size: 20px; transition: transform 0.25s; flex-shrink: 0; }
 .faq-item.open .faq-arrow { transform: rotate(45deg); }
