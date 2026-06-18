@@ -1,21 +1,19 @@
-import React, { lazy, Suspense, useState, useRef, useEffect, useCallback } from "react";
-import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from "react-router-dom";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
 import "./App.css";
-import { getUser, getVisitorId, pushAnalysisCache } from "./utils/storage";
-import { apiFetch, validatePdf } from "./utils/api";
-import { trackEvent } from "./utils/analytics";
+import Leaderboard from "./pages/Leaderboard";
+import Blog from "./pages/Blog";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import About from "./pages/About";
+import JDMatcher from "./components/JDMatcher";
+import Dashboard from "./components/Dashboard";
+import ResumeHistory from "./components/ResumeHistory";
+import ResumeCompare from "./components/ResumeCompare";
+import EmailCapture from "./components/EmailCapture";
+import { getUser, setUser } from "./utils/storage";
 import { saveLbEntry } from "./utils/leaderboard";
 
-const Leaderboard = lazy(() => import("./pages/Leaderboard"));
-const Blog = lazy(() => import("./pages/Blog"));
-const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
-const About = lazy(() => import("./pages/About"));
-const JDMatcher = lazy(() => import("./components/JDMatcher"));
-const Dashboard = lazy(() => import("./components/Dashboard"));
-const ResumeHistory = lazy(() => import("./components/ResumeHistory"));
-const ResumeCompare = lazy(() => import("./components/ResumeCompare"));
-const PremiumFeatures = lazy(() => import("./components/PremiumFeatures"));
-
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 const BASE_COUNT  = 1247;
 
 /* ── Static data ──────────────────────────────────────────────── */
@@ -255,11 +253,11 @@ function Confetti({ on }) {
 function FAQ({ q, a }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className={`faq-item${open ? " open" : ""}`}>
-      <button className="faq-q" type="button" aria-expanded={open} onClick={() => setOpen(o => !o)}>
+    <div className={`faq-item${open ? " open" : ""}`} onClick={() => setOpen(o => !o)}>
+      <div className="faq-q">
         <span>{q}</span>
-        <span className="faq-arrow" aria-hidden="true">{open ? "×" : "+"}</span>
-      </button>
+        <span className="faq-arrow">{open ? "×" : "+"}</span>
+      </div>
       <div className="faq-a">{a}</div>
     </div>
   );
@@ -285,11 +283,14 @@ function Navbar() {
         <Link to="/jd-match"    className={active("/jd-match")}    onClick={() => setOpen(false)}>JD Match</Link>
         <Link to="/compare"     className={active("/compare")}     onClick={() => setOpen(false)}>Compare</Link>
         <Link to="/history"     className={active("/history")}     onClick={() => setOpen(false)}>History</Link>
-        <Link to="/upcoming"    className={active("/upcoming")}    onClick={() => setOpen(false)}>Coming Soon</Link>
+        <Link to="/dashboard"   className={active("/dashboard")}   onClick={() => setOpen(false)}>Dashboard</Link>
       </div>
 
       <div className="navbar-right">
-        <button className="hamburger" onClick={() => setOpen(o => !o)} aria-label="Toggle navigation" aria-expanded={open}>
+        <a href="https://portfolio-saiharshith.netlify.app" target="_blank" rel="noopener noreferrer" className="nav-built-by">
+          Built by Sai ↗
+        </a>
+        <button className="hamburger" onClick={() => setOpen(o => !o)} aria-label="Menu">
           <span /><span /><span />
         </button>
       </div>
@@ -313,9 +314,6 @@ function Footer() {
           <div className="fcol">
             <h4>Tool</h4>
             <Link to="/">Roast My Resume</Link>
-            <Link to="/jd-match">JD Matcher</Link>
-            <Link to="/compare">Compare Versions</Link>
-            <Link to="/history">History</Link>
             <Link to="/leaderboard">Leaderboard</Link>
           </div>
           <div className="fcol">
@@ -324,7 +322,12 @@ function Footer() {
             <Link to="/about">About</Link>
             <Link to="/privacy">Privacy</Link>
           </div>
-          <div className="fcol"><h4>Privacy</h4><span>PDFs are processed in memory</span><span>Files are never retained</span></div>
+          <div className="fcol">
+            <h4>Connect</h4>
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">Twitter</a>
+            <a href="https://github.com/harshith7002" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="https://portfolio-saiharshith.netlify.app" target="_blank" rel="noopener noreferrer">Portfolio</a>
+          </div>
         </div>
       </div>
       <div className="footer-bottom">
@@ -490,6 +493,8 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
   const [over, setOver]           = useState(false);
   const [lang, setLang]           = useState("english");
   const [personality, setP]       = useState("default");
+  const [showEmailCapture, setShowEmailCapture] = useState(false);
+  const [pendingSubmit, setPendingSubmit] = useState(false);
   const [modal, setModal]         = useState(false);
   const [lbModal, setLbModal]     = useState(false);
   const [toasts, setToasts]       = useState([]);
@@ -519,23 +524,26 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
   }, []);
 
   const handleFile = (f) => {
-    const validationError = validatePdf(f);
-    if (!validationError) {
+    if (f?.type === "application/pdf") {
       setFile(f); setErr(null); setBurst(true);
       setTimeout(() => setBurst(false), 600);
       toast(`${f.name} loaded!`, "📄");
-      trackEvent("resume_selected", { size_kb: Math.round(f.size / 1024) });
+      // GA tracking
+      if (window.gtag) window.gtag('event', 'resume_uploaded', {
+        event_category: 'engagement',
+        event_label: 'PDF Selected'
+      });
     } else {
-      toast(validationError, "⚠️");
-      setErr(validationError);
-      trackEvent("upload_rejected", { reason: validationError });
+      toast("PDF files only, genius.", "⚠️");
+      setErr("Please upload a PDF file only!");
     }
   };
 
   const handleDrop = (e) => { e.preventDefault(); setOver(false); handleFile(e.dataTransfer.files[0]); };
   const onRoastClick = () => {
     if (!file) return;
-    trackEvent("roast_cta_clicked", { language: lang });
+    const u = getUser();
+    if (!u) { setPendingSubmit(true); setShowEmailCapture(true); return; }
     setModal(true);
   };
 
@@ -549,24 +557,19 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
     setLoading(true); setRoast(null); setErr(null); setMsgIdx(0);
     const fd = new FormData();
     fd.append("resume", file); fd.append("language", lang); fd.append("personality", p);
-    const u = getUser();
-    fd.append("user_id", u?.user_id || getVisitorId());
+    const u = getUser(); if (u?.user_id) fd.append("user_id", u.user_id);
     try {
-      trackEvent("roast_started", { language: lang, personality: p });
-      const data = await apiFetch("/api/roast", { method: "POST", body: fd, timeout: 60000 });
+      const res  = await fetch(`${BACKEND_URL}/api/roast`, { method: "POST", body: fd });
+      const data = await res.json();
       if (data.success) {
         setRoast(data.roast);
         setVerdict(data.verdict || "Entry Level");
-        trackEvent("roast_completed", { verdict: data.verdict || "unknown", ats_score: data.ats_score });
-        setAts(data.ats_score || 0);
-        pushAnalysisCache({
-          id: data.analysis_id,
-          type: "roast",
-          filename: file.name,
-          ats_score: data.ats_score,
-          verdict: data.verdict,
-          result: { roast: data.roast },
+        // GA tracking
+        if (window.gtag) window.gtag('event', 'roast_completed', {
+          event_category: 'engagement',
+          event_label: data.verdict || 'unknown'
         });
+        setAts(data.ats_score || 0);
 
         // Extract snippet for leaderboard
         const parsed  = parseRoast(data.roast);
@@ -595,9 +598,8 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
       } else {
         setErr(data.error || "Something went wrong!"); toast(data.error || "Error", "💀");
       }
-    } catch (requestError) {
-      setErr(requestError.message); toast(requestError.message, "🔌");
-      trackEvent("roast_failed", { reason: requestError.message });
+    } catch {
+      setErr("Cannot reach server. Is the backend running?"); toast("Server unreachable", "🔌");
     } finally { setLoading(false); }
   };
 
@@ -657,6 +659,12 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
       <Confetti on={confetti} />
       <Toasts items={toasts} />
       {modal    && <PersonalityModal onSelect={onPersonalitySelect} onClose={() => setModal(false)} />}
+      {showEmailCapture && (
+        <EmailCapture
+          source="pre_analysis"
+          onDone={() => { setShowEmailCapture(false); if (pendingSubmit) { setPendingSubmit(false); setModal(true); } }}
+        />
+      )}
       {lbModal  && (
         <LeaderboardModal
           roastSnippet={roastSnippet}
@@ -676,7 +684,7 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
 
         <div className="hero-eyebrow">
           <span className="eyebrow-dot" />
-          Free analysis • No account required • Private by design
+          Free • No Signup • AI Powered
         </div>
 
         <h1 className="hero-title">
@@ -686,8 +694,8 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
         </h1>
 
         <p className="hero-sub">
-          Find out why your resume gets skipped. Get an <strong>ATS score, honest feedback,</strong> and{" "}
-          <strong>specific fixes you can use today</strong> in about 30 seconds.
+          Get a <strong>resume score, ATS analysis, top mistakes,</strong> and{" "}
+          <strong>5 actionable fixes</strong> in 15 seconds.
         </p>
 
         <div className="feature-chips">
@@ -706,11 +714,6 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
             👀 See Sample
           </button>
         </div>
-        <div className="hero-trust" role="list" aria-label="Resume safety">
-          <span role="listitem">🔒 Encrypted in transit</span>
-          <span role="listitem">🗑️ PDF never stored</span>
-          <span role="listitem">✓ No account required</span>
-        </div>
       </header>
 
 
@@ -724,14 +727,10 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
           />
           <div
             className={`dropzone${over ? " over" : ""}${file ? " has-file" : ""}${burst ? " burst" : ""}`}
-            role="button"
-            tabIndex={file ? -1 : 0}
-            aria-label={file ? `${file.name} selected` : "Upload resume PDF"}
             onDragOver={e => { e.preventDefault(); setOver(true); }}
             onDragLeave={() => setOver(false)}
             onDrop={handleDrop}
             onClick={() => !file && fileRef.current.click()}
-            onKeyDown={e => { if (!file && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); fileRef.current.click(); } }}
           >
             {file ? (
               <div className="file-card">
@@ -747,13 +746,13 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
                 <span className="dz-icon">📋</span>
                 <p className="dz-title">Drop your resume PDF here</p>
                 <p className="dz-sub">or click to browse</p>
-                <span className="dz-btn">📂 Upload PDF</span>
+                <button className="dz-btn">📂 Upload PDF</button>
                 <p className="dz-hint">PDF only • Max 10MB</p>
               </>
             )}
           </div>
 
-          {err && <div className="err-box" role="alert">⚠️ {err}</div>}
+          {err && <div className="err-box">⚠️ {err}</div>}
 
           <div className="lang-block">
             <span className="lang-label">🌐 Roast Language</span>
@@ -812,8 +811,6 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
               ? <span className="btn-load-inner"><span className="spin">🔥</span> ROASTING...</span>
               : "🔥 ROAST MY RESUME"}
           </button>
-
-          <p className="upload-privacy">By continuing, you agree to our <Link to="/privacy">privacy policy</Link>. Your PDF is processed only for this analysis and discarded immediately.</p>
 
           {loading && (
             <div className="loading-box">
@@ -992,7 +989,6 @@ export default function App() {
           onUpload={() => uploadRef.current?.()}
         />
 
-        <Suspense fallback={<main className="page-wrap route-loading" aria-live="polite">Loading…</main>}>
         <Routes>
           <Route path="/"            element={
             <MainApp
@@ -1009,12 +1005,10 @@ export default function App() {
           <Route path="/compare"    element={<ResumeCompare />} />
           <Route path="/history"    element={<ResumeHistory />} />
           <Route path="/dashboard"  element={<Dashboard />} />
-          <Route path="/upcoming"   element={<PremiumFeatures />} />
-          <Route path="*"           element={<Navigate to="/" replace />} />
         </Routes>
-        </Suspense>
         <Footer />
       </div>
     </Router>
   );
 }
+
