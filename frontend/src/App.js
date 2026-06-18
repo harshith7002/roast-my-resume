@@ -369,9 +369,7 @@ function Footer() {
         <div className="footer-brand">
           <span className="fb-logo">🔥 RoastMyResume</span>
           <p className="fb-tag">Brutal honesty. Actionable fixes. Zero sugarcoating. Built for CS freshers worldwide.</p>
-          <a href="https://buymeacoffee.com/macoostudy" target="_blank" rel="noopener noreferrer" className="footer-coffee">
-            ☕ Buy me a coffee
-          </a>
+        
         </div>
         <div className="footer-cols">
           <div className="fcol">
