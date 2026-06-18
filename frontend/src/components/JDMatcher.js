@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { getUser } from "../utils/storage";
-import { pushAnalysisCache } from "../utils/storage";
-
-const BACKEND = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+import { getUser, getVisitorId, pushAnalysisCache } from "../utils/storage";
+import { apiFetch, validatePdf } from "../utils/api";
+import { trackEvent } from "../utils/analytics";
 
 function ScoreRing({ score }) {
   const r = 54;
@@ -57,18 +56,20 @@ export default function JDMatcher() {
       const fd = new FormData();
       fd.append("resume", file);
       fd.append("jd_text", jdText);
-      if (user?.user_id) fd.append("user_id", user.user_id);
+      fd.append("user_id", user?.user_id || getVisitorId());
 
-      const res = await fetch(`${BACKEND}/api/jd-match`, { method: "POST", body: fd });
-      const data = await res.json();
+      trackEvent("jd_match_started");
+      const data = await apiFetch("/api/jd-match", { method: "POST", body: fd, timeout: 60000 });
       if (data.success) {
         setResult(data);
-        pushAnalysisCache({ type: "jd_match", score: data.match_score, filename: file.name, result: data });
+        pushAnalysisCache({ id: data.analysis_id, type: "jd_match", ats_score: data.match_score, filename: file.name, result: data });
+        trackEvent("jd_match_completed", { match_score: data.match_score });
       } else {
         setError(data.error || "Analysis failed");
       }
-    } catch {
-      setError("Network error — is the backend running?");
+    } catch (requestError) {
+      setError(requestError.message);
+      trackEvent("jd_match_failed", { reason: requestError.message });
     }
     setLoading(false);
   }
@@ -77,8 +78,9 @@ export default function JDMatcher() {
     e.preventDefault();
     setDragOver(false);
     const f = e.dataTransfer.files[0];
-    if (f && f.name.endsWith(".pdf")) setFile(f);
-    else setError("Only PDF files are supported");
+    const validationError = validatePdf(f);
+    if (!validationError) { setFile(f); setError(""); }
+    else setError(validationError);
   }
 
   function downloadReport() {
@@ -129,6 +131,9 @@ export default function JDMatcher() {
               onDragOver={e => { e.preventDefault(); setDragOver(true); }}
               onDragLeave={() => setDragOver(false)}
               onDrop={handleDrop}
+              role="button"
+              tabIndex="0"
+              onKeyDown={event => { if (event.key === "Enter" || event.key === " ") document.getElementById("jd-resume-input").click(); }}
               onClick={() => document.getElementById("jd-resume-input").click()}
             >
               {file ? (
@@ -150,7 +155,7 @@ export default function JDMatcher() {
               type="file"
               accept=".pdf"
               style={{ display: "none" }}
-              onChange={e => setFile(e.target.files[0])}
+              onChange={e => { const next = e.target.files[0]; const validationError = validatePdf(next); setError(validationError); if (!validationError) setFile(next); }}
             />
           </div>
 
