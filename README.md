@@ -1,4 +1,4 @@
-# 🔥 Roast My Resume — For Indian CS Freshers
+# Roast My Resume — For Indian CS Freshers
 
 Brutally honest AI resume feedback built for Indian CS students.
 
