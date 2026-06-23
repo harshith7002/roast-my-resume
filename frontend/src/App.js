@@ -18,7 +18,7 @@ const PremiumFeatures = lazy(() => import("./components/PremiumFeatures"));
 
 const BASE_COUNT  = 1247;
 
-/* ── Static data ──────────────────────────────────────────────── */
+
 const MSGS = [
   "Judging your life choices...",
   "Consulting senior engineers...",
