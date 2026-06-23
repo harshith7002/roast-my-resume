@@ -1,12 +1,4 @@
-/* ═══════════════════════════════════════════════════════════════
-   ROAST MY RESUME — WARM EDITORIAL v5
-   Aesthetic: Burning newspaper × Premium indie × Editorial serif
-   Fonts: Playfair Display (display) · Plus Jakarta Sans (body)
-═══════════════════════════════════════════════════════════════ */
 
-/* Fonts loaded via <link> in index.html */
-
-/* ── Tokens ─────────────────────────────────────────────────── */
 :root {
   --fire:       #ff6b00;
   --fire-dark:  #d44f00;
@@ -41,7 +33,6 @@
   --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* ── Reset ───────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
