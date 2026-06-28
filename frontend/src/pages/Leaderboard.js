@@ -56,8 +56,8 @@ export default function Leaderboard() {
           <div className="lb-eyebrow">🏆 COMMUNITY RANKINGS</div>
           <h1 className="lb-title">ROAST<br /><span>LEADERBOARD</span></h1>
           <p className="lb-sub">
-            The most brutally honest — and funniest — roasts,<br />
-            voted by the community.
+            Submit your funniest roast and vote for the best.<br />
+            Entries are saved on this device.
           </p>
           <Link to="/" className="lb-cta">🔥 Get Roasted &amp; Compete</Link>
         </div>
@@ -66,7 +66,7 @@ export default function Leaderboard() {
         {entries.length > 0 && (
           <div className="lb-live-badge">
             <span className="lb-live-dot" />
-            {entries.length} {entries.length === 1 ? "submission" : "submissions"} from real users
+            {entries.length} {entries.length === 1 ? "roast" : "roasts"} saved on this device
           </div>
         )}
 
