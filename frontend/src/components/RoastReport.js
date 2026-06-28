@@ -156,7 +156,7 @@ function SuggestionCard({ section, index, defaultOpen }) {
 
 export default function RoastReport({
   verdict, verdictMeta, overall, categories, sections, badges = [],
-  onCopy, onShareCard, onDownloadPdf, onLeaderboard, onReset,
+  onCopy, onShareCard, onDownloadPdf, onLeaderboard, onReset, preview = false,
 }) {
   const cats = categories || {};
   const [showBA, setShowBA] = useState(false);
@@ -170,8 +170,8 @@ export default function RoastReport({
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
     >
       <div className="report-hero">
-        <span className="rh-tag">✅ ANALYSIS COMPLETE</span>
-        <h2 className="rh-title">Your Resume Report</h2>
+        <span className="rh-tag">{preview ? "👀 SAMPLE REPORT" : "✅ ANALYSIS COMPLETE"}</span>
+        <h2 className="rh-title">{preview ? "This is what you'll get" : "Your Resume Report"}</h2>
       </div>
 
       {/* ── Top: gauge + verdict ── */}
@@ -239,25 +239,29 @@ export default function RoastReport({
         </AnimatePresence>
       </div>
 
-      {/* ── Leaderboard invite ── */}
-      <div className="lb-invite-banner" onClick={onLeaderboard}>
-        <span className="lib-icon">🏆</span>
-        <div>
-          <p className="lib-title">Enter the Leaderboard</p>
-          <p className="lib-sub">Community votes. Top 3 win weekly prizes.</p>
-        </div>
-        <span className="lib-arrow">→</span>
-      </div>
+      {!preview && (
+        <>
+          {/* ── Leaderboard invite ── */}
+          <div className="lb-invite-banner" onClick={onLeaderboard}>
+            <span className="lib-icon">🏆</span>
+            <div>
+              <p className="lib-title">Enter the Leaderboard</p>
+              <p className="lib-sub">Community votes. Top 3 win weekly prizes.</p>
+            </div>
+            <span className="lib-arrow">→</span>
+          </div>
 
-      {/* ── Actions ── */}
-      <div className="result-actions">
-        <button className="ra-btn primary" onClick={onDownloadPdf}>⬇️ Download PDF</button>
-        <button className="ra-btn" onClick={onCopy}>📋 Copy Roast</button>
-        <button className="ra-btn" onClick={onShareCard}>📸 Share Card</button>
-        <button className="ra-btn gold" onClick={onLeaderboard}>🏆 Leaderboard</button>
-        <button className="ra-btn full" onClick={onReset}>+ Roast Another Resume</button>
-      </div>
-      <p className="share-hint">// share your roast in the college group chat 😂</p>
+          {/* ── Actions ── */}
+          <div className="result-actions">
+            <button className="ra-btn primary" onClick={onDownloadPdf}>⬇️ Download PDF</button>
+            <button className="ra-btn" onClick={onCopy}>📋 Copy Roast</button>
+            <button className="ra-btn" onClick={onShareCard}>📸 Share Card</button>
+            <button className="ra-btn gold" onClick={onLeaderboard}>🏆 Leaderboard</button>
+            <button className="ra-btn full" onClick={onReset}>+ Roast Another Resume</button>
+          </div>
+          <p className="share-hint">// share your roast in the college group chat 😂</p>
+        </>
+      )}
     </motion.div>
   );
 }

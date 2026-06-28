@@ -86,6 +86,36 @@ const SAMPLE_DATA = [
   { emoji: "📈", title: "GLOW UP GUIDE", color: "#5599ff", text: "1. Remove MS Word from skills immediately\n2. Deploy something real with actual users\n3. Add numbers — '500 users', '40% faster'\n4. Delete the Objective section\n5. Add LeetCode problem count" },
 ];
 
+const SAMPLE_CATS = { ats: 42, projects: 55, skills: 60, experience: 32, impact: 48 };
+
+const WHY_FEATURES = [
+  { icon: "🎯", metric: "5", unit: "category scores", color: "#ff6b00",
+    desc: "Separate scores for ATS, Skills, Projects, Experience, and Impact — so you know exactly what to improve." },
+  { icon: "🌍", metric: "34+", unit: "languages", color: "#00d68f",
+    desc: "Analyze and receive feedback in your preferred language. Built for students worldwide." },
+  { icon: "⚡", metric: "~15", unit: "seconds", color: "#ffaa00",
+    desc: "Get your complete resume analysis with scores, fixes, and a downloadable report in seconds." },
+  { icon: "🔒", metric: "Privacy", unit: "first", color: "#5599ff",
+    desc: "Your resume is processed securely and isn't retained after analysis. No signup required." },
+  { icon: "📄", metric: "1-click", unit: "PDF export", color: "#cc77ff",
+    desc: "Download a clean, recruiter-ready report with scores, insights, and actionable recommendations." },
+  { icon: "🔥", metric: "6", unit: "roast personalities", color: "#ff85a1",
+    desc: "Pick a personality — from Gordon Ramsay to Savage Engineer. Every roast comes with practical improvements." },
+];
+
+const ATS_FACTORS = [
+  { icon: "🔑", title: "Keywords", weight: "High", color: "#ff6b00",
+    desc: "ATS bots scan for the exact tech and tools a job needs. Missing keywords = auto-rejected before a human ever sees you." },
+  { icon: "📐", title: "Clean formatting", weight: "High", color: "#ffaa00",
+    desc: "Tables, columns, images and fancy fonts confuse parsers. Simple, single-column text with standard headings reads cleanly." },
+  { icon: "📊", title: "Quantified impact", weight: "High", color: "#00d68f",
+    desc: "Numbers like '500 users' or '40% faster' signal real results. Vague duties ('responsible for…') score low." },
+  { icon: "🧱", title: "Standard sections", weight: "Medium", color: "#5599ff",
+    desc: "Education, Experience, Projects, Skills — named plainly. Creative headings ('My Journey') trip up the parser." },
+  { icon: "🔗", title: "Contact & links", weight: "Low", color: "#cc77ff",
+    desc: "A parseable email, GitHub and LinkedIn. Links buried in icons or headers often get dropped entirely." },
+];
+
 /* ── Helpers ──────────────────────────────────────────────────── */
 function parseRoast(text) {
   const patterns = [
@@ -162,36 +192,18 @@ function SampleDrawer({ open, onClose, onUpload }) {
 
         {/* Scrollable body */}
         <div className="sample-drawer-body">
-          <div className="verdict-card" style={{ "--vc-color": "#5599ff" }}>
-            <div className="verdict-pill startup" style={{ margin: "0 auto" }}>🚀 STARTUP READY</div>
-            <p className="verdict-desc" style={{ marginTop: 8 }}>Good bones. Show more impact.</p>
-          </div>
-
-          <div className="ats-card">
-            <div className="ats-info">
-              <span className="ats-title">📊 ATS Score</span>
-              <span className="ats-subtitle">❌ ATS will likely filter you out</span>
-            </div>
-            <div>
-              <span className="ats-number" style={{ color: "#ff6b00" }}>42</span>
-              <span className="ats-denom">/100</span>
-            </div>
-          </div>
-
-          {SAMPLE_DATA.map((s, i) => (
-            <div
-              key={i}
-              className="roast-card"
-              style={{ "--rc-color": s.color, animationDelay: `${i * 0.08}s` }}
-            >
-              <div className="rc-lines">
-                <p className="rc-line rc-heading">{s.emoji} {s.title}</p>
-                {s.text.split("\n").map((l, j) => (
-                  <p key={j} className="rc-line">{l}</p>
-                ))}
-              </div>
-            </div>
-          ))}
+          <RoastReport
+            preview
+            verdict="🚀 Startup Ready"
+            verdictMeta={verdictMeta("startup")}
+            overall={computeOverall(SAMPLE_CATS)}
+            categories={SAMPLE_CATS}
+            sections={SAMPLE_DATA.map((s, i) => ({
+              key: `sample-${i}`,
+              color: s.color,
+              content: `${s.emoji} ${s.title}\n${s.text}`,
+            }))}
+          />
 
           <button
             className="fire-btn"
@@ -203,6 +215,91 @@ function SampleDrawer({ open, onClose, onUpload }) {
         </div>
       </div>
     </div>
+  );
+}
+
+/* ── How ATS scoring works ────────────────────────────────────── */
+function AtsExplainer() {
+  return (
+    <section className="ats-explainer">
+      <div className="atsx-head">
+        <p className="atsx-eyebrow">UNDER THE HOOD</p>
+        <h3 className="atsx-title">How ATS scoring actually works</h3>
+        <p className="atsx-sub">
+          Over 90% of companies run resumes through an <strong>Applicant Tracking System</strong> before
+          a recruiter reads them. Here's what those bots check — and what your score is built from.
+        </p>
+      </div>
+      <div className="atsx-grid">
+        {ATS_FACTORS.map((f) => (
+          <motion.div
+            key={f.title}
+            className="atsx-card"
+            style={{ "--ax-color": f.color }}
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className="atsx-card-top">
+              <span className="atsx-icon">{f.icon}</span>
+              <span className={`atsx-weight w-${f.weight.toLowerCase()}`}>{f.weight} impact</span>
+            </div>
+            <p className="atsx-card-title">{f.title}</p>
+            <p className="atsx-card-desc">{f.desc}</p>
+          </motion.div>
+        ))}
+      </div>
+      <p className="atsx-foot">
+        🔍 Your report breaks this into five live scores — <strong>ATS, Skills, Projects, Experience, Impact</strong> — so you know exactly where you're losing points.
+      </p>
+    </section>
+  );
+}
+
+/* ── Why RoastMyResume ────────────────────────────────────────── */
+/* Real, verifiable product features and metrics — no fabricated quotes.
+   The testimonials placeholder below is intentionally left for genuine
+   user stories once we have permission to publish them. */
+function WhyRoastMyResume() {
+  return (
+    <section className="why-section">
+      <div className="why-head">
+        <p className="why-eyebrow">WHY ROASTMYRESUME</p>
+        <h3 className="why-title">Know exactly what to fix.</h3>
+        <p className="why-sub">No generic "looks good!" Every score comes with a real, specific fix — built for CS freshers who need to stand out.</p>
+      </div>
+      <div className="why-grid">
+        {WHY_FEATURES.map((f) => (
+          <motion.div
+            key={f.unit}
+            className="why-card"
+            style={{ "--why-color": f.color }}
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <span className="why-icon">{f.icon}</span>
+            <p className="why-metric">{f.metric} <span className="why-unit">{f.unit}</span></p>
+            <p className="why-desc">{f.desc}</p>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Placeholder for real user testimonials — to be filled with
+          genuine, opt-in stories. Intentionally not fabricated. */}
+      <div className="why-testimonials-placeholder">
+        <span className="wtp-badge">COMING SOON</span>
+        <p className="wtp-title">Real stories from real users</p>
+        <p className="wtp-sub">
+          We don't fake reviews. Got roasted and landed something? We'd love to feature your story (with your permission).
+        </p>
+        <a className="wtp-link" href="mailto:hello@macoostudy.info?subject=My%20RoastMyResume%20story">
+          Share your story →
+        </a>
+      </div>
+    </section>
   );
 }
 
@@ -999,6 +1096,12 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
           </div>
         </section>
       )}
+
+      {/* ── How ATS scoring works ── */}
+      {!roast && <AtsExplainer />}
+
+      {/* ── Why RoastMyResume ── */}
+      {!roast && <WhyRoastMyResume />}
 
       {/* ── Roast of the Day ── */}
       {!roast && (

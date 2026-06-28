@@ -1660,3 +1660,98 @@ html[data-theme="light"] ::-webkit-scrollbar-track { background: var(--bg); }
 @media (prefers-reduced-motion: reduce) {
   .gauge-fill, .catbar-fill { transition: none !important; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   PHASE 2 · TRUST  ·  ATS explainer + why-section
+   ════════════════════════════════════════════════════════════════ */
+.ats-explainer, .why-section {
+  max-width: 1000px; margin: 56px auto 0; padding: 0 20px; width: 100%;
+}
+.atsx-head, .why-head { text-align: center; max-width: 640px; margin: 0 auto 30px; }
+.atsx-eyebrow, .why-eyebrow {
+  font-size: 12px; font-weight: 800; letter-spacing: 2px; color: var(--fire);
+  text-transform: uppercase; margin-bottom: 10px;
+}
+.atsx-title, .why-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(26px, 4.5vw, 38px); font-weight: 800; color: var(--cream);
+  line-height: 1.15; margin-bottom: 12px;
+}
+.atsx-sub, .why-sub { font-size: 15px; line-height: 1.6; color: var(--cream-60); }
+.atsx-sub strong { color: var(--cream); }
+
+/* ── ATS cards ── */
+.atsx-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;
+}
+.atsx-card {
+  background: linear-gradient(150deg, var(--surface2), var(--surface));
+  border: 1px solid var(--border); border-left: 3px solid var(--ax-color, var(--fire));
+  border-radius: var(--r-lg); padding: 20px; backdrop-filter: blur(12px);
+  transition: transform 0.25s var(--ease-out), border-color 0.25s, box-shadow 0.25s;
+}
+.atsx-card:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.16); }
+.atsx-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.atsx-icon { font-size: 26px; }
+.atsx-weight {
+  font-size: 10.5px; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 100px;
+}
+.atsx-weight.w-high   { background: rgba(255,107,0,0.14);  color: var(--fire); }
+.atsx-weight.w-medium { background: rgba(85,153,255,0.14); color: var(--sapphire); }
+.atsx-weight.w-low    { background: var(--cream-10);        color: var(--cream-60); }
+.atsx-card-title { font-size: 17px; font-weight: 800; color: var(--cream); margin-bottom: 7px; }
+.atsx-card-desc { font-size: 13.5px; line-height: 1.55; color: var(--cream-60); }
+.atsx-foot {
+  margin-top: 22px; text-align: center; font-size: 14px; line-height: 1.6;
+  color: var(--cream-60); padding: 16px 20px; border-radius: var(--r-lg);
+  background: var(--surface); border: 1px dashed var(--border-hot);
+}
+.atsx-foot strong { color: var(--cream); }
+
+/* ── Why RoastMyResume cards ── */
+.why-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;
+}
+.why-card {
+  display: flex; flex-direction: column; gap: 8px;
+  background: linear-gradient(150deg, var(--surface2), var(--surface));
+  border: 1px solid var(--border); border-top: 3px solid var(--why-color, var(--fire));
+  border-radius: var(--r-lg); padding: 22px 20px; backdrop-filter: blur(12px);
+  transition: transform 0.25s var(--ease-out), box-shadow 0.25s;
+}
+.why-card:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.16); }
+.why-icon { font-size: 28px; }
+.why-metric {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 30px; font-weight: 800; color: var(--why-color, var(--fire)); line-height: 1.1;
+}
+.why-unit {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px; font-weight: 700; color: var(--cream-60); letter-spacing: 0.2px;
+}
+.why-desc { font-size: 13.5px; line-height: 1.55; color: var(--cream-60); }
+
+/* ── Real-testimonials placeholder ── */
+.why-testimonials-placeholder {
+  margin-top: 22px; text-align: center; padding: 26px 22px;
+  border-radius: var(--r-lg); background: var(--surface);
+  border: 1px dashed var(--border-hot);
+}
+.wtp-badge {
+  display: inline-block; font-size: 10.5px; font-weight: 800; letter-spacing: 1.2px;
+  color: var(--fire); background: rgba(255,107,0,0.12);
+  padding: 4px 11px; border-radius: 100px; margin-bottom: 12px;
+}
+.wtp-title { font-size: 17px; font-weight: 800; color: var(--cream); margin-bottom: 6px; }
+.wtp-sub { font-size: 13.5px; line-height: 1.6; color: var(--cream-60); max-width: 520px; margin: 0 auto 14px; }
+.wtp-link {
+  font-size: 14px; font-weight: 700; color: var(--fire); text-decoration: none;
+  border-bottom: 1px solid var(--border-hot); padding-bottom: 1px; transition: color 0.2s;
+}
+.wtp-link:hover { color: var(--amber); }
+
+@media (max-width: 560px) {
+  .ats-explainer, .why-section { margin-top: 40px; }
+  .atsx-grid, .why-grid { grid-template-columns: 1fr; }
+}
