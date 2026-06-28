@@ -582,13 +582,13 @@ function LeaderboardModal({ roastSnippet, verdict, ats, onSubmit, onClose }) {
             <div className="lb-modal-icon">🏆</div>
             <h2 className="modal-title">Enter the Leaderboard?</h2>
             <p className="modal-sub">
-              Your roast will be visible to the community — they'll vote on the funniest ones.
-              Weekly top 3 win prizes!
+              Add your roast to the board and vote for the funniest. Entries are
+              saved on this device — it's just for fun, no signup.
             </p>
             <div className="lb-modal-prizes">
-              <span>🥇 Free Resume Fix</span>
-              <span>🥈 ATS Analysis</span>
-              <span>🥉 Priority Roast</span>
+              <span>😂 Funniest roasts</span>
+              <span>🔥 Top of the board</span>
+              <span>🏅 Bragging rights</span>
             </div>
             <div className="lb-modal-actions">
               <button className="modal-fire-btn" onClick={() => setStep("name")}>
