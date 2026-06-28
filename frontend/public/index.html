@@ -24,9 +24,27 @@
     <meta property="og:description" content="Upload your resume. Get brutally honest feedback. No sugarcoating." />
     <meta name="twitter:card" content="summary_large_image" />
 
+    <!-- Set the theme before first paint to avoid a flash of the wrong mode -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("rmr_theme");
+          if (t !== "light" && t !== "dark") {
+            t = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+          }
+          document.documentElement.setAttribute("data-theme", t);
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      })();
+    </script>
+
     <!-- Critical inline style to prevent FOUC -->
     <style>
-      body { background: #100b00; color: #fff5e0; margin: 0; }
+      html[data-theme="light"] body { background: #fdf6ec; color: #2a1c0a; }
+      html[data-theme="dark"] body,
+      html:not([data-theme]) body { background: #100b00; color: #fff5e0; }
+      body { margin: 0; }
       #root { min-height: 100vh; }
     </style>
 

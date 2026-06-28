@@ -1,10 +1,23 @@
 import React, { lazy, Suspense, useState, useRef, useEffect, useCallback } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
 import "./App.css";
 import { getUser, getVisitorId, pushAnalysisCache } from "./utils/storage";
 import { apiFetch, validatePdf } from "./utils/api";
 import { trackEvent } from "./utils/analytics";
 import { saveLbEntry } from "./utils/leaderboard";
+import { useTheme } from "./hooks/useTheme";
+import { downloadReportPdf } from "./utils/pdf";
+import RoastReport from "./components/RoastReport";
+
+/* Weighted overall score from the deterministic category scores. */
+function computeOverall(c) {
+  if (!c) return 0;
+  return Math.round(
+    0.25 * (c.ats || 0) + 0.20 * (c.projects || 0) + 0.20 * (c.skills || 0) +
+    0.15 * (c.experience || 0) + 0.20 * (c.impact || 0)
+  );
+}
 
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const Blog = lazy(() => import("./pages/Blog"));
@@ -266,7 +279,7 @@ function FAQ({ q, a }) {
 }
 
 /* ── Navbar ───────────────────────────────────────────────────── */
-function Navbar({ onUploadClick }) {
+function Navbar({ onUploadClick, theme, onToggleTheme }) {
   const [open, setOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
   const loc  = useLocation();
@@ -344,6 +357,14 @@ function Navbar({ onUploadClick }) {
       </div>
 
       <div className="navbar-right">
+        <button
+          className="theme-toggle"
+          onClick={onToggleTheme}
+          aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+          title={theme === "light" ? "Dark mode" : "Light mode"}
+        >
+          {theme === "light" ? "🌙" : "☀️"}
+        </button>
         <button
           className="nav-cta"
           onClick={() => { closeAll(); onUploadClick?.(); }}
@@ -548,6 +569,7 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
   const [roast, setRoast]         = useState(null);
   const [verdict, setVerdict]     = useState("");
   const [ats, setAts]             = useState(0);
+  const [cats, setCats]           = useState(null);
   const [err, setErr]             = useState(null);
   const [over, setOver]           = useState(false);
   const [lang, setLang]           = useState("english");
@@ -621,13 +643,17 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
         setVerdict(data.verdict || "Entry Level");
         trackEvent("roast_completed", { verdict: data.verdict || "unknown", ats_score: data.ats_score });
         setAts(data.ats_score || 0);
+        // Fall back to deriving a single-bucket breakdown if the backend is older.
+        setCats(data.category_scores || {
+          ats: data.ats_score || 0, projects: 0, skills: 0, experience: 0, impact: 0,
+        });
         pushAnalysisCache({
           id: data.analysis_id,
           type: "roast",
           filename: file.name,
           ats_score: data.ats_score,
           verdict: data.verdict,
-          result: { roast: data.roast },
+          result: { roast: data.roast, category_scores: data.category_scores },
         });
 
         // Extract snippet for leaderboard
@@ -666,9 +692,27 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
   const copyRoast = () => { navigator.clipboard.writeText(roast); toast("Copied! Send it to your rivals 😂", "📋"); };
 
   const reset = () => {
-    setFile(null); setRoast(null); setErr(null); setVerdict(""); setAts(0);
+    setFile(null); setRoast(null); setErr(null); setVerdict(""); setAts(0); setCats(null);
     setBadges([]); setConfetti(false); setLbModal(false); setRoastSnippet("");
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const downloadPdf = () => {
+    toast("Building your PDF report...", "📄");
+    try {
+      const vmeta = verdictMeta(verdict);
+      downloadReportPdf({
+        verdict: vmeta.label,
+        verdictDesc: vmeta.desc,
+        overall: computeOverall(cats),
+        categories: cats,
+        sections: parseRoast(roast),
+        filename: file?.name || "resume",
+      });
+      trackEvent("pdf_downloaded", {});
+    } catch (e) {
+      toast("Could not build PDF. Try again.", "⚠️");
+    }
   };
 
   const shareImage = () => {
@@ -730,7 +774,12 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
       )}
 
       {/* ── Hero ── */}
-      <header className="hero">
+      <motion.header
+        className="hero"
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      >
         {/* Above-the-fold trust strip */}
         <div className="hero-trust-strip">
           <span className="hts-item">✓ Private</span>
@@ -793,7 +842,7 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
           <span className="htb-item" role="listitem"><span className="htb-icon">✓</span> No account required</span>
           <span className="htb-item" role="listitem"><span className="htb-icon">🤫</span> Never publicly shared</span>
         </div>
-      </header>
+      </motion.header>
 
 
       {/* ── Upload — directly below hero ── */}
@@ -965,83 +1014,19 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
       {/* ── Results ── */}
       {roast && (
         <div className="results-wrap" ref={resultsRef}>
-          <div className="results-hero">
-            <span className="rh-tag">ROAST COMPLETE</span>
-            <h2 className="rh-title">Your Verdict 😂</h2>
-          </div>
-
-          <div className="verdict-card" style={{ "--vc-color": vm.cls === "faang" ? "#00d68f" : vm.cls === "product" ? "#ffc844" : vm.cls === "startup" ? "#5599ff" : "rgba(255,245,224,0.3)" }}>
-            <div className={`verdict-pill ${vm.cls}`}>{vm.icon} {vm.label.toUpperCase()}</div>
-            <p className="verdict-desc">{vm.desc}</p>
-          </div>
-
-          <div className="ats-card">
-            <div className="ats-info">
-              <span className="ats-title">📊 ATS Score</span>
-              <span className="ats-subtitle">
-                {ats >= 80 ? "✅ ATS Friendly — passes most filters"
-                           : ats >= 60 ? "⚠️ Needs more keywords to pass ATS"
-                           : "❌ ATS will likely filter you out"}
-              </span>
-            </div>
-            <div>
-              <span className="ats-number" style={{ color: ats >= 80 ? "#00d68f" : ats >= 60 ? "#ffc844" : "#ff6b00" }}>
-                {ats}
-              </span>
-              <span className="ats-denom">/100</span>
-            </div>
-          </div>
-
-          {badges.length > 0 && (
-            <div className="badges-section">
-              <p className="badges-title">🎖️ Badges Earned</p>
-              <div className="badges-grid">
-                {badges.map(b => (
-                  <div key={b.id} className="badge-chip">
-                    <span>{b.emoji}</span><span>{b.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="roast-cards">
-            {sections.map((s, i) => (
-              <div key={s.key} className="roast-card" style={{ "--rc-color": s.color, animationDelay: `${i * 0.14}s` }}>
-                <div className="rc-lines">
-                  {s.content.split("\n").map((l, j) =>
-                    l.trim() && (
-                      <p key={j} className={`rc-line${/^[🔥💀✅📈🎯]/.test(l) ? " rc-heading" : ""}`}>{l}</p>
-                    )
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Leaderboard invite banner */}
-          <div className="lb-invite-banner" onClick={() => setLbModal(true)}>
-            <span className="lib-icon">🏆</span>
-            <div>
-              <p className="lib-title">Enter the Leaderboard</p>
-              <p className="lib-sub">Community votes. Top 3 win weekly prizes.</p>
-            </div>
-            <span className="lib-arrow">→</span>
-          </div>
-
-          <div className="result-actions">
-            <button className="ra-btn" onClick={copyRoast}>📋 Copy Roast</button>
-            <button className="ra-btn" onClick={shareImage}>📸 Share Card</button>
-            <button className="ra-btn gold" onClick={() => setLbModal(true)}>🏆 Leaderboard</button>
-            <button className="ra-btn" onClick={reset}>🔄 Roast Another</button>
-            <button className="ra-btn full" onClick={reset}>+ Upload New Resume</button>
-          </div>
-
-          <p className="coffee-row">
-            Loved the roast?{" "}
-            
-          </p>
-          <p className="share-hint">// share your roast in the college group chat 😂</p>
+          <RoastReport
+            verdict={verdict}
+            verdictMeta={vm}
+            overall={computeOverall(cats)}
+            categories={cats}
+            sections={sections}
+            badges={badges}
+            onCopy={copyRoast}
+            onShareCard={shareImage}
+            onDownloadPdf={downloadPdf}
+            onLeaderboard={() => setLbModal(true)}
+            onReset={reset}
+          />
         </div>
       )}
 
@@ -1057,6 +1042,7 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
 /* ── Root ─────────────────────────────────────────────────────── */
 export default function App() {
   const [showSample, setShowSample] = useState(false);
+  const { theme, toggleTheme } = useTheme();
   const uploadRef = useRef(null);
   const registerUpload = useCallback((fn) => { uploadRef.current = fn; }, []);
 
@@ -1076,7 +1062,7 @@ export default function App() {
       <div className="app">
         <div className="bg-canvas" aria-hidden="true" />
         <div className="bg-grid"   aria-hidden="true" />
-        <Navbar onUploadClick={handleNavUpload} />
+        <Navbar onUploadClick={handleNavUpload} theme={theme} onToggleTheme={toggleTheme} />
 
         {/* Drawer lives at root — never clipped by any child stacking context */}
         <SampleDrawer

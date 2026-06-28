@@ -228,6 +228,72 @@ def calculate_ats_score(resume_text):
     if 'ms office' in text_lower: score -= 5
     return max(0, min(100, score))
 
+def calculate_category_scores(resume_text):
+    """Deterministic 0-100 sub-scores per category, derived from the same
+    signals as the ATS/verdict heuristics so the interactive report shows
+    real numbers (not AI-hallucinated ones)."""
+    text_lower = resume_text.lower()
+    clamp = lambda v: max(0, min(100, int(round(v))))
+
+    # ── Skills: breadth of recognised tech keywords + profiles ──
+    tech_keywords = ['python','java','javascript','react','node','sql','aws','docker','git','api',
+        'machine learning','deep learning','flask','django','mongodb','mysql','postgresql','typescript',
+        'kubernetes','rest','graphql','redis','linux','c++','kotlin','swift','tensorflow','pytorch',
+        'spring','express','nextjs','vue','angular','firebase','fastapi']
+    keyword_count = sum(1 for k in tech_keywords if k in text_lower)
+    skills = keyword_count * 8
+    if 'github' in text_lower: skills += 6
+    if any(x in text_lower for x in ['aws certified','google certified','azure certified']): skills += 8
+    skills = clamp(skills)
+
+    # ── Projects: count + whether anything is actually shipped ──
+    proj_count = text_lower.count('project')
+    deployed = any(x in text_lower for x in ['deployed','live','netlify','vercel','heroku','render'])
+    projects = proj_count * 14
+    if deployed: projects += 30
+    if 'open source' in text_lower: projects += 12
+    projects = clamp(projects)
+
+    # ── Experience: internships, brand names, education ──
+    top = ['google','microsoft','amazon','meta','flipkart','uber','swiggy','zomato',
+           'razorpay','adobe','samsung','oracle','ibm']
+    experience = 0
+    if any(c in text_lower for c in top) and 'intern' in text_lower:
+        experience += 70
+    elif 'internship' in text_lower or 'intern ' in text_lower:
+        experience += 40
+    cgpa_match = re.search(r'(\d+\.?\d*)\s*(?:cgpa|gpa)', text_lower)
+    if cgpa_match:
+        cgpa = float(cgpa_match.group(1))
+        if cgpa >= 8.5: experience += 25
+        elif cgpa >= 7.5: experience += 18
+        elif cgpa >= 6.5: experience += 10
+        else: experience += 4
+    if any(x in text_lower for x in ['b.tech','b.e','bachelor','computer science','engineering','bsc']):
+        experience += 10
+    experience = clamp(experience)
+
+    # ── Impact: quantified results, action verbs, achievements ──
+    metrics = re.findall(r'\d+%|\d+x|\d+\+|\$\d+|\d+\s*(?:users|requests|ms|seconds|lines|commits|stars|k\b|lakh|million)', text_lower)
+    unique_metrics = len(set(metrics))
+    action_verbs = ['developed','built','designed','implemented','created','led','managed','optimized',
+        'improved','deployed','architected','engineered','launched','delivered','reduced','increased',
+        'automated','integrated','maintained','collaborated','spearheaded','streamlined']
+    verb_count = sum(1 for v in action_verbs if v in text_lower)
+    impact = unique_metrics * 16 + verb_count * 4
+    if any(x in text_lower for x in ['winner','won','first place','rank 1']): impact += 15
+    elif 'hackathon' in text_lower: impact += 6
+    if 'leetcode' in text_lower or 'codeforces' in text_lower: impact += 8
+    impact = clamp(impact)
+
+    return {
+        "ats":        calculate_ats_score(resume_text),
+        "skills":     skills,
+        "projects":   projects,
+        "experience": experience,
+        "impact":     impact,
+    }
+
 def extract_text_from_pdf(pdf_bytes):
     if len(pdf_bytes) > 10 * 1024 * 1024:
         raise ValueError("PDF is too large")
@@ -452,6 +518,7 @@ def roast_resume():
         personality_prompt = PERSONALITY_PROMPTS.get(personality, PERSONALITY_PROMPTS["default"])
         python_verdict    = evaluate_resume_with_ai(resume_text)
         python_ats        = calculate_ats_score(resume_text)
+        category_scores   = calculate_category_scores(resume_text)
 
         prompt = ROAST_PROMPT.format(
             personality_prompt=personality_prompt,
@@ -473,7 +540,7 @@ def roast_resume():
         conn.execute(
             "INSERT INTO analyses (id, user_id, type, filename, ats_score, verdict, result_json) VALUES (?,?,?,?,?,?,?)",
             (analysis_id, user_id, "roast", file.filename, python_ats, python_verdict,
-             json.dumps({"roast": roast_text}))
+             json.dumps({"roast": roast_text, "category_scores": category_scores}))
         )
         conn.commit()
         conn.close()
@@ -485,6 +552,7 @@ def roast_resume():
             "success": True,
             "verdict": python_verdict,
             "ats_score": python_ats,
+            "category_scores": category_scores,
             "analysis_id": analysis_id,
         })
 
