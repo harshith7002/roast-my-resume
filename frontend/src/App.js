@@ -295,7 +295,7 @@ function WhyRoastMyResume() {
         <p className="wtp-sub">
           We don't fake reviews. Got roasted and landed something? We'd love to feature your story (with your permission).
         </p>
-        <a className="wtp-link" href="mailto:hello@macoostudy.info?subject=My%20RoastMyResume%20story">
+        <a className="wtp-link" href="mailto:macoostudy2@gmail.com?subject=My%20RoastMyResume%20story">
           Share your story →
         </a>
       </div>

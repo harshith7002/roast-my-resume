@@ -51,10 +51,10 @@ export default function Dashboard() {
           <h3>ATS Score Trend</h3>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={data.ats_trend}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2a2a2a" />
-              <XAxis dataKey="date" stroke="#666" tick={{ fontSize: 11 }} />
-              <YAxis domain={[0, 100]} stroke="#666" tick={{ fontSize: 11 }} />
-              <Tooltip contentStyle={{ background: "#1a1a1a", border: "1px solid #333", borderRadius: 8 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(128,128,128,0.2)" />
+              <XAxis dataKey="date" stroke="#999" tick={{ fontSize: 11 }} />
+              <YAxis domain={[0, 100]} stroke="#999" tick={{ fontSize: 11 }} />
+              <Tooltip contentStyle={{ background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--cream)" }} />
               <Line type="monotone" dataKey="score" stroke="#5599ff" strokeWidth={2} dot={{ r: 4, fill: "#5599ff" }} />
             </LineChart>
           </ResponsiveContainer>

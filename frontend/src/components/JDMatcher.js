@@ -7,20 +7,21 @@ function ScoreRing({ score }) {
   const r = 54;
   const circ = 2 * Math.PI * r;
   const filled = (score / 100) * circ;
-  const color = score >= 70 ? "#00d68f" : score >= 50 ? "#ffaa00" : "#ff4757";
+  // Align with the rest of the app: emerald / gold / fire (no off-palette red).
+  const color = score >= 75 ? "var(--emerald)" : score >= 50 ? "var(--gold)" : "var(--fire)";
   return (
     <div className="score-ring-wrap">
-      <svg width="140" height="140" viewBox="0 0 140 140">
-        <circle cx="70" cy="70" r={r} fill="none" stroke="#2a2a2a" strokeWidth="12" />
+      <svg width="140" height="140" viewBox="0 0 140 140" role="img" aria-label={`Match score ${score} percent`}>
+        <circle cx="70" cy="70" r={r} fill="none" style={{ stroke: "var(--cream-10)" }} strokeWidth="12" />
         <circle
-          cx="70" cy="70" r={r} fill="none" stroke={color} strokeWidth="12"
+          cx="70" cy="70" r={r} fill="none" strokeWidth="12"
           strokeDasharray={`${filled} ${circ}`}
           strokeLinecap="round"
           transform="rotate(-90 70 70)"
-          style={{ transition: "stroke-dasharray 1s ease" }}
+          style={{ stroke: color, transition: "stroke-dasharray 1s ease" }}
         />
-        <text x="70" y="65" textAnchor="middle" fill="#fff" fontSize="28" fontWeight="700">{score}%</text>
-        <text x="70" y="85" textAnchor="middle" fill="#888" fontSize="12">Match</text>
+        <text x="70" y="65" textAnchor="middle" style={{ fill: "var(--cream)" }} fontSize="28" fontWeight="700">{score}%</text>
+        <text x="70" y="85" textAnchor="middle" style={{ fill: "var(--cream-60)" }} fontSize="12">Match</text>
       </svg>
     </div>
   );
