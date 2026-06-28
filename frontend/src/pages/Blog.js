@@ -15,16 +15,15 @@ export default function Blog() {
       <div className="static-wrap">
         <Link to="/" className="back-link">← Back</Link>
         <h1>RESUME TIPS</h1>
-        <p className="blog-intro">Actionable advice to stop getting roasted by AI — and start getting hired.</p>
+        <p className="blog-intro">Actionable advice to stop getting roasted by AI — and start getting hired. <strong>Articles are on the way</strong> — here's what's coming.</p>
         <div className="blog-grid">
           {POSTS.map((p, i) => (
             <div key={i} className="blog-card">
               <div className="blog-meta">
-                <span className="blog-date">{p.date}</span>
                 <span className="blog-read">⏱ {p.read} read</span>
+                <span className="blog-soon">Coming soon</span>
               </div>
               <h2 className="blog-title">{p.title}</h2>
-              <button className="blog-btn">Read More →</button>
             </div>
           ))}
         </div>

@@ -52,7 +52,7 @@ export default function ResumeHistory() {
         </header>
         <div className="notice" role="note" style={{display:'flex',alignItems:'center',gap:'8px'}}>
           <span>📋</span>
-          <span><strong>Session-based history</strong> — tied to this browser only. Your resumes are never stored on our servers.</span>
+          <span><strong>Your resume file is never stored</strong> — only your scores and feedback are saved (tied to this device) so you can revisit them here.</span>
         </div>
 
         {error && <div className="notice" role="status">{error}</div>}

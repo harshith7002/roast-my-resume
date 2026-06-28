@@ -245,8 +245,8 @@ export default function RoastReport({
           <div className="lb-invite-banner" onClick={onLeaderboard}>
             <span className="lib-icon">🏆</span>
             <div>
-              <p className="lib-title">Enter the Leaderboard</p>
-              <p className="lib-sub">Community votes. Top 3 win weekly prizes.</p>
+              <p className="lib-title">Add to the Leaderboard</p>
+              <p className="lib-sub">Share your roast for fun — saved on this device.</p>
             </div>
             <span className="lib-arrow">→</span>
           </div>

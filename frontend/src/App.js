@@ -29,9 +29,6 @@ const ResumeHistory = lazy(() => import("./components/ResumeHistory"));
 const ResumeCompare = lazy(() => import("./components/ResumeCompare"));
 const PremiumFeatures = lazy(() => import("./components/PremiumFeatures"));
 
-const BASE_COUNT  = 1247;
-
-
 const MSGS = [
   "Judging your life choices...",
   "Consulting senior engineers...",
@@ -639,26 +636,6 @@ function LeaderboardModal({ roastSnippet, verdict, ats, onSubmit, onClose }) {
   );
 }
 
-/* ── Roast counter ────────────────────────────────────────────── */
-function RoastCounter() {
-  const [n, setN] = useState(BASE_COUNT);
-  useEffect(() => {
-    const update = () => {
-      const s = localStorage.getItem("roastCount");
-      if (s) setN(parseInt(s));
-    };
-    update();
-    window.addEventListener("lb_updated", update);
-    return () => window.removeEventListener("lb_updated", update);
-  }, []);
-  return (
-    <div className="roast-counter">
-      <span className="rc-num">{n.toLocaleString()}</span>
-      <span className="rc-lbl">resumes roasted</span>
-    </div>
-  );
-}
-
 /* ── Main app ─────────────────────────────────────────────────── */
 function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, registerUpload = () => {} }) {
   const [file, setFile]           = useState(null);
@@ -765,7 +742,7 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
         setBadges(earned);
 
         // Update roast counter
-        const newCount = parseInt(localStorage.getItem("roastCount") || BASE_COUNT) + 1;
+        const newCount = parseInt(localStorage.getItem("roastCount") || 0) + 1;
         localStorage.setItem("roastCount", newCount);
 
         if (data.verdict?.toLowerCase().includes("faang")) {
@@ -888,8 +865,7 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
           <span className="hts-item">🌍 10+ Countries</span>
         </div>
 
-        <div className="header-badges-row">
-          <RoastCounter />
+        <div className="header-badges-row" style={{ justifyContent: "center" }}>
           <div className="trust-pill">🔒 Secure Processing</div>
         </div>
 

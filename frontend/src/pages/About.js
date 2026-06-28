@@ -12,13 +12,13 @@ export default function About() {
         <p>Most resume feedback tools are either too expensive or too generic. We built this so every CS student gets the kind of honest feedback only a senior engineer friend would give — for free.</p>
         <h2>FEATURES</h2>
         <ul>
+          <li>🎯 5 Category Scores — ATS, Skills, Projects, Experience & Impact</li>
           <li>🎭 6 Roast Personalities — Gordon Ramsay, Elon Musk & more</li>
-          <li>📊 ATS Score — real resume signal analysis</li>
           <li>🌍 34+ Languages — including Hinglish, Tanglish & all Indian regional</li>
-          <li>🏆 Community Leaderboard — weekly prizes</li>
-          <li>🔥 Daily Streaks — keep improving</li>
+          <li>📊 JD Matcher & Version Compare — see how you stack up and improve</li>
+          <li>🏆 Roast Leaderboard — share your roast just for fun</li>
           <li>🎖️ Badges — earn them after roasting</li>
-          <li>🎨 Downloadable Share Card</li>
+          <li>📄 Downloadable PDF report & share card</li>
         </ul>
         <h2>PRIVACY FIRST</h2>
         <p>Your resume is never stored. It's processed in memory and immediately discarded after analysis.</p>
@@ -29,7 +29,7 @@ export default function About() {
           <li>AI: Groq AI (LLaMA)</li>
           <li>Hosting: Netlify + Render</li>
         </ul>
-        <p>Built with ❤️ by <a href="https://portfolio-saiharshith.netlify.app" target="_blank" rel="noopener noreferrer">Harshith</a> for CS freshers worldwide 🌍</p>
+        <p>Built with ❤️ by <a href="https://portfolio-saiharshith.netlify.app" target="_blank" rel="noopener noreferrer">Sai Harshith</a> for CS freshers worldwide 🌍</p>
       </div>
     </div>
   );
