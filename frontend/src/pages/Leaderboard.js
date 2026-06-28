@@ -126,7 +126,7 @@ export default function Leaderboard() {
           </div>
         )}
 
-        <p className="lb-reset-note">// vote once per entry • community powered</p>
+        <p className="lb-reset-note">// saved on this device • vote once per entry</p>
       </div>
     </div>
   );
