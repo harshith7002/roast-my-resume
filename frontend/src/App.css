@@ -35,6 +35,19 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
+
+/* ── Accessibility: visible keyboard focus on all interactive elements ── */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--fire);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
 body {
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   background: var(--bg);
@@ -239,8 +252,10 @@ body {
   content: '';
   position: absolute; inset: 0;
   background: url('https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200') center/cover no-repeat;
-  opacity: 0.14; z-index: -1;
+  opacity: 0.1; z-index: -1;
 }
+/* The stock photo reads as washed-out clutter on the light surface — keep it very subtle */
+html[data-theme="light"] .hero::before { opacity: 0.04; }
 
 /* Trust strip — very first thing above the fold */
 .hero-trust-strip {
@@ -993,10 +1008,12 @@ body {
 
 @media (max-width: 640px) {
   .navbar { padding: 0 16px; }
-  .hero { padding: 36px 16px 28px; }
+  .hero { padding: 32px 16px 24px; }
   .hero-trust-strip { padding: 7px 14px; gap: 8px; }
   .hts-sep { display: none; }
   .hts-item { font-size: 10.5px; }
+  /* Two trust rows are redundant on a tall mobile hero — keep the top strip only */
+  .hero-trust-badges { display: none; }
   .result-actions { grid-template-columns: 1fr 1fr; }
   .ra-btn.full { grid-column: span 2; }
   .personality-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1534,7 +1551,7 @@ html[data-theme="light"] ::-webkit-scrollbar-track { background: var(--bg); }
 
 /* ── Theme toggle button ── */
 .theme-toggle {
-  width: 38px; height: 38px; flex-shrink: 0;
+  width: 42px; height: 42px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
   font-size: 16px; line-height: 1; cursor: pointer;
   border-radius: 50%;

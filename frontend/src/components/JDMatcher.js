@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { getUser, getVisitorId, pushAnalysisCache } from "../utils/storage";
 import { apiFetch, validatePdf } from "../utils/api";
 import { trackEvent } from "../utils/analytics";
+import { downloadTextPdf } from "../utils/pdf";
 
 function ScoreRing({ score }) {
   const r = 54;
@@ -86,32 +87,18 @@ export default function JDMatcher() {
 
   function downloadReport() {
     if (!result) return;
-    const lines = [
-      `JD Match Report — ${new Date().toLocaleString()}`,
-      `Resume: ${file?.name || ""}`,
-      ``,
-      `MATCH SCORE: ${result.match_score}%`,
-      ``,
-      `SUMMARY`,
-      result.summary,
-      ``,
-      `STRENGTHS`,
-      ...(result.strengths || []).map((s, i) => `${i + 1}. ${s.point}: ${s.detail}`),
-      ``,
-      `MISSING SKILLS`,
-      ...(result.missing_skills || []).map(s => `• [${s.importance.toUpperCase()}] ${s.skill}`),
-      ``,
-      `YOUR KEYWORDS NOT IN JD`,
-      ...(result.resume_keywords_missing_from_jd || []).map(k => `• ${k}`),
-      ``,
-      `IMPROVEMENT SUGGESTIONS`,
-      ...(result.improvements || []).map((imp, i) => `${i + 1}. ${imp.action}\n   Why: ${imp.why}`),
-    ];
-    const blob = new Blob([lines.join("\n")], { type: "text/plain" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `jd-match-report-${Date.now()}.txt`;
-    a.click();
+    downloadTextPdf({
+      title: "JD Match Report",
+      subtitle: `${file?.name || "Resume"} · Match score ${result.match_score}%`,
+      filename: `jd-match-${(file?.name || "resume").replace(/\.pdf$/i, "")}`,
+      sections: [
+        { heading: "Summary", body: result.summary || "" },
+        { heading: "Strengths", lines: (result.strengths || []).map((s, i) => `${i + 1}. ${s.point}: ${s.detail}`) },
+        { heading: "Missing Skills", lines: (result.missing_skills || []).map(s => `- [${s.importance.toUpperCase()}] ${s.skill}`) },
+        { heading: "Your Keywords Not in JD", lines: (result.resume_keywords_missing_from_jd || []).map(k => `- ${k}`) },
+        { heading: "Improvement Suggestions", lines: (result.improvements || []).flatMap((imp, i) => [`${i + 1}. ${imp.action}`, `   Why: ${imp.why}`]) },
+      ],
+    });
   }
 
   return (
@@ -217,7 +204,7 @@ export default function JDMatcher() {
                 🔄 New Analysis
               </button>
               <button className="btn-primary" onClick={downloadReport}>
-                📥 Download Report
+                ⬇️ Download PDF
               </button>
             </div>
           </div>
