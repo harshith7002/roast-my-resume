@@ -5,24 +5,24 @@
   --fire-glow:  rgba(255, 138, 61, 0.25);
   --amber:      #FFB347;
   --amber-glow: rgba(255, 179, 71, 0.15);
-  --cream:      #FFFFFF;
-  --cream-60:   #B6B6B6; /* Standard secondary text gray */
-  --cream-30:   rgba(182, 182, 182, 0.45);
-  --cream-10:   rgba(182, 182, 182, 0.1);
+  --cream:      #0F172A; /* Deep Slate (primary text) */
+  --cream-60:   #475569; /* Slate Gray (secondary text) */
+  --cream-30:   #64748B;
+  --cream-10:   rgba(15, 23, 42, 0.05);
 
-  --bg:         #070814; /* Deep Midnight Slate */
-  --bg2:        #0E1026; /* Midnight Indigo card surface */
-  --bg3:        #161936;
+  --bg:         #FAFAFC; /* Crisp Light Grey background */
+  --bg2:        #FFFFFF; /* Pure White Card Background */
+  --bg3:        #F1F5F9; /* Light Slate Card Sub-surface */
 
-  --surface:    #0E1026;
-  --surface2:   #161936;
+  --surface:    #FFFFFF;
+  --surface2:   #F8FAFC;
 
-  --border:     rgba(136, 80, 255, 0.12); /* Subtle glowing violet border */
+  --border:     #E2E8F0; /* Clean light gray border */
   --border-hot: #FF8A3D;
 
-  --emerald:    #00E676;
-  --sapphire:   #FFB347;
-  --gold:       #FFD600;
+  --emerald:    #059669; /* Richer green for light theme */
+  --sapphire:   #FF8A3D;
+  --gold:       #D97706;
 
   --r-sm: 6px;
   --r-md: 10px;
@@ -1756,14 +1756,26 @@ html[data-theme="light"] ::-webkit-scrollbar-track { background: var(--bg); }
 
 /* ── Redesign: Linear / Vercel Premium SaaS Overrides ── */
 .feature-card-premium {
-  border: 1px solid #24242A !important;
-  background: #141419 !important;
+  border: 1px solid var(--border) !important;
+  background: var(--bg2) !important;
   transition: all 0.3s cubic-bezier(0.25, 1, 0.25, 1) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02) !important;
 }
 .feature-card-premium:hover {
-  border-color: rgba(255, 106, 61, 0.45) !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 50px rgba(255, 106, 61, 0.03) !important;
+  border-color: var(--fire) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05) !important;
   transform: translateY(-4px);
+}
+.feature-card-premium h3 {
+  color: var(--cream) !important;
+}
+.feature-card-premium > div {
+  background: var(--bg3) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--cream) !important;
+}
+.feature-card-premium > div div {
+  color: var(--cream) !important;
 }
 
 @media (max-width: 900px) {
@@ -1790,4 +1802,113 @@ html[data-theme="light"] ::-webkit-scrollbar-track { background: var(--bg); }
     max-width: 480px;
     margin: 40px auto 0 !important;
   }
+}
+
+/* ── Light Mode Override System ── */
+body {
+  color: var(--cream) !important;
+}
+
+/* Global text overrides for inline style hardcodes */
+.hero-title, 
+.brand-name, 
+.wtp-title, 
+h2, h3, h4, 
+th, td, 
+.pricing-card h3,
+.pricing-card div {
+  color: var(--cream) !important;
+}
+
+/* Secondary CTA Button */
+.btn-secondary {
+  background: #ffffff !important;
+  border: 1px solid #D1D5DB !important;
+  color: #1F2937 !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+}
+.btn-secondary:hover {
+  background: #F9FAFB !important;
+  border-color: #C1C5CB !important;
+}
+
+/* Dashboard Live Preview container card */
+.hero-dashboard-preview > div {
+  background: var(--bg2) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Dashboard live preview inner cards */
+.hero-dashboard-preview > div > div > div {
+  background: var(--bg3) !important;
+  border: 1px solid var(--border) !important;
+}
+
+/* Fix text colors inside dashboard cards */
+.hero-dashboard-preview span,
+.hero-dashboard-preview div,
+.hero-dashboard-preview p {
+  color: var(--cream) !important;
+}
+.hero-dashboard-preview span[style*="color: var(--fire)"] {
+  color: var(--fire) !important;
+}
+.hero-dashboard-preview span[style*="color: var(--emerald)"] {
+  color: var(--emerald) !important;
+}
+
+/* Stats Section cards */
+.hero-trust-strip-premium > div {
+  background: var(--bg2) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.02) !important;
+}
+.hero-trust-strip-premium > div > div {
+  color: var(--cream) !important;
+}
+
+/* Vertical Process workflow steps */
+div[style*="background: #151515"],
+div[style*="background: \"#151515\""] {
+  background: var(--bg2) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.02) !important;
+}
+div[style*="background: #151515"] h4,
+div[style*="background: #151515"] div {
+  color: var(--cream) !important;
+}
+
+/* Pricing comparison cards and tables */
+div[style*="background: #151515"] {
+  background: var(--bg2) !important;
+  border: 1px solid var(--border) !important;
+}
+section[style*="background: #151515"] {
+  background: var(--bg2) !important;
+  border: 1px solid var(--border) !important;
+}
+
+/* Community stats strip at bottom */
+section[style*="background: #151515"] div {
+  color: var(--cream) !important;
+}
+section[style*="background: #151515"] h2 {
+  color: var(--cream) !important;
+}
+
+/* Compare feature tables */
+table th, table td {
+  border-bottom: 1px solid var(--border) !important;
+}
+tr:hover td {
+  background: var(--bg3) !important;
+}
+
+/* Sample drawer overrides */
+.drawer-content {
+  background: var(--bg) !important;
+  color: var(--cream) !important;
+  border-left: 1px solid var(--border) !important;
 }
