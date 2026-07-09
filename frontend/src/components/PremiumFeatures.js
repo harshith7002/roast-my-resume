@@ -203,8 +203,8 @@ export default function PremiumFeatures() {
                   <div style={{ display: "flex", flexDirection: "column", gap: "8px", margin: "0 0 24px", fontSize: "0.82rem", color: "var(--cream-60)", textAlign: "left" }}>
                     <div style={{ display: "flex", gap: "8px", alignItems: "center" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>ATS Score</span></div>
                     <div style={{ display: "flex", gap: "8px", alignItems: "center" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>AI Resume Roast (Unlimited)</span></div>
-                    <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Company Match</span></div>
-                    <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Download PDF</span></div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>Company Match</span></div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>Download PDF</span></div>
                     <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Cover Letter</span></div>
                     <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Interview Questions</span></div>
                   </div>
@@ -268,6 +268,18 @@ export default function PremiumFeatures() {
                       <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
                     </tr>
                     <tr style={{ borderBottom: "1px solid var(--border)" }}>
+                      <td style={{ padding: "12px 8px", color: "#fff" }}>Target Company Fit Alignment</td>
+                      <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
+                      <td style={{ padding: "12px 8px" }}>✓</td>
+                      <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
+                    </tr>
+                    <tr style={{ borderBottom: "1px solid var(--border)" }}>
+                      <td style={{ padding: "12px 8px", color: "#fff" }}>Download PDF Export</td>
+                      <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
+                      <td style={{ padding: "12px 8px" }}>✓</td>
+                      <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
+                    </tr>
+                    <tr style={{ borderBottom: "1px solid var(--border)" }}>
                       <td style={{ padding: "12px 8px", color: "#fff" }}>Google XYZ Rewriter</td>
                       <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
                       <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
@@ -275,12 +287,6 @@ export default function PremiumFeatures() {
                     </tr>
                     <tr style={{ borderBottom: "1px solid var(--border)" }}>
                       <td style={{ padding: "12px 8px", color: "#fff" }}>Job Description Matcher</td>
-                      <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
-                      <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
-                      <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
-                    </tr>
-                    <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                      <td style={{ padding: "12px 8px", color: "#fff" }}>Target Company Fit Alignment</td>
                       <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
                       <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
                       <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>

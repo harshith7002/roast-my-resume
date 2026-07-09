@@ -579,10 +579,6 @@ function Footer() {
           <a href="mailto:support@macoostudy.com" style={{ color: "var(--cream-60)", textDecoration: "none" }}>Contact Us</a>
           <a href="https://github.com" target="_blank" rel="noopener noreferrer" style={{ color: "var(--cream-60)", textDecoration: "none" }}>GitHub</a>
           <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" style={{ color: "var(--cream-60)", textDecoration: "none" }}>LinkedIn</a>
-          
-          <a href="https://www.producthunt.com" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(218, 93, 63, 0.12)", border: "1px solid rgba(218, 93, 63, 0.25)", color: "#DA5D3F", padding: "4px 10px", borderRadius: "6px", fontSize: "0.75rem", fontWeight: 700, textDecoration: "none", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "rgba(218, 93, 63, 0.2)"} onMouseLeave={e => e.currentTarget.style.background = "rgba(218, 93, 63, 0.12)"}>
-            <span style={{ fontSize: "0.85rem" }}>😸</span> Product Hunt <span style={{ background: "#DA5D3F", color: "#fff", padding: "1px 5px", borderRadius: "3px", fontSize: "0.62rem" }}>#1</span>
-          </a>
         </div>
       </div>
     </footer>
@@ -1522,8 +1518,8 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
               <div style={{ display: "flex", flexDirection: "column", gap: "10px", margin: "0 0 28px", fontSize: "0.85rem", color: "var(--cream-60)", textAlign: "left" }}>
                 <div style={{ display: "flex", gap: "8px", alignItems: "center" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>ATS Score</span></div>
                 <div style={{ display: "flex", gap: "8px", alignItems: "center" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>AI Resume Roast (Unlimited)</span></div>
-                <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Company Match</span></div>
-                <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Download PDF</span></div>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>Company Match</span></div>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>Download PDF</span></div>
                 <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Cover Letter</span></div>
                 <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Interview Questions</span></div>
               </div>
@@ -1560,11 +1556,11 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
           </div>
 
           {/* Comparison Table */}
-          <div style={{ background: "#151515", border: "1px solid #24242A", borderRadius: "12px", overflow: "hidden", padding: "16px", maxWidth: "900px", margin: "0 auto" }}>
+          <div style={{ background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: "12px", overflow: "hidden", padding: "16px", maxWidth: "900px", margin: "0 auto" }}>
             <h4 style={{ color: "#fff", fontWeight: 700, fontSize: "1rem", marginBottom: "16px", paddingLeft: "8px" }}>Compare Features</h4>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem", textAlign: "left" }}>
               <thead>
-                <tr style={{ borderBottom: "1px solid #24242A", color: "var(--cream-60)" }}>
+                <tr style={{ borderBottom: "1px solid var(--border)", color: "var(--cream-60)" }}>
                   <th style={{ padding: "12px 8px" }}>Feature</th>
                   <th style={{ padding: "12px 8px" }}>Free</th>
                   <th style={{ padding: "12px 8px" }}>Pro Lite</th>
@@ -1572,43 +1568,49 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
                 </tr>
               </thead>
               <tbody>
-                <tr style={{ borderBottom: "1px solid #1f1f23" }}>
+                <tr style={{ borderBottom: "1px solid var(--border)" }}>
                   <td style={{ padding: "12px 8px", color: "#fff" }}>Resume Roasting</td>
                   <td style={{ padding: "12px 8px" }}>✓ (1/day)</td>
                   <td style={{ padding: "12px 8px" }}>✓ (Unlimited)</td>
                   <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓ (Unlimited)</td>
                 </tr>
-                <tr style={{ borderBottom: "1px solid #1f1f23" }}>
+                <tr style={{ borderBottom: "1px solid var(--border)" }}>
                   <td style={{ padding: "12px 8px", color: "#fff" }}>ATS Score Gauge</td>
                   <td style={{ padding: "12px 8px" }}>✓</td>
                   <td style={{ padding: "12px 8px" }}>✓</td>
                   <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
                 </tr>
-                <tr style={{ borderBottom: "1px solid #1f1f23" }}>
+                <tr style={{ borderBottom: "1px solid var(--border)" }}>
                   <td style={{ padding: "12px 8px", color: "#fff" }}>Detailed ATS Breakdown</td>
                   <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
                   <td style={{ padding: "12px 8px" }}>✓</td>
                   <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
                 </tr>
-                <tr style={{ borderBottom: "1px solid #1f1f23" }}>
+                <tr style={{ borderBottom: "1px solid var(--border)" }}>
+                  <td style={{ padding: "12px 8px", color: "#fff" }}>Target Company Fit Alignment</td>
+                  <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
+                  <td style={{ padding: "12px 8px" }}>✓</td>
+                  <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
+                </tr>
+                <tr style={{ borderBottom: "1px solid var(--border)" }}>
+                  <td style={{ padding: "12px 8px", color: "#fff" }}>Download PDF Export</td>
+                  <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
+                  <td style={{ padding: "12px 8px" }}>✓</td>
+                  <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
+                </tr>
+                <tr style={{ borderBottom: "1px solid var(--border)" }}>
                   <td style={{ padding: "12px 8px", color: "#fff" }}>Google XYZ Rewriter</td>
                   <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
                   <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
                   <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
                 </tr>
-                <tr style={{ borderBottom: "1px solid #1f1f23" }}>
+                <tr style={{ borderBottom: "1px solid var(--border)" }}>
                   <td style={{ padding: "12px 8px", color: "#fff" }}>Job Description Matcher</td>
                   <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
                   <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
                   <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
                 </tr>
-                <tr style={{ borderBottom: "1px solid #1f1f23" }}>
-                  <td style={{ padding: "12px 8px", color: "#fff" }}>Target Company Fit Alignment</td>
-                  <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
-                  <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
-                  <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
-                </tr>
-                <tr style={{ borderBottom: "1px solid #1f1f23" }}>
+                <tr style={{ borderBottom: "1px solid var(--border)" }}>
                   <td style={{ padding: "12px 8px", color: "#fff" }}>Cover Letter Generator</td>
                   <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
                   <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
