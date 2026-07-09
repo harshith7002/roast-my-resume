@@ -7,7 +7,7 @@ export default function About() {
       <div className="static-wrap">
         <Link to="/" className="back-link">← Back</Link>
         <h1>ABOUT US</h1>
-        <p>RoastMyResume is a free AI-powered tool that gives brutally honest resume feedback to CS freshers. No sugarcoating. No "add more action verbs." Just real, actionable feedback.</p>
+        <p>Macoostudy is an AI-powered copilot that gives brutally honest resume feedback and ATS screening tools to CS freshers. No sugarcoating. No "add more action verbs." Just real, actionable feedback.</p>
         <h2>WHY WE BUILT THIS</h2>
         <p>Most resume feedback tools are either too expensive or too generic. We built this so every CS student gets the kind of honest feedback only a senior engineer friend would give — for free.</p>
         <h2>FEATURES</h2>

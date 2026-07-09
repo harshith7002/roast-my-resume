@@ -10,14 +10,14 @@
   --cream-30:   rgba(182, 182, 182, 0.45);
   --cream-10:   rgba(182, 182, 182, 0.1);
 
-  --bg:         #0B0B0B; /* Flat background requested */
-  --bg2:        #151515; /* Card background requested */
-  --bg3:        #1E1E24;
+  --bg:         #070814; /* Deep Midnight Slate */
+  --bg2:        #0E1026; /* Midnight Indigo card surface */
+  --bg3:        #161936;
 
-  --surface:    #151515;
-  --surface2:   #1E1E24;
+  --surface:    #0E1026;
+  --surface2:   #161936;
 
-  --border:     #24242A; /* Subtle SaaS border */
+  --border:     rgba(136, 80, 255, 0.12); /* Subtle glowing violet border */
   --border-hot: #FF8A3D;
 
   --emerald:    #00E676;
@@ -70,17 +70,17 @@ body {
 .bg-canvas {
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background:
-    radial-gradient(ellipse 60% 40% at 50% -10%, rgba(255, 138, 61, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 30% at 80% 50%, rgba(136, 80, 255, 0.03) 0%, transparent 50%),
-    #08080C; /* Premium SaaS charcoal-black */
+    radial-gradient(ellipse 60% 40% at 50% -10%, rgba(136, 80, 255, 0.16) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 80% 50%, rgba(255, 138, 61, 0.04) 0%, transparent 50%),
+    #070814; /* Deep Midnight Slate */
 }
 
 /* Subtle SaaS grid */
 .bg-grid {
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.008) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.008) 1px, transparent 1px);
+    linear-gradient(rgba(136, 80, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(136, 80, 255, 0.02) 1px, transparent 1px);
   background-size: 50px 50px;
   mask-image: radial-gradient(circle at 50% 0%, black 10%, transparent 80%);
 }

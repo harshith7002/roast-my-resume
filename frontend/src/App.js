@@ -379,6 +379,20 @@ function FAQ({ q, a }) {
   );
 }
 
+const MacoostudyLogo = () => (
+  <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: "inline-block", verticalAlign: "middle", marginRight: "8px" }}>
+    <rect width="32" height="32" rx="8" fill="url(#logo-bg-grad)" />
+    <path d="M9 22V10L16 17L23 10V22" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M16 17L13 20H19L16 17Z" fill="#FF8A3D" />
+    <defs>
+      <linearGradient id="logo-bg-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#FF8A3D" />
+        <stop stopColor="#E57E35" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
+
 /* ── Navbar ───────────────────────────────────────────────────── */
 function Navbar({ onUploadClick, theme, onToggleTheme, user, onLoginClick }) {
   const [open, setOpen] = useState(false);
@@ -402,9 +416,11 @@ function Navbar({ onUploadClick, theme, onToggleTheme, user, onLoginClick }) {
 
   return (
     <nav className="navbar">
-      <Link to="/" className="navbar-brand" onClick={closeAll}>
-        <div className="brand-icon">🔥</div>
-        <span className="brand-name">Roast<span>My</span>Resume</span>
+      <Link to="/" className="navbar-brand" onClick={closeAll} style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
+        <MacoostudyLogo />
+        <span className="brand-name" style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "1.2rem", fontWeight: 800, color: "#fff", letterSpacing: "0.5px" }}>
+          Macoostudy
+        </span>
       </Link>
 
       <div className={`navbar-center${open ? " open" : ""}`}>
@@ -531,9 +547,13 @@ function Navbar({ onUploadClick, theme, onToggleTheme, user, onLoginClick }) {
 /* ── Footer ───────────────────────────────────────────────────── */
 function Footer() {
   return (
-    <footer className="footer" style={{ padding: "40px 20px", borderTop: "1px solid #24242A", background: "#0B0B0B", color: "var(--cream-60)", fontSize: "0.82rem" }}>
+    <footer className="footer" style={{ padding: "40px 20px", borderTop: "1px solid #24242A", background: "#08080C", color: "var(--cream-60)", fontSize: "0.82rem" }}>
       <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "20px", maxWidth: "1000px", margin: "0 auto", alignItems: "center" }}>
-        <span>© 2026 RoastMyResume. All rights reserved.</span>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <MacoostudyLogo />
+          <span style={{ fontWeight: 800, color: "#fff", fontFamily: "'Space Grotesk', sans-serif" }}>Macoostudy</span>
+        </div>
+        <span>© 2026 Macoostudy. All rights reserved.</span>
         <div style={{ display: "flex", gap: "16px" }}>
           <Link to="/privacy" style={{ color: "var(--cream-60)", textDecoration: "none" }}>Privacy</Link>
           <Link to="/terms" style={{ color: "var(--cream-60)", textDecoration: "none" }}>Terms</Link>

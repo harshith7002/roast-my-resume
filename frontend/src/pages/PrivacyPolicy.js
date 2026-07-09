@@ -9,7 +9,7 @@ export default function PrivacyPolicy() {
         <h1>PRIVACY POLICY</h1>
         <span className="static-date">Last updated: May 29, 2026</span>
         <h2>1. Information We Collect</h2>
-        <p>RoastMyResume does not sell your personal information. Your uploaded resume file (PDF) is processed in memory to extract text and is never written to disk or retained. We do store the <em>results</em> of an analysis — your scores, verdict, and the generated feedback — tied to an anonymous device identifier, so features like History and Dashboard work.</p>
+        <p>Macoostudy does not sell your personal information. Your uploaded resume file (PDF) is processed in memory to extract text and is never written to disk or retained. We do store the <em>results</em> of an analysis — your scores, verdict, and the generated feedback — tied to an anonymous device identifier, so features like History and Dashboard work.</p>
         <h2>2. How We Use Information</h2>
         <p>Your resume text is sent to Groq AI solely to generate feedback. The resume file itself is discarded immediately after the text is extracted; only the analysis results are saved.</p>
         <h2>3. Cookies & Tracking</h2>
