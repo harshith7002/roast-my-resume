@@ -830,9 +830,9 @@ def create_payment_order():
         return jsonify({"error": "user_id required"}), 400
 
     if tier == "pro":
-        amount = 9900  # ₹99 in paise
+        amount = 4900  # ₹49 in paise (Pro Lite)
     elif tier == "pro_plus":
-        amount = 19900  # ₹199 in paise
+        amount = 29900  # ₹299 in paise (Pro Lifetime)
     else:
         return jsonify({"error": "Invalid tier specified"}), 400
 
@@ -1250,6 +1250,72 @@ def interview_generate():
             **result
         })
 
+    except Exception as e:
+        message, status = public_error(e)
+        return jsonify({"error": message}), status
+
+
+# ── AI Cover Letter Generator ──────────────────────────────────────────────────
+
+COVER_LETTER_PROMPT = """You are an expert career coach and copywriter. Generate a professional, compelling, and tailored cover letter based on the candidate's resume and job description/role.
+RESUME:
+{resume_text}
+JOB DESCRIPTION / TARGET ROLE:
+{jd_text}
+
+Format the cover letter professionally with standard placeholder fields for date, contact information, and signature.
+Write in a confident, professional, and matching tone.
+Return the cover letter text directly."""
+
+@app.route("/api/cover-letter/generate", methods=["POST"])
+def cover_letter_generate():
+    if "resume" not in request.files:
+        return jsonify({"error": "No resume uploaded"}), 400
+    jd_text = request.form.get("jd_text", "").strip()
+    user_id = request.form.get("user_id")
+
+    file = request.files["resume"]
+    validation_error = valid_pdf_upload(file)
+    if validation_error:
+        return jsonify({"error": validation_error}), 400
+
+    try:
+        pdf_bytes = file.read()
+        resume_text = extract_text_from_pdf(pdf_bytes)
+        if len(resume_text) < 100:
+            return jsonify({"error": "Could not extract text from PDF."}), 400
+
+        prompt = COVER_LETTER_PROMPT.format(
+            resume_text=resume_text[:3500],
+            jd_text=jd_text[:2000]
+        )
+
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=1500,
+            temperature=0.7,
+        )
+        cl_text = response.choices[0].message.content.strip()
+
+        # Save analysis (without raw_text for privacy)
+        analysis_id = uid()
+        conn = get_db()
+        conn.execute(
+            "INSERT INTO analyses (id, user_id, type, filename, ats_score, verdict, result_json) VALUES (?,?,?,?,?,?,?)",
+            (analysis_id, user_id, "rewrite", f"{file.filename} - Cover Letter",
+             85, "Ready", json.dumps({"cover_letter": cl_text}))
+        )
+        conn.commit()
+        conn.close()
+
+        track("cover_letter_generated", user_id)
+
+        return jsonify({
+            "success": True,
+            "analysis_id": analysis_id,
+            "cover_letter": cl_text
+        })
     except Exception as e:
         message, status = public_error(e)
         return jsonify({"error": message}), status

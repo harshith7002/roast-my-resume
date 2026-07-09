@@ -30,6 +30,8 @@ const ResumeCompare = lazy(() => import("./components/ResumeCompare"));
 const PremiumFeatures = lazy(() => import("./components/PremiumFeatures"));
 const CompanyCompare = lazy(() => import("./pages/CompanyCompare"));
 const ResumeRewrite = lazy(() => import("./pages/ResumeRewrite"));
+const InterviewPrep = lazy(() => import("./pages/InterviewPrep"));
+const CoverLetter = lazy(() => import("./pages/CoverLetter"));
 
 const MSGS = [
   "Judging your life choices...",
@@ -435,6 +437,27 @@ function Navbar({ onUploadClick, theme, onToggleTheme }) {
                 <span>
                   <span className="ndi-label">Resume vs Company</span>
                   <span className="ndi-sub">Check target alignment</span>
+                </span>
+              </Link>
+              <Link to="/resume-rewrite" className="nav-dropdown-item" onClick={closeAll} role="menuitem">
+                <span className="ndi-icon">✍️</span>
+                <span>
+                  <span className="ndi-label">Bullet Rewriter</span>
+                  <span className="ndi-sub">XYZ formula polishing</span>
+                </span>
+              </Link>
+              <Link to="/interview-prep" className="nav-dropdown-item" onClick={closeAll} role="menuitem">
+                <span className="ndi-icon">💡</span>
+                <span>
+                  <span className="ndi-label">Interview Prep</span>
+                  <span className="ndi-sub">Custom Q&A generator</span>
+                </span>
+              </Link>
+              <Link to="/cover-letter" className="nav-dropdown-item" onClick={closeAll} role="menuitem">
+                <span className="ndi-icon">✉️</span>
+                <span>
+                  <span className="ndi-label">Cover Letter</span>
+                  <span className="ndi-sub">Tailored writing assistant</span>
                 </span>
               </Link>
               <Link to="/history" className="nav-dropdown-item" onClick={closeAll} role="menuitem">
@@ -1183,6 +1206,8 @@ export default function App() {
           <Route path="/jd-match"   element={<JDMatcher />} />
           <Route path="/company-compare" element={<CompanyCompare />} />
           <Route path="/resume-rewrite" element={<ResumeRewrite />} />
+          <Route path="/interview-prep" element={<InterviewPrep />} />
+          <Route path="/cover-letter" element={<CoverLetter />} />
           <Route path="/compare"    element={<ResumeCompare />} />
           <Route path="/history"    element={<ResumeHistory />} />
           <Route path="/dashboard"  element={<Dashboard />} />

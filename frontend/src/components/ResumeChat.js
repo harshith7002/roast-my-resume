@@ -3,10 +3,10 @@ import { apiFetch } from "../utils/api";
 import { getVisitorId } from "../utils/storage";
 
 const QUICK_PROMPTS = [
-  "Why is my ATS score low?",
-  "How can I improve my project bullet points?",
-  "What skills should I add to impress recruiters?",
-  "Suggest a good project to build for my profile.",
+  "How do I improve my experience bullet points?",
+  "How do I prepare for Google?",
+  "What projects should I build next?",
+  "How do I tailor my resume for Cisco?",
 ];
 
 export default function ResumeChat({ analysisId, resumeText }) {

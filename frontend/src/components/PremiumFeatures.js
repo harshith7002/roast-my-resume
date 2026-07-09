@@ -175,7 +175,7 @@ export default function PremiumFeatures() {
             </div>
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24, marginBottom: 40 }}>
-              {/* Pro Plan */}
+              {/* Pro Lite Plan */}
               <article
                 style={{
                   background: "var(--surface)",
@@ -186,17 +186,15 @@ export default function PremiumFeatures() {
                   flexDirection: "column",
                 }}
               >
-                <h2 style={{ fontSize: "1.3rem", color: "var(--cream)", margin: "0 0 4px" }}>Pro Plan</h2>
-                <p style={{ fontSize: "0.82rem", color: "var(--cream-60)", margin: "0 0 20px" }}>For active job hunters</p>
+                <h2 style={{ fontSize: "1.3rem", color: "var(--cream)", margin: "0 0 4px" }}>Pro Lite Plan</h2>
+                <p style={{ fontSize: "0.82rem", color: "var(--cream-60)", margin: "0 0 20px" }}>For basic resume reviews</p>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 24 }}>
-                  <span style={{ fontSize: "2rem", fontWeight: 800, color: "var(--fire)" }}>₹99</span>
-                  <span style={{ fontSize: "0.85rem", color: "var(--cream-60)" }}>/ one-time</span>
+                  <span style={{ fontSize: "2rem", fontWeight: 800, color: "var(--fire)" }}>₹49</span>
+                  <span style={{ fontSize: "0.85rem", color: "var(--cream-60)" }}>/ one-time launch offer</span>
                 </div>
                 <ul style={{ paddingLeft: 18, margin: "0 0 32px", display: "flex", flexDirection: "column", gap: 10 }}>
                   <li style={{ fontSize: "0.88rem", color: "var(--cream)" }}>⚡ Unlimited Resume Roasts</li>
-                  <li style={{ fontSize: "0.88rem", color: "var(--cream)" }}>📊 JD Matcher (Match %)</li>
-                  <li style={{ fontSize: "0.88rem", color: "var(--cream)" }}>🛠️ AI Resume Bullet Rewriter</li>
-                  <li style={{ fontSize: "0.88rem", color: "var(--cream)" }}>💡 Tailored Interview Questions</li>
+                  <li style={{ fontSize: "0.88rem", color: "var(--cream)" }}>🎯 Basic ATS Score Gauge</li>
                   <li style={{ fontSize: "0.88rem", color: "var(--cream)" }}>📄 Recruiter-Ready PDF Export</li>
                 </ul>
                 <button
@@ -205,11 +203,11 @@ export default function PremiumFeatures() {
                   className="fire-btn"
                   style={{ width: "100%", padding: "12px", borderRadius: 10, marginTop: "auto" }}
                 >
-                  Upgrade to Pro
+                  Upgrade to Pro Lite
                 </button>
               </article>
 
-              {/* Pro+ Plan */}
+              {/* Pro Lifetime Plan */}
               <article
                 style={{
                   background: "var(--surface)",
@@ -235,20 +233,22 @@ export default function PremiumFeatures() {
                     letterSpacing: 0.5,
                   }}
                 >
-                  POPULAR
+                  BEST VALUE
                 </span>
-                <h2 style={{ fontSize: "1.3rem", color: "var(--cream)", margin: "0 0 4px" }}>Pro+ Plan</h2>
-                <p style={{ fontSize: "0.82rem", color: "var(--cream-60)", margin: "0 0 20px" }}>For career acceleration</p>
+                <h2 style={{ fontSize: "1.3rem", color: "var(--cream)", margin: "0 0 4px" }}>Pro Lifetime Plan</h2>
+                <p style={{ fontSize: "0.82rem", color: "var(--cream-60)", margin: "0 0 20px" }}>For full career preparation</p>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 24 }}>
-                  <span style={{ fontSize: "2rem", fontWeight: 800, color: "var(--fire)" }}>₹199</span>
-                  <span style={{ fontSize: "0.85rem", color: "var(--cream-60)" }}>/ one-time</span>
+                  <span style={{ fontSize: "2rem", fontWeight: 800, color: "var(--fire)" }}>₹299</span>
+                  <span style={{ fontSize: "0.85rem", color: "var(--cream-60)" }}>/ lifetime launch offer</span>
                 </div>
                 <ul style={{ paddingLeft: 18, margin: "0 0 32px", display: "flex", flexDirection: "column", gap: 10 }}>
-                  <li style={{ fontSize: "0.88rem", color: "var(--cream)", fontWeight: 600 }}>🌟 Everything in Pro</li>
+                  <li style={{ fontSize: "0.88rem", color: "var(--cream)", fontWeight: 600 }}>🌟 Everything in Pro Lite</li>
+                  <li style={{ fontSize: "0.88rem", color: "var(--cream)" }}>📊 JD Matcher (ATS Alignment)</li>
+                  <li style={{ fontSize: "0.88rem", color: "var(--cream)" }}>🛠️ AI Resume Bullet Rewriter</li>
+                  <li style={{ fontSize: "0.88rem", color: "var(--cream)" }}>💡 Tailored Interview Questions</li>
                   <li style={{ fontSize: "0.88rem", color: "var(--cream)" }}>✍️ Cover Letter Generator</li>
-                  <li style={{ fontSize: "0.88rem", color: "var(--cream)" }}>📂 Manage Multiple Resumes</li>
-                  <li style={{ fontSize: "0.88rem", color: "var(--cream)" }}>⚡ Priority AI Processing</li>
                   <li style={{ fontSize: "0.88rem", color: "var(--cream)" }}>🏢 Company-Specific Fit Prep</li>
+                  <li style={{ fontSize: "0.88rem", color: "var(--cream)" }}>💬 AI Resume Chat Coach</li>
                 </ul>
                 <button
                   type="button"
@@ -256,7 +256,7 @@ export default function PremiumFeatures() {
                   className="fire-btn"
                   style={{ width: "100%", padding: "12px", borderRadius: 10, marginTop: "auto" }}
                 >
-                  Upgrade to Pro+
+                  Upgrade to Pro Lifetime
                 </button>
               </article>
             </div>
