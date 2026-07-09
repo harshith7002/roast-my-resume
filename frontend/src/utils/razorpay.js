@@ -31,6 +31,32 @@ export async function openRazorpayCheckout({ tier, userId, email, onPaymentSucce
     throw new Error(order.error || "Failed to create payment order");
   }
 
+  // If order ID is mock or key is mock, bypass Razorpay modal to allow testing
+  if (order.order_id.startsWith("order_mock_") || order.key_id.includes("mockkey")) {
+    const mockPaymentId = `pay_mock_${Math.random().toString(36).substring(2, 11)}`;
+    try {
+      const verification = await apiFetch("/api/payments/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          razorpay_order_id: order.order_id,
+          razorpay_payment_id: mockPaymentId,
+          razorpay_signature: "mock_signature_bypass",
+          user_id: userId,
+        }),
+      });
+
+      if (verification.success) {
+        if (onPaymentSuccess) onPaymentSuccess(verification);
+      } else {
+        if (onPaymentError) onPaymentError(new Error(verification.error || "Verification failed"));
+      }
+    } catch (err) {
+      if (onPaymentError) onPaymentError(err);
+    }
+    return;
+  }
+
   // 2. Open Razorpay Checkout modal
   const options = {
     key: order.key_id,

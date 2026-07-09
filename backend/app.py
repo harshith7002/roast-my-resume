@@ -854,8 +854,7 @@ def create_payment_order():
             order_data = {
                 "amount": amount,
                 "currency": "INR",
-                "receipt": f"receipt_{uid()}",
-                "payment_capture": 1
+                "receipt": f"receipt_{uid()}"
             }
             order = client_rp.order.create(data=order_data)
             order_id = order.get("id", order_id)
