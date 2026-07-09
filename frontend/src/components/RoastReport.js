@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import ResumeChat from "./ResumeChat";
 
 /* Category metadata — order is intentional (recruiters scan ATS → impact). */
 const CATS = [
@@ -157,6 +158,7 @@ function SuggestionCard({ section, index, defaultOpen }) {
 export default function RoastReport({
   verdict, verdictMeta, overall, categories, sections, badges = [],
   onCopy, onShareCard, onDownloadPdf, onLeaderboard, onReset, preview = false,
+  analysisId, resumeText,
 }) {
   const cats = categories || {};
   const [showBA, setShowBA] = useState(false);
@@ -260,6 +262,9 @@ export default function RoastReport({
             <button className="ra-btn full" onClick={onReset}>+ Roast Another Resume</button>
           </div>
           <p className="share-hint">// share your roast in the college group chat 😂</p>
+
+          {/* ── AI Resume Chat ── */}
+          {analysisId && <ResumeChat analysisId={analysisId} resumeText={resumeText} />}
         </>
       )}
     </motion.div>

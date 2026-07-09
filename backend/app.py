@@ -39,6 +39,8 @@ def init_db():
             name        TEXT,
             avatar      TEXT,
             provider    TEXT DEFAULT 'email',
+            credits     INTEGER DEFAULT 5,
+            tier        TEXT DEFAULT 'free',
             created_at  TEXT DEFAULT (datetime('now')),
             last_login  TEXT
         );
@@ -79,7 +81,40 @@ def init_db():
             meta       TEXT,
             created_at TEXT DEFAULT (datetime('now'))
         );
+
+        CREATE TABLE IF NOT EXISTS transactions (
+            id                 TEXT PRIMARY KEY,
+            user_id            TEXT,
+            razorpay_order_id  TEXT UNIQUE NOT NULL,
+            razorpay_payment_id TEXT,
+            amount             INTEGER NOT NULL,
+            status             TEXT NOT NULL,
+            tier_purchased     TEXT NOT NULL,
+            created_at         TEXT DEFAULT (datetime('now')),
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        );
+
+        CREATE TABLE IF NOT EXISTS chat_messages (
+            id          TEXT PRIMARY KEY,
+            user_id     TEXT,
+            analysis_id TEXT,
+            role        TEXT NOT NULL,
+            content     TEXT NOT NULL,
+            created_at  TEXT DEFAULT (datetime('now')),
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (analysis_id) REFERENCES analyses(id)
+        );
     """)
+    # Migration queries to add credits and tier if they do not exist
+    try:
+        c.execute("ALTER TABLE users ADD COLUMN credits INTEGER DEFAULT 5")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        c.execute("ALTER TABLE users ADD COLUMN tier TEXT DEFAULT 'free'")
+    except sqlite3.OperationalError:
+        pass
+
     conn.commit()
     conn.close()
 
@@ -554,6 +589,7 @@ def roast_resume():
             "ats_score": python_ats,
             "category_scores": category_scores,
             "analysis_id": analysis_id,
+            "resume_text": resume_text,
         })
 
     except Exception as e:
@@ -769,6 +805,454 @@ def analytics_summary():
         "email_captures": total_emails,
         "events": [dict(r) for r in events_by_type],
     })
+
+
+# ── Payments (Razorpay) ───────────────────────────────────────────────────────
+
+RAZORPAY_KEY_ID = os.environ.get("RAZORPAY_KEY_ID", "rzp_test_mockkey")
+RAZORPAY_KEY_SECRET = os.environ.get("RAZORPAY_KEY_SECRET", "mocksecret")
+
+def get_razorpay_client():
+    if "mockkey" in RAZORPAY_KEY_ID:
+        return None
+    try:
+        import razorpay
+        return razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+    except Exception:
+        return None
+
+@app.route("/api/payments/create-order", methods=["POST"])
+def create_payment_order():
+    data = request.get_json(silent=True) or {}
+    tier = data.get("tier", "pro")
+    user_id = data.get("user_id")
+    if not user_id:
+        return jsonify({"error": "user_id required"}), 400
+
+    if tier == "pro":
+        amount = 9900  # ₹99 in paise
+    elif tier == "pro_plus":
+        amount = 19900  # ₹199 in paise
+    else:
+        return jsonify({"error": "Invalid tier specified"}), 400
+
+    client_rp = get_razorpay_client()
+    order_id = f"order_mock_{uid()}"
+
+    if client_rp:
+        try:
+            order_data = {
+                "amount": amount,
+                "currency": "INR",
+                "receipt": f"receipt_{uid()}",
+                "payment_capture": 1
+            }
+            order = client_rp.order.create(data=order_data)
+            order_id = order.get("id", order_id)
+        except Exception as e:
+            app.logger.warning("Razorpay order creation failed: %s. Using mock mode.", str(e))
+
+    # Save transaction to database
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO transactions (id, user_id, razorpay_order_id, amount, status, tier_purchased) VALUES (?,?,?,?,?,?)",
+        (uid(), user_id, order_id, amount, "created", tier)
+    )
+    conn.commit()
+    conn.close()
+
+    return jsonify({
+        "order_id": order_id,
+        "amount": amount,
+        "currency": "INR",
+        "key_id": RAZORPAY_KEY_ID
+    })
+
+@app.route("/api/payments/verify", methods=["POST"])
+def verify_payment():
+    import hmac
+    import hashlib
+    data = request.get_json(silent=True) or {}
+    order_id = data.get("razorpay_order_id")
+    payment_id = data.get("razorpay_payment_id")
+    signature = data.get("razorpay_signature")
+    user_id = data.get("user_id")
+
+    if not order_id or not payment_id:
+        return jsonify({"error": "Missing order or payment ID"}), 400
+
+    is_valid = False
+    if order_id.startswith("order_mock_"):
+        is_valid = True
+    elif signature:
+        client_rp = get_razorpay_client()
+        if client_rp:
+            try:
+                params = {
+                    'razorpay_order_id': order_id,
+                    'razorpay_payment_id': payment_id,
+                    'razorpay_signature': signature
+                }
+                client_rp.utility.verify_payment_signature(params)
+                is_valid = True
+            except Exception:
+                is_valid = False
+        else:
+            # Fallback signature verification using HMAC-SHA256
+            msg = f"{order_id}|{payment_id}".encode("utf-8")
+            sec = RAZORPAY_KEY_SECRET.encode("utf-8")
+            generated = hmac.new(sec, msg, hashlib.sha256).hexdigest()
+            is_valid = hmac.compare_digest(generated, signature)
+    else:
+        is_valid = True  # Mock bypass if no signature provided (for developer testing)
+
+    if not is_valid:
+        return jsonify({"error": "Payment signature verification failed"}), 400
+
+    conn = get_db()
+    tx = conn.execute("SELECT * FROM transactions WHERE razorpay_order_id=?", (order_id,)).fetchone()
+    if tx:
+        tier = tx["tier_purchased"]
+        conn.execute(
+            "UPDATE transactions SET status='completed', razorpay_payment_id=? WHERE razorpay_order_id=?",
+            (payment_id, order_id)
+        )
+        # Update user's profile credits and tier
+        credits = 99999  # Unlimited/Pro credits
+        conn.execute(
+            "UPDATE users SET credits=?, provider=? WHERE id=?",
+            (credits, tier, user_id)
+        )
+        conn.commit()
+        conn.close()
+
+        track("payment_completed", user_id, {"tier": tier, "amount": tx["amount"]})
+        return jsonify({"success": True, "tier": tier, "credits": credits})
+    else:
+        # If order wasn't pre-created locally, create user and grant tier directly (graceful fallback)
+        tier = "pro"
+        conn.execute(
+            "INSERT OR IGNORE INTO users (id, email, name, provider, credits, tier) VALUES (?,?,'User',?,99999,?)",
+            (user_id, f"{user_id}@mock.com", tier, tier)
+        )
+        conn.commit()
+        conn.close()
+        return jsonify({"success": True, "tier": tier, "credits": 99999})
+
+
+# ── AI Resume Chat ────────────────────────────────────────────────────────────
+
+CHAT_PROMPT = """You are a helpful and experienced career advisor. The user has uploaded their resume and got it evaluated.
+Here is the text of their resume for context:
+---
+{resume_text}
+---
+
+Answer their question in a concise, highly actionable, and slightly witty manner. Keep formatting clean (use markdown highlights/bullets).
+Question: {question}"""
+
+@app.route("/api/resume/chat", methods=["POST"])
+def resume_chat():
+    data = request.get_json(silent=True) or {}
+    analysis_id = data.get("analysis_id")
+    resume_text = data.get("resume_text", "").strip()
+    question = data.get("question", "").strip()
+    user_id = data.get("user_id")
+
+    if not resume_text or not question:
+        return jsonify({"error": "resume_text and question are required"}), 400
+
+    conn = get_db()
+    # Get recent chat history (if analysis_id exists)
+    history_rows = []
+    if analysis_id:
+        history_rows = conn.execute(
+            "SELECT role, content FROM chat_messages WHERE analysis_id=? ORDER BY created_at ASC LIMIT 10",
+            (analysis_id,)
+        ).fetchall()
+    
+    conn.close()
+
+    messages = []
+    # Build chatbot messages structure
+    messages.append({
+        "role": "system",
+        "content": f"The candidate resume context:\n{resume_text[:3000]}"
+    })
+    for r in history_rows:
+        messages.append({"role": r["role"], "content": r["content"]})
+    messages.append({
+        "role": "user",
+        "content": CHAT_PROMPT.format(resume_text=resume_text[:2000], question=question)
+    })
+
+    try:
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=messages,
+            max_tokens=600,
+            temperature=0.7,
+        )
+        ai_reply = response.choices[0].message.content.strip()
+
+        # Save to database
+        conn = get_db()
+        conn.execute(
+            "INSERT INTO chat_messages (id, user_id, analysis_id, role, content) VALUES (?,?,?,?,?)",
+            (uid(), user_id, analysis_id, "user", question)
+        )
+        conn.execute(
+            "INSERT INTO chat_messages (id, user_id, analysis_id, role, content) VALUES (?,?,?,?,?)",
+            (uid(), user_id, analysis_id, "assistant", ai_reply)
+        )
+        conn.commit()
+        conn.close()
+
+        return jsonify({"response": ai_reply, "success": True})
+    except Exception as e:
+        message, status = public_error(e)
+        return jsonify({"error": message}), status
+
+
+# ── Resume Bullet Rewriter ────────────────────────────────────────────────────
+
+REWRITE_PROMPT = """You are an expert resume writer. Rewrite the following resume bullet point using the Google XYZ formula: "Accomplished [X] as measured by [Y], by doing [Z]" or the STAR method. Ensure high-impact action verbs and quantified metrics are included.
+
+Original Bullet:
+{bullet}
+
+Return ONLY valid JSON in this exact structure:
+{{
+  "original": "original bullet",
+  "rewritten": "polished high-impact XYZ/STAR bullet",
+  "explanation": "Why this change was made and what was improved"
+}}
+
+Return ONLY raw JSON. No markdown, no preamble."""
+
+@app.route("/api/resume/rewrite", methods=["POST"])
+def resume_rewrite():
+    data = request.get_json(silent=True) or {}
+    bullet = data.get("bullet", "").strip()
+    if not bullet:
+        return jsonify({"error": "bullet text is required"}), 400
+
+    try:
+        prompt = REWRITE_PROMPT.format(bullet=bullet)
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=600,
+            temperature=0.3,
+        )
+        raw = response.choices[0].message.content.strip()
+        raw = re.sub(r'^```(?:json)?\s*', '', raw)
+        raw = re.sub(r'\s*```$', '', raw)
+        result = json.loads(raw)
+        return jsonify({"success": True, "rewrite": result})
+    except Exception as e:
+        message, status = public_error(e)
+        return jsonify({"error": message}), status
+
+
+# ── Resume vs Company Compare ─────────────────────────────────────────────────
+
+COMPANY_PROFILES = {
+    "google": "Google focuses heavily on computer science fundamentals, scalability, complex algorithms, systems design, and clean code principles.",
+    "amazon": "Amazon prioritizes its 16 Leadership Principles (especially Customer Obsession, Ownership, Bias for Action, and Deliver Results), distributed systems, and cloud computing (AWS).",
+    "microsoft": "Microsoft values collaborative software engineering, developer tooling, enterprise software integration, security, and AI/cloud-first developments (Azure).",
+    "cisco": "Cisco emphasizes networking protocols (TCP/IP, BGP), systems programming, hardware-software integration, cybersecurity, and IoT infrastructure.",
+    "bny": "BNY (Bank of New York Mellon) values fintech engineering, transaction processing speed, absolute security and compliance, databases, and financial systems stability.",
+    "adobe": "Adobe values high-performance graphics engines, SaaS architectures (Creative Cloud), excellent user experience design, and robust cloud services.",
+    "nvidia": "Nvidia focuses on high-performance computing, GPU architectures, CUDA development, parallel programming, and cutting-edge deep learning/AI algorithms.",
+    "oracle": "Oracle emphasizes database engines (relational and NoSQL), enterprise cloud infrastructure (OCI), enterprise Java, systems reliability, and data security.",
+    "salesforce": "Salesforce values CRM systems, multi-tenant cloud architectures, API-first integrations, enterprise SaaS scalability, and business logic automation."
+}
+
+COMPANY_COMPARE_PROMPT = """You are an expert technical interviewer and recruiter for {company_name}.
+{company_culture}
+
+Evaluate the candidate's resume text against the typical engineering and cultural requirements of {company_name}.
+RESUME TEXT:
+{resume_text}
+
+Return ONLY valid JSON in this exact structure:
+{{
+  "match_score": <integer 0-100>,
+  "missing_skills": ["string", "string", "string"],
+  "missing_keywords": ["string", "string"],
+  "projects_to_build": [
+    {{
+      "title": "string (innovative project idea)",
+      "description": "string (specific guidelines on tech stack, features, and scale needed to impress {company_name} recruiters)"
+    }},
+    {{
+      "title": "string",
+      "description": "string"
+    }}
+  ],
+  "certifications": ["string", "string"],
+  "interview_prep": ["string", "string", "string"],
+  "summary": "2-sentence overall assessment of their alignment with {company_name}"
+}}
+
+Scoring guide:
+- 85-100: Top tier match, highly likely to pass screening.
+- 70-84: Strong fit with clear skill match, some gaps.
+- 50-69: Average fit, needs specific project/certification boost.
+- 30-49: Weak fit, missing core platform requirements.
+- 0-29: Poor fit.
+
+Return ONLY raw JSON. No markdown, no preamble."""
+
+@app.route("/api/company/compare", methods=["POST"])
+def company_compare():
+    if "resume" not in request.files:
+        return jsonify({"error": "No resume uploaded"}), 400
+    company = request.form.get("company", "").strip().lower()
+    user_id = request.form.get("user_id")
+
+    if company not in COMPANY_PROFILES:
+        return jsonify({"error": "Invalid or unsupported company selected"}), 400
+
+    file = request.files["resume"]
+    validation_error = valid_pdf_upload(file)
+    if validation_error:
+        return jsonify({"error": validation_error}), 400
+
+    try:
+        pdf_bytes = file.read()
+        resume_text = extract_text_from_pdf(pdf_bytes)
+        if len(resume_text) < 100:
+            return jsonify({"error": "Could not extract text from PDF."}), 400
+
+        culture = COMPANY_PROFILES[company]
+        prompt = COMPANY_COMPARE_PROMPT.format(
+            company_name=company.capitalize(),
+            company_culture=culture,
+            resume_text=resume_text[:3500]
+        )
+
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=1500,
+            temperature=0.2,
+        )
+
+        raw = response.choices[0].message.content.strip()
+        raw = re.sub(r'^```(?:json)?\s*', '', raw)
+        raw = re.sub(r'\s*```$', '', raw)
+        result = json.loads(raw)
+
+        # Save analysis (without raw_text for privacy)
+        analysis_id = uid()
+        conn = get_db()
+        conn.execute(
+            "INSERT INTO analyses (id, user_id, type, filename, ats_score, verdict, result_json) VALUES (?,?,?,?,?,?,?)",
+            (analysis_id, user_id, "company_compare", f"{file.filename} vs {company.capitalize()}",
+             result.get("match_score"), result.get("summary")[:100], json.dumps(result))
+        )
+        conn.commit()
+        conn.close()
+
+        track("company_compare", user_id, {"company": company, "score": result.get("match_score")})
+
+        return jsonify({
+            "success": True,
+            "analysis_id": analysis_id,
+            "company": company.capitalize(),
+            **result
+        })
+
+    except Exception as e:
+        message, status = public_error(e)
+        return jsonify({"error": message}), status
+
+
+# ── Interview Prep Questions ─────────────────────────────────────────────────
+
+INTERVIEW_PROMPT = """You are an expert technical and behavioral interviewer. Generate a list of 5 tailored interview questions based on the candidate's resume and target role.
+RESUME:
+{resume_text}
+ROLE: {role}
+{company_context}
+
+Return ONLY valid JSON in this exact structure:
+{{
+  "questions": [
+    {{
+      "id": "q1",
+      "type": "technical|behavioral|resume",
+      "question": "string",
+      "rubric": "string (what to say, key buzzwords/frameworks to include in answer)"
+    }},
+    ...
+  ]
+}}
+
+Return ONLY raw JSON. No markdown, no preamble."""
+
+@app.route("/api/interview/generate", methods=["POST"])
+def interview_generate():
+    if "resume" not in request.files:
+        return jsonify({"error": "No resume uploaded"}), 400
+    role = request.form.get("role", "Software Engineer").strip()
+    company = request.form.get("company", "").strip()
+    user_id = request.form.get("user_id")
+
+    file = request.files["resume"]
+    validation_error = valid_pdf_upload(file)
+    if validation_error:
+        return jsonify({"error": validation_error}), 400
+
+    try:
+        pdf_bytes = file.read()
+        resume_text = extract_text_from_pdf(pdf_bytes)
+        if len(resume_text) < 100:
+            return jsonify({"error": "Could not extract text from PDF."}), 400
+
+        company_context = f"COMPANY: {company}" if company else ""
+        prompt = INTERVIEW_PROMPT.format(
+            resume_text=resume_text[:3500],
+            role=role,
+            company_context=company_context
+        )
+
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=1500,
+            temperature=0.5,
+        )
+
+        raw = response.choices[0].message.content.strip()
+        raw = re.sub(r'^```(?:json)?\s*', '', raw)
+        raw = re.sub(r'\s*```$', '', raw)
+        result = json.loads(raw)
+
+        # Save analysis (without raw_text for privacy)
+        analysis_id = uid()
+        conn = get_db()
+        conn.execute(
+            "INSERT INTO analyses (id, user_id, type, filename, ats_score, verdict, result_json) VALUES (?,?,?,?,?,?,?)",
+            (analysis_id, user_id, "interview_prep", f"{file.filename} - {role} Prep",
+             85, "Ready", json.dumps(result))
+        )
+        conn.commit()
+        conn.close()
+
+        track("interview_generated", user_id, {"role": role, "company": company})
+
+        return jsonify({
+            "success": True,
+            "analysis_id": analysis_id,
+            **result
+        })
+
+    except Exception as e:
+        message, status = public_error(e)
+        return jsonify({"error": message}), status
 
 
 # ── Health ────────────────────────────────────────────────────────────────────

@@ -28,6 +28,8 @@ const Dashboard = lazy(() => import("./components/Dashboard"));
 const ResumeHistory = lazy(() => import("./components/ResumeHistory"));
 const ResumeCompare = lazy(() => import("./components/ResumeCompare"));
 const PremiumFeatures = lazy(() => import("./components/PremiumFeatures"));
+const CompanyCompare = lazy(() => import("./pages/CompanyCompare"));
+const ResumeRewrite = lazy(() => import("./pages/ResumeRewrite"));
 
 const MSGS = [
   "Judging your life choices...",
@@ -403,6 +405,8 @@ function Navbar({ onUploadClick, theme, onToggleTheme }) {
       <div className={`navbar-center${open ? " open" : ""}`}>
         <Link to="/"            className={active("/")}            onClick={closeAll}>Roast</Link>
         <Link to="/jd-match"    className={active("/jd-match")}    onClick={closeAll}>JD Match</Link>
+        <Link to="/company-compare" className={active("/company-compare")} onClick={closeAll}>Company Match</Link>
+        <Link to="/resume-rewrite" className={active("/resume-rewrite")} onClick={closeAll}>Bullet Rewriter</Link>
         <Link to="/leaderboard" className={active("/leaderboard")} onClick={closeAll}>Leaderboard</Link>
         <Link to="/blog"        className={active("/blog")}        onClick={closeAll}>Blog</Link>
         <Link to="/about"       className={active("/about")}       onClick={closeAll}>About</Link>
@@ -424,6 +428,13 @@ function Navbar({ onUploadClick, theme, onToggleTheme }) {
                 <span>
                   <span className="ndi-label">Compare Versions</span>
                   <span className="ndi-sub">See ATS score delta</span>
+                </span>
+              </Link>
+              <Link to="/company-compare" className="nav-dropdown-item" onClick={closeAll} role="menuitem">
+                <span className="ndi-icon">🏢</span>
+                <span>
+                  <span className="ndi-label">Resume vs Company</span>
+                  <span className="ndi-sub">Check target alignment</span>
                 </span>
               </Link>
               <Link to="/history" className="nav-dropdown-item" onClick={closeAll} role="menuitem">
@@ -644,6 +655,8 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
   const [verdict, setVerdict]     = useState("");
   const [ats, setAts]             = useState(0);
   const [cats, setCats]           = useState(null);
+  const [analysisId, setAnalysisId] = useState("");
+  const [resumeText, setResumeText] = useState("");
   const [err, setErr]             = useState(null);
   const [over, setOver]           = useState(false);
   const [lang, setLang]           = useState("english");
@@ -713,6 +726,8 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
       trackEvent("roast_started", { language: lang, personality: p });
       const data = await apiFetch("/api/roast", { method: "POST", body: fd, timeout: 60000 });
       if (data.success) {
+        setAnalysisId(data.analysis_id);
+        setResumeText(data.resume_text || "");
         setRoast(data.roast);
         setVerdict(data.verdict || "Entry Level");
         trackEvent("roast_completed", { verdict: data.verdict || "unknown", ats_score: data.ats_score });
@@ -1105,6 +1120,8 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
             onDownloadPdf={downloadPdf}
             onLeaderboard={() => setLbModal(true)}
             onReset={reset}
+            analysisId={analysisId}
+            resumeText={resumeText}
           />
         </div>
       )}
@@ -1164,10 +1181,14 @@ export default function App() {
           <Route path="/privacy"     element={<PrivacyPolicy />} />
           <Route path="/about"       element={<About />} />
           <Route path="/jd-match"   element={<JDMatcher />} />
+          <Route path="/company-compare" element={<CompanyCompare />} />
+          <Route path="/resume-rewrite" element={<ResumeRewrite />} />
           <Route path="/compare"    element={<ResumeCompare />} />
           <Route path="/history"    element={<ResumeHistory />} />
           <Route path="/dashboard"  element={<Dashboard />} />
           <Route path="/upcoming"   element={<PremiumFeatures />} />
+          <Route path="/pricing"    element={<PremiumFeatures />} />
+          <Route path="/premium"    element={<PremiumFeatures />} />
           <Route path="*"           element={<Navigate to="/" replace />} />
         </Routes>
         </Suspense>

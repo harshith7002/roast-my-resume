@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { getUser, getVisitorId } from "../utils/storage";
 import { apiFetch } from "../utils/api";
@@ -33,7 +34,25 @@ export default function Dashboard() {
     <div className="page-wrap">
     <div className="dashboard-page">
       <h1 className="dashboard-title">📊 Your Dashboard</h1>
-      <p className="dashboard-email">{user?.email || "Progress saved on this device"}</p>
+      
+      {/* ── User Profile & Credits status ── */}
+      <div className="profile-banner" style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: "20px", borderRadius: "12px", marginBottom: "28px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <span style={{ fontSize: "11px", fontWeight: 800, color: "var(--fire)", letterSpacing: "1px" }}>ACCOUNT PROFILE</span>
+          <p style={{ margin: "4px 0", color: "var(--cream)", fontWeight: 700 }}>{user?.email || "Local Anonymous Session"}</p>
+          <div style={{ display: "flex", gap: "12px", fontSize: "0.85rem", color: "var(--cream-60)", marginTop: "4px" }}>
+            <span>Tier: <strong style={{ color: user?.tier && user.tier !== "free" ? "var(--gold)" : "var(--cream)" }}>{(user?.tier || "free").toUpperCase()}</strong></span>
+            <span>·</span>
+            <span>Credits: <strong>{user?.tier && user.tier !== "free" ? "Unlimited ⚡" : `${user?.credits || 1} Remaining`}</strong></span>
+          </div>
+        </div>
+        {(!user?.tier || user.tier === "free") && (
+          <Link to="/pricing" className="fire-btn" style={{ padding: "10px 20px", borderRadius: "8px", textDecoration: "none", fontSize: "0.88rem" }}>
+            🚀 Upgrade to Copilot Pro
+          </Link>
+        )}
+      </div>
+
       {error && <div className="notice" role="status">Stats are temporarily unavailable. Your local history is still safe.</div>}
 
       <div className="stat-cards">
