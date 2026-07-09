@@ -188,6 +188,26 @@ export default function RoastReport({
       });
   }, [resumeText, preview]);
 
+  const strengths = [];
+  const weaknesses = [];
+
+  if (cats) {
+    if ((cats.ats || 0) >= 70) strengths.push("Clean ATS structure");
+    else weaknesses.push("Optimize ATS formatting");
+
+    if ((cats.impact || 0) >= 75) strengths.push("Quantified metrics & results");
+    else weaknesses.push("Needs impact metrics");
+
+    if ((cats.projects || 0) >= 75) strengths.push("Strong technical projects");
+    else weaknesses.push("Detail project structures");
+
+    if ((cats.skills || 0) >= 70) strengths.push("Good keyword densities");
+    else weaknesses.push("Missing target keywords");
+  }
+
+  if (strengths.length === 0) strengths.push("Standard section layout", "Contact details clear");
+  if (weaknesses.length === 0) weaknesses.push("Detail technical frameworks", "Increase active verbs");
+
   return (
     <motion.div
       className="report"
@@ -195,25 +215,68 @@ export default function RoastReport({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
     >
-      <div className="report-hero">
-        <span className="rh-tag">{preview ? "👀 SAMPLE REPORT" : "✅ ANALYSIS COMPLETE"}</span>
-        <h2 className="rh-title">{preview ? "This is what you'll get" : "Your Resume Report"}</h2>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px", marginBottom: "16px" }}>
+        <div className="report-hero" style={{ textAlign: "left" }}>
+          <span className="rh-tag">{preview ? "👀 SAMPLE REPORT" : "✅ ANALYSIS COMPLETE"}</span>
+          <h2 className="rh-title" style={{ margin: "4px 0 0" }}>{preview ? "This is what you'll get" : "Your Resume Report"}</h2>
+        </div>
+        {!preview && (
+          <div style={{ display: "flex", gap: "8px" }}>
+            <button className="ra-btn primary" onClick={onDownloadPdf} style={{ padding: "8px 16px", fontSize: "0.85rem", height: "auto" }}>⬇️ Download PDF</button>
+            <button className="ra-btn" onClick={onShareCard} style={{ padding: "8px 16px", fontSize: "0.85rem", height: "auto" }}>📸 Share Results</button>
+          </div>
+        )}
       </div>
 
       {/* ── Top: gauge + verdict ── */}
-      <div className="report-top">
-        <ScoreGauge value={overall} />
-        <div className="report-verdict">
-          <div className={`verdict-pill ${verdictMeta.cls}`}>{verdictMeta.icon} {verdictMeta.label.toUpperCase()}</div>
-          <p className="rv-desc">{verdictMeta.desc}</p>
-          <p className="rv-line">{scoreVerdictLine(overall)}</p>
-          {badges.length > 0 && (
-            <div className="rv-badges">
-              {badges.map(b => (
-                <span key={b.id} className="badge-chip"><span>{b.emoji}</span><span>{b.label}</span></span>
-              ))}
+      <div className="report-top" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px", padding: "28px" }}>
+        
+        {/* Left Side: Score Gauges */}
+        <div style={{ display: "flex", gap: "20px", alignItems: "center", justifyContent: "center" }}>
+          <ScoreGauge value={overall} />
+          <div style={{ borderLeft: "1px solid var(--border)", height: "80px" }} />
+          <div style={{ textAlign: "center" }}>
+            <span style={{ fontSize: "0.72rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "block" }}>ATS Score</span>
+            <div style={{ fontSize: "2.2rem", fontWeight: 900, color: scoreColor(cats?.ats || overall), fontFamily: "monospace", margin: "4px 0" }}>
+              {cats?.ats || overall}<span style={{ fontSize: "1rem", color: "var(--cream-60)" }}>/100</span>
             </div>
-          )}
+            <span style={{ fontSize: "0.68rem", color: "var(--emerald)", fontWeight: 700 }}>🟢 Passing Grade</span>
+          </div>
+        </div>
+
+        {/* Right Side: FAANG Readiness, Strengths, Weaknesses */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+          <div>
+            <span style={{ fontSize: "0.72rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "block", marginBottom: "4px" }}>FAANG READINESS</span>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+              <div className={`verdict-pill ${verdictMeta.cls}`} style={{ margin: 0, padding: "4px 10px", fontSize: "0.76rem" }}>
+                {verdictMeta.icon} {verdictMeta.label.toUpperCase()}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+            <div>
+              <span style={{ fontSize: "0.72rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "block", marginBottom: "6px" }}>🏆 STRENGTHS</span>
+              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                {strengths.slice(0, 2).map((s, idx) => (
+                  <span key={idx} style={{ fontSize: "0.78rem", color: "var(--cream)", display: "flex", alignItems: "center", gap: "4px" }}>
+                    🟢 <span style={{ fontWeight: 600 }}>{s}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div>
+              <span style={{ fontSize: "0.72rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "block", marginBottom: "6px" }}>⚠️ WEAKNESSES</span>
+              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                {weaknesses.slice(0, 2).map((w, idx) => (
+                  <span key={idx} style={{ fontSize: "0.78rem", color: "var(--cream)", display: "flex", alignItems: "center", gap: "4px" }}>
+                    🔴 <span style={{ fontWeight: 600 }}>{w}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

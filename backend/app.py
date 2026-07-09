@@ -1185,6 +1185,8 @@ Return ONLY valid JSON in this exact structure:
       "id": "q1",
       "type": "technical|behavioral|resume",
       "question": "string",
+      "difficulty": "easy|medium|hard",
+      "round": "string (e.g. Round 1: Phone Screening, Round 2: Technical Deep-Dive, Round 3: System Design)",
       "rubric": "string (what to say, key buzzwords/frameworks to include in answer)"
     }},
     ...

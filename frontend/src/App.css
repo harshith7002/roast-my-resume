@@ -2,13 +2,13 @@
 :root {
   --fire:       #FF8A3D;
   --fire-dark:  #E57E35;
-  --fire-glow:  rgba(255, 138, 61, 0.25);
+  --fire-glow:  rgba(255, 138, 61, 0.16); /* Reduced orange glow intensity */
   --amber:      #FFB347;
-  --amber-glow: rgba(255, 179, 71, 0.15);
+  --amber-glow: rgba(255, 179, 71, 0.1);
   --cream:      #FFFFFF; /* Pure White (primary text) */
-  --cream-60:   #94A3B8; /* Slate/Silver Grey (secondary text) */
-  --cream-30:   rgba(255, 255, 255, 0.3);
-  --cream-10:   rgba(255, 255, 255, 0.08);
+  --cream-60:   #CBD5E1; /* Higher contrast Slate/Silver Grey (secondary text) */
+  --cream-30:   rgba(255, 255, 255, 0.45);
+  --cream-10:   rgba(255, 255, 255, 0.12);
 
   --bg:         #12131A; /* Sleek Charcoal Dark Canvas */
   --bg2:        #1C1E26; /* Deep Charcoal Slate Card Surface */
@@ -70,8 +70,8 @@ body {
 .bg-canvas {
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background:
-    radial-gradient(ellipse 65% 45% at 50% -10%, rgba(255, 138, 61, 0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 30% at 85% 40%, rgba(136, 80, 255, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse 65% 45% at 50% -10%, rgba(255, 138, 61, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 85% 40%, rgba(136, 80, 255, 0.03) 0%, transparent 50%),
     #12131A; /* Sleek Charcoal Dark Canvas */
 }
 
@@ -158,15 +158,17 @@ body {
 }
 
 .nav-dropdown-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 11px 14px; border-radius: var(--r-md);
+  display: flex; align-items: center; gap: 14px;
+  padding: 13px 16px; border-radius: var(--r-md);
   text-decoration: none; color: var(--cream-60);
   transition: all 0.18s; font-size: 13.5px;
+  border-left: 2px solid transparent;
 }
-.nav-dropdown-item:hover { background: rgba(255,107,0,0.08); color: var(--cream); }
-.ndi-icon { font-size: 18px; flex-shrink: 0; width: 22px; text-align: center; }
-.ndi-label { display: block; font-size: 13px; font-weight: 700; color: var(--cream); }
-.ndi-sub   { display: block; font-size: 11px; color: var(--cream-30); margin-top: 1px; }
+.nav-dropdown-item:hover { background: rgba(255,138,61,0.08); color: var(--cream); }
+.nav-dropdown-item.active { background: rgba(255, 138, 61, 0.12); color: var(--cream); border-left-color: var(--fire); }
+.ndi-icon { font-size: 22px; flex-shrink: 0; width: 26px; text-align: center; }
+.ndi-label { display: block; font-size: 13.5px; font-weight: 700; color: var(--cream); }
+.ndi-sub   { display: block; font-size: 11px; color: var(--cream-30); margin-top: 1.5px; }
 
 .navbar-right { display: flex; align-items: center; gap: 10px; }
 
@@ -423,14 +425,15 @@ body {
   position: relative; overflow: hidden;
   border: 2px dashed rgba(255,107,0,0.22); border-radius: var(--r-xl);
   padding: 52px 24px; text-align: center; cursor: pointer;
-  background: rgba(255,107,0,0.025); transition: all 0.3s var(--ease-out);
+  background: rgba(255,107,0,0.025); transition: all 0.25s var(--ease-out);
 }
 .dropzone::before {
   content: ''; position: absolute; inset: 0;
   background: radial-gradient(ellipse 80% 60% at 50% 110%, rgba(255,107,0,0.1), transparent);
   opacity: 0; transition: opacity 0.35s;
 }
-.dropzone:hover, .dropzone.over { border-color: rgba(255,107,0,0.6); background: rgba(255,107,0,0.05); box-shadow: 0 0 0 6px rgba(255,107,0,0.06); }
+.dropzone:hover { border-color: rgba(255,107,0,0.6); background: rgba(255,107,0,0.05); box-shadow: 0 0 0 6px rgba(255,107,0,0.06); }
+.dropzone.over { border-color: var(--fire); background: rgba(255,138,61,0.08); box-shadow: 0 0 0 10px rgba(255,138,61,0.08); transform: scale(1.015); }
 .dropzone:hover::before, .dropzone.over::before { opacity: 1; }
 .dropzone.has-file { border-color: rgba(0,214,143,0.4); background: rgba(0,214,143,0.025); }
 .dropzone.burst { animation: burst 0.5s ease-out; }
@@ -628,7 +631,7 @@ body {
 .faq-q:hover { color: var(--fire); }
 .faq-arrow { color: var(--cream-30); font-size: 20px; transition: transform 0.25s; flex-shrink: 0; }
 .faq-item.open .faq-arrow { transform: rotate(45deg); }
-.faq-a { font-size: 13.5px; color: var(--cream-60); line-height: 1.75; max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s; font-weight: 400; }
+.faq-a { font-size: 13.5px; color: #E2E8F0; line-height: 1.60; max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s; font-weight: 400; }
 .faq-item.open .faq-a { max-height: 200px; padding-bottom: 16px; }
 
 /* ── Toast ───────────────────────────────────────────────────── */

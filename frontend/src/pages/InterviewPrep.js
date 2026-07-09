@@ -170,8 +170,8 @@ export default function InterviewPrep() {
               }}
               onClick={() => setExpandedId(isOpen ? null : q.id)}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+                <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
                   <span style={{
                     fontSize: "0.72rem",
                     fontWeight: 800,
@@ -183,7 +183,33 @@ export default function InterviewPrep() {
                   }}>
                     {q.type}
                   </span>
-                  <h3 style={{ margin: 0, fontSize: "0.98rem", color: "var(--cream)" }}>Question {idx + 1}</h3>
+                  <span style={{
+                    fontSize: "0.72rem",
+                    fontWeight: 700,
+                    padding: "3px 8px",
+                    borderRadius: 4,
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid var(--border)",
+                    color: "var(--cream-60)"
+                  }}>
+                    {q.round || (idx === 0 ? "Round 1: Screening" : idx < 3 ? "Round 2: Technical Deep-Dive" : idx === 3 ? "Round 3: System Design" : "Round 4: Hiring Manager")}
+                  </span>
+                  <span style={{
+                    fontSize: "0.72rem",
+                    fontWeight: 700,
+                    padding: "3px 8px",
+                    borderRadius: 4,
+                    background: "rgba(255,255,255,0.03)",
+                    color: "var(--cream)"
+                  }}>
+                    {(() => {
+                      const diff = (q.difficulty || (idx < 2 ? "easy" : idx < 4 ? "medium" : "hard")).toLowerCase();
+                      if (diff === "easy") return "🟢 Easy";
+                      if (diff === "medium") return "🟡 Medium";
+                      return "🔴 Hard";
+                    })()}
+                  </span>
+                  <h3 style={{ margin: "0 0 0 8px", fontSize: "0.98rem", color: "var(--cream)" }}>Question {idx + 1}</h3>
                 </div>
                 <span style={{ fontSize: "1.1rem", color: "var(--cream-60)" }}>{isOpen ? "▲" : "▼"}</span>
               </div>

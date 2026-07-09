@@ -436,56 +436,56 @@ function Navbar({ onUploadClick, theme, onToggleTheme, user, onLoginClick }) {
           </button>
           {toolsOpen && (
             <div className="nav-dropdown-menu" role="menu">
-              <Link to="/jd-match" className="nav-dropdown-item" onClick={closeAll} role="menuitem">
+              <Link to="/jd-match" className={loc.pathname === "/jd-match" ? "nav-dropdown-item active" : "nav-dropdown-item"} onClick={closeAll} role="menuitem">
                 <span className="ndi-icon">🎯</span>
                 <span>
                   <span className="ndi-label">JD Matcher</span>
                   <span className="ndi-sub">Targeted keyword scanning</span>
                 </span>
               </Link>
-              <Link to="/company-compare" className="nav-dropdown-item" onClick={closeAll} role="menuitem">
+              <Link to="/company-compare" className={loc.pathname === "/company-compare" ? "nav-dropdown-item active" : "nav-dropdown-item"} onClick={closeAll} role="menuitem">
                 <span className="ndi-icon">🏢</span>
                 <span>
                   <span className="ndi-label">Company Match</span>
                   <span className="ndi-sub">Check corporate alignment</span>
                 </span>
               </Link>
-              <Link to="/resume-rewrite" className="nav-dropdown-item" onClick={closeAll} role="menuitem">
+              <Link to="/resume-rewrite" className={loc.pathname === "/resume-rewrite" ? "nav-dropdown-item active" : "nav-dropdown-item"} onClick={closeAll} role="menuitem">
                 <span className="ndi-icon">✍️</span>
                 <span>
                   <span className="ndi-label">Bullet Rewriter</span>
                   <span className="ndi-sub">Google XYZ polishing</span>
                 </span>
               </Link>
-              <Link to="/interview-prep" className="nav-dropdown-item" onClick={closeAll} role="menuitem">
+              <Link to="/interview-prep" className={loc.pathname === "/interview-prep" ? "nav-dropdown-item active" : "nav-dropdown-item"} onClick={closeAll} role="menuitem">
                 <span className="ndi-icon">💡</span>
                 <span>
                   <span className="ndi-label">Interview Prep</span>
                   <span className="ndi-sub">Custom Mock questions</span>
                 </span>
               </Link>
-              <Link to="/cover-letter" className="nav-dropdown-item" onClick={closeAll} role="menuitem">
+              <Link to="/cover-letter" className={loc.pathname === "/cover-letter" ? "nav-dropdown-item active" : "nav-dropdown-item"} onClick={closeAll} role="menuitem">
                 <span className="ndi-icon">✉️</span>
                 <span>
                   <span className="ndi-label">Cover Letter</span>
                   <span className="ndi-sub">Job-specific AI writer</span>
                 </span>
               </Link>
-              <Link to="/compare" className="nav-dropdown-item" onClick={closeAll} role="menuitem">
+              <Link to="/compare" className={loc.pathname === "/compare" ? "nav-dropdown-item active" : "nav-dropdown-item"} onClick={closeAll} role="menuitem">
                 <span className="ndi-icon">⚖️</span>
                 <span>
                   <span className="ndi-label">Compare Versions</span>
                   <span className="ndi-sub">Track scoring delta</span>
                 </span>
               </Link>
-              <Link to="/history" className="nav-dropdown-item" onClick={closeAll} role="menuitem">
+              <Link to="/history" className={loc.pathname === "/history" ? "nav-dropdown-item active" : "nav-dropdown-item"} onClick={closeAll} role="menuitem">
                 <span className="ndi-icon">📋</span>
                 <span>
                   <span className="ndi-label">History</span>
                   <span className="ndi-sub">Session-only · not saved</span>
                 </span>
               </Link>
-              <Link to="/dashboard" className="nav-dropdown-item" onClick={closeAll} role="menuitem">
+              <Link to="/dashboard" className={loc.pathname === "/dashboard" ? "nav-dropdown-item active" : "nav-dropdown-item"} onClick={closeAll} role="menuitem">
                 <span className="ndi-icon">📊</span>
                 <span>
                   <span className="ndi-label">Dashboard</span>
@@ -547,19 +547,26 @@ function Navbar({ onUploadClick, theme, onToggleTheme, user, onLoginClick }) {
 /* ── Footer ───────────────────────────────────────────────────── */
 function Footer() {
   return (
-    <footer className="footer" style={{ padding: "40px 20px", borderTop: "1px solid #24242A", background: "#08080C", color: "var(--cream-60)", fontSize: "0.82rem" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "20px", maxWidth: "1000px", margin: "0 auto", alignItems: "center" }}>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <MacoostudyLogo />
-          <span style={{ fontWeight: 800, color: "#fff", fontFamily: "'Space Grotesk', sans-serif" }}>Macoostudy</span>
+    <footer className="footer" style={{ padding: "48px 20px", borderTop: "1px solid var(--border)", background: "var(--bg)", color: "var(--cream-60)", fontSize: "0.82rem" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "24px", maxWidth: "1100px", margin: "0 auto", alignItems: "center" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "flex-start" }}>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <MacoostudyLogo />
+            <span style={{ fontWeight: 800, color: "#fff", fontFamily: "'Space Grotesk', sans-serif", fontSize: "1.1rem" }}>Macoostudy</span>
+          </div>
+          <span>© 2026 Macoostudy. All rights reserved.</span>
         </div>
-        <span>© 2026 Macoostudy. All rights reserved.</span>
-        <div style={{ display: "flex", gap: "16px" }}>
-          <Link to="/privacy" style={{ color: "var(--cream-60)", textDecoration: "none" }}>Privacy</Link>
-          <Link to="/terms" style={{ color: "var(--cream-60)", textDecoration: "none" }}>Terms</Link>
+
+        <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", alignItems: "center" }}>
+          <Link to="/privacy" style={{ color: "var(--cream-60)", textDecoration: "none" }}>Privacy Policy</Link>
+          <Link to="/terms" style={{ color: "var(--cream-60)", textDecoration: "none" }}>Terms of Service</Link>
+          <a href="mailto:support@macoostudy.com" style={{ color: "var(--cream-60)", textDecoration: "none" }}>Contact Us</a>
           <a href="https://github.com" target="_blank" rel="noopener noreferrer" style={{ color: "var(--cream-60)", textDecoration: "none" }}>GitHub</a>
           <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" style={{ color: "var(--cream-60)", textDecoration: "none" }}>LinkedIn</a>
-          <a href="mailto:support@roastmyresume.com" style={{ color: "var(--cream-60)", textDecoration: "none" }}>Email</a>
+          
+          <a href="https://www.producthunt.com" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(218, 93, 63, 0.12)", border: "1px solid rgba(218, 93, 63, 0.25)", color: "#DA5D3F", padding: "4px 10px", borderRadius: "6px", fontSize: "0.75rem", fontWeight: 700, textDecoration: "none", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "rgba(218, 93, 63, 0.2)"} onMouseLeave={e => e.currentTarget.style.background = "rgba(218, 93, 63, 0.12)"}>
+            <span style={{ fontSize: "0.85rem" }}>😸</span> Product Hunt <span style={{ background: "#DA5D3F", color: "#fff", padding: "1px 5px", borderRadius: "3px", fontSize: "0.62rem" }}>#1</span>
+          </a>
         </div>
       </div>
     </footer>
@@ -704,6 +711,7 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
   const [confetti, setConfetti]   = useState(false);
   const [burst, setBurst]         = useState(false);
   const [msgIdx, setMsgIdx]       = useState(0);
+  const [progressStage, setProgressStage] = useState(0);
   const [badges, setBadges]       = useState([]);
   const [roastSnippet, setRoastSnippet] = useState("");
   const fileRef    = useRef();
@@ -713,6 +721,20 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
   useEffect(() => {
     registerUpload(() => fileRef.current?.click());
   }, [registerUpload]);
+
+  useEffect(() => {
+    if (!loading) {
+      setProgressStage(0);
+      return;
+    }
+    const stages = [1500, 4000, 7500, 11500];
+    const timers = stages.map((time, idx) => 
+      setTimeout(() => {
+        setProgressStage(idx + 1);
+      }, time)
+    );
+    return () => timers.forEach(t => clearTimeout(t));
+  }, [loading]);
 
   useEffect(() => {
     if (!loading) return;
@@ -917,11 +939,11 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
             </div>
             
             <h1 className="hero-title" style={{ fontSize: "56px", fontWeight: 900, lineHeight: 1.12, color: "var(--cream)", marginBottom: "24px", letterSpacing: "-1.5px" }}>
-              Land More Interviews <span style={{ color: "var(--fire)" }}>with AI.</span>
+              Stop Sending Resumes <span style={{ color: "var(--fire)" }}>That Get Ignored.</span>
             </h1>
 
             <p className="hero-sub" style={{ fontSize: "16px", color: "var(--cream-60)", lineHeight: 1.6, marginBottom: "40px", maxWidth: "480px" }}>
-              Upload your resume once and receive ATS analysis, company matching, resume rewriting, interview preparation, cover letters, and career coaching in under 60 seconds.
+              Get roasted, identify hidden ATS keyword gaps, and generate job-winning bullets inside an Apple-level interactive interface in 15 seconds.
             </p>
 
             <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "32px" }}>
@@ -966,14 +988,12 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
               </button>
             </div>
 
-            <div style={{ display: "flex", gap: "16px", fontSize: "0.75rem", color: "var(--cream-60)", flexWrap: "wrap", alignItems: "center" }}>
-              <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>🛡️ Resume Never Stored</span>
-              <span>·</span>
-              <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>🔑 Private Processing</span>
-              <span>·</span>
+            <div style={{ display: "flex", gap: "10px", fontSize: "0.76rem", color: "var(--cream-60)", flexWrap: "wrap", alignItems: "center", fontWeight: 600 }}>
               <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>⚡ No Signup Required</span>
-              <span>·</span>
-              <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>📈 250+ Resumes Analyzed</span>
+              <span>•</span>
+              <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>🎁 Free Tier Included</span>
+              <span>•</span>
+              <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>📄 PDF Files Only</span>
             </div>
           </div>
 
@@ -1077,16 +1097,16 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
         {/* ── Trust Stats Strip ── */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "24px", width: "100%", marginTop: "64px" }} className="hero-trust-strip-premium">
           <div style={{ background: "var(--bg2)", border: "1px solid var(--border)", padding: "32px 24px", borderRadius: "16px", textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,0.02)" }}>
-            <span style={{ fontSize: "0.72rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "block", marginBottom: "8px" }}>TRUSTED BY STUDENTS IN</span>
-            <div style={{ fontSize: "2.4rem", fontWeight: 800, color: "var(--cream)", fontFamily: "monospace" }}>15+ Countries</div>
+            <span style={{ fontSize: "0.72rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "block", marginBottom: "8px" }}>RESUMES ROASTED</span>
+            <div style={{ fontSize: "2.4rem", fontWeight: 800, color: "var(--cream)", fontFamily: "monospace" }}>250+</div>
           </div>
           <div style={{ background: "var(--bg2)", border: "1px solid var(--border)", padding: "32px 24px", borderRadius: "16px", textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,0.02)" }}>
-            <span style={{ fontSize: "0.72rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "block", marginBottom: "8px" }}>RESUME ANALYSES</span>
-            <div style={{ fontSize: "2.4rem", fontWeight: 800, color: "var(--cream)", fontFamily: "monospace" }}>500,000+</div>
+            <span style={{ fontSize: "0.72rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "block", marginBottom: "8px" }}>LANGUAGES SUPPORTED</span>
+            <div style={{ fontSize: "2.4rem", fontWeight: 800, color: "var(--cream)", fontFamily: "monospace" }}>34</div>
           </div>
           <div style={{ background: "var(--bg2)", border: "1px solid var(--border)", padding: "32px 24px", borderRadius: "16px", textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,0.02)" }}>
-            <span style={{ fontSize: "0.72rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "block", marginBottom: "8px" }}>AVERAGE ATS IMPROVEMENT</span>
-            <div style={{ fontSize: "2.4rem", fontWeight: 800, color: "var(--emerald)", fontFamily: "monospace" }}>+32%</div>
+            <span style={{ fontSize: "0.72rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "block", marginBottom: "8px" }}>AVERAGE ANALYSIS TIME</span>
+            <div style={{ fontSize: "2.4rem", fontWeight: 800, color: "var(--emerald)", fontFamily: "monospace" }}>15s</div>
           </div>
         </div>
       </motion.header>
@@ -1126,9 +1146,13 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
                 <p className="dz-title">Drop your resume PDF here</p>
                 <p className="dz-sub">or click to browse</p>
                 <span className="dz-btn">📂 Upload PDF</span>
-                <p className="dz-hint">PDF only • Max 10MB</p>
+                <p className="dz-hint">Supported: PDF • Max 5 MB</p>
               </>
             )}
+          </div>
+
+          <div style={{ textAlign: "center", marginTop: "4px", fontSize: "0.8rem", color: "var(--cream-60)", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+            <span>🔒 Your resume is parsed in-memory and deleted immediately after analysis.</span>
           </div>
 
           {err && <div className="err-box" role="alert">⚠️ {err}</div>}
@@ -1194,12 +1218,37 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
           <p className="upload-privacy">By continuing, you agree to our <Link to="/privacy">privacy policy</Link>. Your PDF is processed only for this analysis and discarded immediately.</p>
 
           {loading && (
-            <div className="loading-box">
-              <p className="loading-msg" key={msgIdx}>{MSGS[msgIdx]}</p>
-              <div className="progress-track">
-                <div className="progress-fill" style={{ animationDuration: "15s" }} />
+            <div className="loading-box" style={{ padding: "28px 24px", background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: "16px", marginTop: "24px" }}>
+              <p className="loading-msg" key={msgIdx} style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--fire)" }}>
+                {MSGS[msgIdx]}
+              </p>
+              
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px", margin: "24px auto", maxWidth: "280px", textAlign: "left" }}>
+                {[
+                  "Uploading resume PDF...",
+                  "Parsing text extraction...",
+                  "Checking ATS keywords...",
+                  "Roasting experience bullets...",
+                  "Generating final report..."
+                ].map((label, idx) => {
+                  const isCompleted = progressStage > idx;
+                  const isActive = progressStage === idx;
+                  return (
+                    <div key={idx} style={{ display: "flex", alignItems: "center", gap: "12px", opacity: isCompleted || isActive ? 1 : 0.35, transition: "all 0.3s ease" }}>
+                      <span style={{ fontSize: "1.1rem", display: "inline-block", width: "24px", textAlign: "center" }}>
+                        {isCompleted ? "🟢" : isActive ? "⏳" : "⚫"}
+                      </span>
+                      <span style={{ fontSize: "0.9rem", fontWeight: isActive ? 700 : 500, color: isActive ? "var(--fire)" : "var(--cream)" }}>
+                        {label}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-              <p className="loading-sub">☕ grab a coffee, ~15 seconds...</p>
+
+              <p className="loading-sub" style={{ color: "var(--cream-60)", fontSize: "0.82rem", margin: "16px 0 0" }}>
+                ☕ Grab a coffee, this takes ~15 seconds...
+              </p>
             </div>
           )}
         </div>
@@ -1429,33 +1478,63 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
           {/* Cards */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px", maxWidth: "900px", margin: "0 auto 48px" }}>
             {/* Free Tier */}
-            <div style={{ background: "#151515", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "12px", display: "flex", flexDirection: "column" }}>
+            <div style={{ background: "var(--bg2)", border: "1px solid var(--border)", padding: "32px 24px", borderRadius: "12px", display: "flex", flexDirection: "column" }}>
               <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: 700, marginBottom: "4px" }}>Free</h3>
               <p style={{ fontSize: "0.82rem", color: "var(--cream-60)", marginBottom: "20px" }}>Basic ATS and resume roasting.</p>
               <div style={{ fontSize: "2rem", fontWeight: 800, color: "#fff", marginBottom: "24px" }}>₹0</div>
-              <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="btn-secondary" style={{ width: "100%", padding: "12px", borderRadius: "8px", background: "rgba(255,255,255,0.02)", border: "1px solid #24242A", color: "#fff", cursor: "pointer", fontWeight: 700, marginTop: "auto" }}>
+              
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px", margin: "0 0 28px", fontSize: "0.85rem", color: "var(--cream-60)", textAlign: "left" }}>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>ATS Score</span></div>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>AI Resume Roast (1/day)</span></div>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Company Match</span></div>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Download PDF</span></div>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Cover Letter</span></div>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Interview Questions</span></div>
+              </div>
+
+              <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="btn-secondary" style={{ width: "100%", padding: "12px", borderRadius: "8px", background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)", color: "#fff", cursor: "pointer", fontWeight: 700, marginTop: "auto" }}>
                 Start Free Analysis
               </button>
             </div>
 
             {/* Pro Lite Tier */}
-            <div style={{ background: "#151515", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "12px", display: "flex", flexDirection: "column" }}>
+            <div style={{ background: "var(--bg2)", border: "1px solid var(--border)", padding: "32px 24px", borderRadius: "12px", display: "flex", flexDirection: "column" }}>
               <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: 700, marginBottom: "4px" }}>Pro Lite</h3>
               <p style={{ fontSize: "0.82rem", color: "var(--cream-60)", marginBottom: "20px" }}>Detailed ATS breakdowns & fixes.</p>
               <div style={{ fontSize: "2rem", fontWeight: 800, color: "#fff", marginBottom: "24px" }}>₹49</div>
+              
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px", margin: "0 0 28px", fontSize: "0.85rem", color: "var(--cream-60)", textAlign: "left" }}>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>ATS Score</span></div>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>AI Resume Roast (Unlimited)</span></div>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Company Match</span></div>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Download PDF</span></div>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Cover Letter</span></div>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Interview Questions</span></div>
+              </div>
+
               <Link to="/pricing" style={{ width: "100%", textDecoration: "none", marginTop: "auto" }}>
-                <button className="btn-secondary" style={{ width: "100%", padding: "12px", borderRadius: "8px", background: "rgba(255,255,255,0.02)", border: "1px solid #24242A", color: "#fff", cursor: "pointer", fontWeight: 700, width: "100%" }}>
+                <button className="btn-secondary" style={{ width: "100%", padding: "12px", borderRadius: "8px", background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)", color: "#fff", cursor: "pointer", fontWeight: 700, width: "100%" }}>
                   Get Pro Lite
                 </button>
               </Link>
             </div>
 
             {/* Lifetime Tier */}
-            <div style={{ background: "#151515", border: "2px solid var(--fire)", padding: "32px 24px", borderRadius: "12px", display: "flex", flexDirection: "column", position: "relative" }}>
-              <span style={{ position: "absolute", top: "-12px", right: "24px", background: "var(--fire)", color: "#fff", fontSize: "0.68rem", fontWeight: 800, padding: "4px 10px", borderRadius: "100px" }}>BEST VALUE</span>
+            <div style={{ background: "var(--bg3)", border: "2px solid var(--fire)", padding: "32px 24px", borderRadius: "12px", display: "flex", flexDirection: "column", position: "relative", transform: "scale(1.02)", boxShadow: "0 15px 40px rgba(255, 138, 61, 0.12)" }}>
+              <span style={{ position: "absolute", top: "-12px", right: "24px", background: "var(--fire)", color: "#fff", fontSize: "0.68rem", fontWeight: 800, padding: "4px 10px", borderRadius: "100px", letterSpacing: "0.5px" }}>BEST VALUE</span>
               <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: 700, marginBottom: "4px" }}>Pro Lifetime</h3>
               <p style={{ fontSize: "0.82rem", color: "var(--cream-60)", marginBottom: "20px" }}>Full career prep suite & AI chat.</p>
               <div style={{ fontSize: "2rem", fontWeight: 800, color: "var(--fire)", marginBottom: "24px" }}>₹299</div>
+              
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px", margin: "0 0 28px", fontSize: "0.85rem", color: "var(--cream-60)", textAlign: "left" }}>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "var(--cream)" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>ATS Score</span></div>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "var(--cream)" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>AI Resume Roast (Unlimited)</span></div>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "var(--cream)" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>Company Match</span></div>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "var(--cream)" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>Download PDF</span></div>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "var(--cream)" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>Cover Letter</span></div>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "var(--cream)" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>Interview Questions</span></div>
+              </div>
+
               <Link to="/pricing" style={{ width: "100%", textDecoration: "none", marginTop: "auto" }}>
                 <button className="fire-btn" style={{ width: "100%", padding: "12px", borderRadius: "8px", cursor: "pointer", fontWeight: 700, width: "100%" }}>
                   Get Lifetime Access

@@ -175,31 +175,61 @@ export default function PremiumFeatures() {
               {/* Plans Overview Cards */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "20px", marginBottom: "40px" }}>
                 {/* Free Plan */}
-                <div style={{ background: "#151515", border: "1px solid #24242A", padding: "24px", borderRadius: "12px", display: "flex", flexDirection: "column" }}>
+                <div style={{ background: "var(--bg2)", border: "1px solid var(--border)", padding: "28px 24px", borderRadius: "12px", display: "flex", flexDirection: "column" }}>
                   <h3 style={{ color: "#fff", fontSize: "1.1rem", fontWeight: 700, marginBottom: "4px" }}>Free</h3>
                   <p style={{ fontSize: "0.8rem", color: "var(--cream-60)", marginBottom: "16px" }}>Basic analysis</p>
                   <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#fff", marginBottom: "20px" }}>₹0</div>
-                  <button onClick={() => navigate("/")} className="btn-secondary" style={{ width: "100%", padding: "10px", borderRadius: "8px", background: "rgba(255,255,255,0.02)", border: "1px solid #24242A", color: "#fff", cursor: "pointer", marginTop: "auto" }}>
+                  
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px", margin: "0 0 24px", fontSize: "0.82rem", color: "var(--cream-60)", textAlign: "left" }}>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>ATS Score</span></div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>AI Resume Roast (1/day)</span></div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Company Match</span></div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Download PDF</span></div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Cover Letter</span></div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Interview Questions</span></div>
+                  </div>
+
+                  <button onClick={() => navigate("/")} className="btn-secondary" style={{ width: "100%", padding: "10px", borderRadius: "8px", background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)", color: "#fff", cursor: "pointer", marginTop: "auto" }}>
                     Get Started
                   </button>
                 </div>
 
                 {/* Pro Lite Plan */}
-                <div style={{ background: "#151515", border: "1px solid #24242A", padding: "24px", borderRadius: "12px", display: "flex", flexDirection: "column" }}>
+                <div style={{ background: "var(--bg2)", border: "1px solid var(--border)", padding: "28px 24px", borderRadius: "12px", display: "flex", flexDirection: "column" }}>
                   <h3 style={{ color: "#fff", fontSize: "1.1rem", fontWeight: 700, marginBottom: "4px" }}>Pro Lite</h3>
                   <p style={{ fontSize: "0.8rem", color: "var(--cream-60)", marginBottom: "16px" }}>Detailed breakdowns</p>
                   <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#fff", marginBottom: "20px" }}>₹49</div>
-                  <button onClick={() => handleCheckout("pro")} className="btn-secondary" style={{ width: "100%", padding: "10px", borderRadius: "8px", background: "rgba(255,255,255,0.02)", border: "1px solid #24242A", color: "#fff", cursor: "pointer", marginTop: "auto" }}>
+                  
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px", margin: "0 0 24px", fontSize: "0.82rem", color: "var(--cream-60)", textAlign: "left" }}>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>ATS Score</span></div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>AI Resume Roast (Unlimited)</span></div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Company Match</span></div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Download PDF</span></div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Cover Letter</span></div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Interview Questions</span></div>
+                  </div>
+
+                  <button onClick={() => handleCheckout("pro")} className="btn-secondary" style={{ width: "100%", padding: "10px", borderRadius: "8px", background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)", color: "#fff", cursor: "pointer", marginTop: "auto" }}>
                     Buy Pro Lite
                   </button>
                 </div>
 
                 {/* Lifetime Plan */}
-                <div style={{ background: "#151515", border: "2px solid var(--fire)", padding: "24px", borderRadius: "12px", display: "flex", flexDirection: "column", position: "relative" }}>
+                <div style={{ background: "var(--bg3)", border: "2px solid var(--fire)", padding: "28px 24px", borderRadius: "12px", display: "flex", flexDirection: "column", position: "relative", transform: "scale(1.02)", boxShadow: "0 15px 40px rgba(255, 138, 61, 0.12)" }}>
                   <span style={{ position: "absolute", top: "-12px", right: "20px", background: "var(--fire)", color: "#fff", fontSize: "0.65rem", fontWeight: 800, padding: "2px 8px", borderRadius: "100px" }}>LIFETIME</span>
                   <h3 style={{ color: "#fff", fontSize: "1.1rem", fontWeight: 700, marginBottom: "4px" }}>Pro Lifetime</h3>
                   <p style={{ fontSize: "0.8rem", color: "var(--cream-60)", marginBottom: "16px" }}>Full career prep suite</p>
                   <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "var(--fire)", marginBottom: "20px" }}>₹299</div>
+                  
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px", margin: "0 0 24px", fontSize: "0.82rem", color: "var(--cream-60)", textAlign: "left" }}>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "var(--cream)" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>ATS Score</span></div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "var(--cream)" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>AI Resume Roast (Unlimited)</span></div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "var(--cream)" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>Company Match</span></div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "var(--cream)" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>Download PDF</span></div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "var(--cream)" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>Cover Letter</span></div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "var(--cream)" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>Interview Questions</span></div>
+                  </div>
+
                   <button onClick={() => handleCheckout("pro_plus")} className="fire-btn" style={{ width: "100%", padding: "10px", borderRadius: "8px", cursor: "pointer", marginTop: "auto" }}>
                     Buy Lifetime
                   </button>

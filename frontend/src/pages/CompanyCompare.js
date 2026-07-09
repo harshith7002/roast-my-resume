@@ -8,13 +8,69 @@ const COMPANIES = [
   { id: "google", name: "Google", logo: "🌐", color: "#4285F4" },
   { id: "amazon", name: "Amazon", logo: "📦", color: "#FF9900" },
   { id: "microsoft", name: "Microsoft", logo: "💻", color: "#F25022" },
+  { id: "meta", name: "Meta", logo: "👤", color: "#0668E1" },
   { id: "cisco", name: "Cisco Systems", logo: "📡", color: "#1BA0D7" },
   { id: "bny", name: "BNY Mellon", logo: "🏦", color: "#104E8B" },
   { id: "adobe", name: "Adobe", logo: "🎨", color: "#FF0000" },
+  { id: "atlassian", name: "Atlassian", logo: "🚀", color: "#0052CC" },
   { id: "nvidia", name: "Nvidia", logo: "🎮", color: "#76B900" },
   { id: "oracle", name: "Oracle", logo: "🗄️", color: "#F80000" },
   { id: "salesforce", name: "Salesforce", logo: "☁️", color: "#00A1E0" },
 ];
+
+const MOCK_REPORTS = {
+  "google": {
+    success: true,
+    analysis_id: "mock_google_compare",
+    match_score: 82,
+    summary: "Your engineering background shows strong algorithmic and system design foundation, matching Google's high standard for software engineering. However, your project section lacks large-scale distributed databases representation.",
+    missing_skills: ["Distributed Systems", "gRPC", "MapReduce"],
+    missing_keywords: ["Linear scalability", "Concurrency", "Throughput"],
+    projects_to_build: [
+      { title: "Distributed KV Store", description: "Implement a Raft-consensus replicated key-value database using Go and gRPC with dynamic membership changes." },
+      { title: "Dynamic Rate Limiter", description: "Design a sliding-window token bucket rate-limiting service deployed via Kubernetes." }
+    ],
+    certifications: ["Google Cloud Certified Professional Cloud Developer"],
+    interview_prep: [
+      "Prepare for rigorous data structures and algorithms rounds (Graph algorithms, dynamic programming).",
+      "Brush up on system design scaling concepts (consistent hashing, load balancers)."
+    ]
+  },
+  "microsoft": {
+    success: true,
+    analysis_id: "mock_microsoft_compare",
+    match_score: 78,
+    summary: "Strong enterprise architecture signals and C#/.NET experience aligns well with Microsoft Azure Core Teams. There is a small gap in cloud migration experience and security fundamentals representation.",
+    missing_skills: ["Azure Cloud", "OAuth2.0 Security", "Active Directory"],
+    missing_keywords: ["Enterprise Integration", "Microservices orchestration", "Telemetry"],
+    projects_to_build: [
+      { title: "Azure Serverless API Suite", description: "Build an event-driven system using Azure Functions and Service Bus communicating with Cosmos DB." },
+      { title: "Microservices Identity Provider", description: "Develop an OAuth2.0 authentication service using ASP.NET Core Identity." }
+    ],
+    certifications: ["Microsoft Certified: Azure Developer Associate"],
+    interview_prep: [
+      "Focus on low-level design patterns (SOLID principles, gang-of-four patterns).",
+      "Practice behavior questions mapping to Microsoft's growth mindset philosophy."
+    ]
+  },
+  "adobe": {
+    success: true,
+    analysis_id: "mock_adobe_compare",
+    match_score: 84,
+    summary: "Excellent WebGL/graphics programming background. Perfect fit for Adobe's Creative Cloud web integrations team. Your UI/UX performance bullet points are strong but could represent more complex canvas integrations.",
+    missing_skills: ["WebGL / WebGPU", "HTML5 Canvas performance", "WASM (WebAssembly)"],
+    missing_keywords: ["Frame-rate rendering", "GPU memory leaks", "Asset pre-fetching"],
+    projects_to_build: [
+      { title: "WASM Video Filter", description: "Develop an in-browser real-time video processing engine using Rust compiled to WebAssembly." },
+      { title: "HTML5 Collaborative Canvas", description: "Implement a low-latency digital whiteboard utilizing WebSockets and canvas rendering optimizations." }
+    ],
+    certifications: ["Adobe Certified Professional - Frontend Integration"],
+    interview_prep: [
+      "Be ready for frontend system design questions (optimizing large asset bundle loading, caching mechanisms).",
+      "Practice coding interactive animations and canvas manipulation in vanilla JS."
+    ]
+  }
+};
 
 export default function CompanyCompare() {
   const [file, setFile] = useState(null);
@@ -24,6 +80,19 @@ export default function CompanyCompare() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const fileRef = useRef(null);
+
+  function loadTemplate(companyKey, sampleFilename) {
+    setError("");
+    setLoading(true);
+    setResult(null);
+    setStatusMsg("Loading template comparison...");
+    setTimeout(() => {
+      setSelectedCompany(companyKey);
+      setFile({ name: sampleFilename, size: 48000 });
+      setResult(MOCK_REPORTS[companyKey]);
+      setLoading(false);
+    }, 600);
+  }
 
   const activeComp = COMPANIES.find(c => c.id === selectedCompany);
 
@@ -217,6 +286,38 @@ export default function CompanyCompare() {
           >
             {loading ? statusMsg : `⚡ Compare Against ${activeComp ? activeComp.name : "Company"}`}
           </button>
+
+          <div style={{ marginTop: "24px", paddingTop: "20px", borderTop: "1px solid var(--border)", textAlign: "center" }}>
+            <span style={{ fontSize: "0.8rem", color: "var(--cream-60)", display: "block", marginBottom: "12px", fontWeight: 700 }}>
+              OR SELECT A QUICK PREVIEW TEMPLATE:
+            </span>
+            <div style={{ display: "flex", justifyContent: "center", gap: "10px", flexWrap: "wrap" }}>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => loadTemplate("google", "Google_SWE_Resume.pdf")}
+                style={{ padding: "8px 16px", borderRadius: "100px", fontSize: "0.8rem", cursor: "pointer" }}
+              >
+                🌐 Google vs Amazon
+              </button>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => loadTemplate("microsoft", "Microsoft_Azure_Resume.pdf")}
+                style={{ padding: "8px 16px", borderRadius: "100px", fontSize: "0.8rem", cursor: "pointer" }}
+              >
+                💻 Microsoft vs Meta
+              </button>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => loadTemplate("adobe", "Adobe_Frontend_Resume.pdf")}
+                style={{ padding: "8px 16px", borderRadius: "100px", fontSize: "0.8rem", cursor: "pointer" }}
+              >
+                🎨 Adobe vs Atlassian
+              </button>
+            </div>
+          </div>
         </form>
       </div>
 
