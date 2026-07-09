@@ -83,7 +83,6 @@ export default function PremiumFeatures() {
         </div>
       ) : (
         <>
-          <div>
               {/* Plans Overview Cards */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "20px", marginBottom: "40px" }}>
                 {/* Free Plan */}
@@ -121,11 +120,16 @@ export default function PremiumFeatures() {
                     <div style={{ display: "flex", gap: "8px", alignItems: "center", opacity: 0.35 }}><span style={{ color: "var(--fire)" }}>✕</span> <span>Interview Questions</span></div>
                   </div>
 
-                  <button onClick={() => handleCheckout("pro")} className="btn-secondary" style={{ width: "100%", padding: "10px", borderRadius: "8px", background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)", color: "#fff", cursor: "pointer", marginTop: "auto" }}>
-                    Buy Pro Lite
+                  <button 
+                    onClick={() => handleCheckout("pro")} 
+                    disabled={loading}
+                    className="btn-secondary" 
+                    style={{ width: "100%", padding: "10px", borderRadius: "8px", background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)", color: "#fff", cursor: loading ? "not-allowed" : "pointer", marginTop: "auto", opacity: loading ? 0.7 : 1 }}
+                  >
+                    {loading && activeTier === "pro" ? "Launching Checkout..." : "Buy Pro Lite"}
                   </button>
                 </div>
-
+ 
                 {/* Lifetime Plan */}
                 <div style={{ background: "var(--bg3)", border: "2px solid var(--fire)", padding: "28px 24px", borderRadius: "12px", display: "flex", flexDirection: "column", position: "relative", transform: "scale(1.02)", boxShadow: "0 15px 40px rgba(255, 138, 61, 0.12)" }}>
                   <span style={{ position: "absolute", top: "-12px", right: "20px", background: "var(--fire)", color: "#fff", fontSize: "0.65rem", fontWeight: 800, padding: "2px 8px", borderRadius: "100px" }}>LIFETIME</span>
@@ -141,12 +145,17 @@ export default function PremiumFeatures() {
                     <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "var(--cream)" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>Cover Letter</span></div>
                     <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "var(--cream)" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>Interview Questions</span></div>
                   </div>
-
-                  <button onClick={() => handleCheckout("pro_plus")} className="fire-btn" style={{ width: "100%", padding: "10px", borderRadius: "8px", cursor: "pointer", marginTop: "auto" }}>
-                    Buy Lifetime
+ 
+                  <button 
+                    onClick={() => handleCheckout("pro_plus")} 
+                    disabled={loading}
+                    className="fire-btn" 
+                    style={{ width: "100%", padding: "10px", borderRadius: "8px", cursor: loading ? "not-allowed" : "pointer", marginTop: "auto", opacity: loading ? 0.7 : 1 }}
+                  >
+                    {loading && activeTier === "pro_plus" ? "Launching Checkout..." : "Buy Lifetime"}
                   </button>
                 </div>
-              </div>
+                </div>
 
               {/* Comparison Table */}
               <div style={{ background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: "12px", overflow: "hidden", padding: "16px" }}>
@@ -218,7 +227,6 @@ export default function PremiumFeatures() {
                   </tbody>
                 </table>
               </div>
-            </div>
 
           {error && <div style={{ color: "#ff4757", textAlign: "center", margin: "20px 0" }}>⚠️ {error}</div>}
           <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
