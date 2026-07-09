@@ -10,6 +10,7 @@ import { saveLbEntry } from "./utils/leaderboard";
 import { useTheme } from "./hooks/useTheme";
 import { downloadReportPdf } from "./utils/pdf";
 import RoastReport from "./components/RoastReport";
+import PremiumGate from "./components/PremiumGate";
 
 /* Weighted overall score from the deterministic category scores. */
 function computeOverall(c) {
@@ -1248,6 +1249,40 @@ export default function App() {
       localStorage.setItem("mcs_referral_code", ref);
     }
 
+    // Sync Supabase Auth session (Real Google OAuth Redirect handler)
+    import("./utils/supabase").then(({ supabase, isSupabaseConfigured }) => {
+      if (isSupabaseConfigured()) {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user) {
+            const uObj = {
+              email: session.user.email,
+              user_id: session.user.id,
+              tier: session.user.user_metadata?.tier || "free",
+              credits: session.user.user_metadata?.credits || 5
+            };
+            setUser(uObj);
+            setUserState(uObj);
+          }
+        });
+
+        supabase.auth.onAuthStateChange((_event, session) => {
+          if (session?.user) {
+            const uObj = {
+              email: session.user.email,
+              user_id: session.user.id,
+              tier: session.user.user_metadata?.tier || "free",
+              credits: session.user.user_metadata?.credits || 5
+            };
+            setUser(uObj);
+            setUserState(uObj);
+          } else {
+            setUser(null);
+            setUserState(null);
+          }
+        });
+      }
+    });
+
     return () => window.removeEventListener("mcs_user_changed", handleUserChange);
   }, []);
   const registerUpload = useCallback((fn) => { uploadRef.current = fn; }, []);
@@ -1292,10 +1327,10 @@ export default function App() {
           <Route path="/privacy"     element={<PrivacyPolicy />} />
           <Route path="/about"       element={<About />} />
           <Route path="/jd-match"   element={<JDMatcher />} />
-          <Route path="/company-compare" element={<CompanyCompare />} />
-          <Route path="/resume-rewrite" element={<ResumeRewrite />} />
-          <Route path="/interview-prep" element={<InterviewPrep />} />
-          <Route path="/cover-letter" element={<CoverLetter />} />
+          <Route path="/company-compare" element={<PremiumGate featureName="Company Compare"><CompanyCompare /></PremiumGate>} />
+          <Route path="/resume-rewrite" element={<PremiumGate featureName="Resume Bullet Rewriter"><ResumeRewrite /></PremiumGate>} />
+          <Route path="/interview-prep" element={<PremiumGate featureName="Interview Question Generator"><InterviewPrep /></PremiumGate>} />
+          <Route path="/cover-letter" element={<PremiumGate featureName="Cover Letter Writer"><CoverLetter /></PremiumGate>} />
           <Route path="/compare"    element={<ResumeCompare />} />
           <Route path="/history"    element={<ResumeHistory />} />
           <Route path="/dashboard"  element={<Dashboard />} />
