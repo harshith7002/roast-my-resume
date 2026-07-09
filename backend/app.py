@@ -890,10 +890,13 @@ def verify_payment():
     if not order_id or not payment_id:
         return jsonify({"error": "Missing order or payment ID"}), 400
 
+    # Strict production security: bypass/mock modes are only allowed on localhost for local testing.
+    # Production domains (e.g. macoostudy.info) must perform strict cryptographic signature verification.
+    host = request.host.lower()
+    is_localhost = ("localhost" in host or "127.0.0.1" in host)
+
     is_valid = False
-    if order_id.startswith("order_mock_"):
-        is_valid = True
-    elif signature:
+    if signature and signature != "mock_signature_bypass":
         client_rp = get_razorpay_client()
         if client_rp:
             try:
@@ -912,8 +915,11 @@ def verify_payment():
             sec = RAZORPAY_KEY_SECRET.encode("utf-8")
             generated = hmac.new(sec, msg, hashlib.sha256).hexdigest()
             is_valid = hmac.compare_digest(generated, signature)
+    elif is_localhost:
+        # Mock mode bypass is ONLY allowed during local testing
+        is_valid = True
     else:
-        is_valid = True  # Mock bypass if no signature provided (for developer testing)
+        is_valid = False
 
     if not is_valid:
         return jsonify({"error": "Payment signature verification failed"}), 400
