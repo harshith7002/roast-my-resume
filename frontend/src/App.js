@@ -2,8 +2,9 @@ import React, { lazy, Suspense, useState, useRef, useEffect, useCallback } from 
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import "./App.css";
-import { getUser, getVisitorId, pushAnalysisCache } from "./utils/storage";
+import { getUser, getVisitorId, pushAnalysisCache, setUser } from "./utils/storage";
 import { apiFetch, validatePdf } from "./utils/api";
+import LoginModal from "./components/LoginModal";
 import { trackEvent } from "./utils/analytics";
 import { saveLbEntry } from "./utils/leaderboard";
 import { useTheme } from "./hooks/useTheme";
@@ -377,7 +378,7 @@ function FAQ({ q, a }) {
 }
 
 /* ── Navbar ───────────────────────────────────────────────────── */
-function Navbar({ onUploadClick, theme, onToggleTheme }) {
+function Navbar({ onUploadClick, theme, onToggleTheme, user, onLoginClick }) {
   const [open, setOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
   const loc  = useLocation();
@@ -493,6 +494,26 @@ function Navbar({ onUploadClick, theme, onToggleTheme }) {
         >
           {theme === "light" ? "🌙" : "☀️"}
         </button>
+        {user ? (
+          <button
+            className="nav-link"
+            onClick={() => {
+              setUser(null);
+              window.dispatchEvent(new Event("mcs_user_changed"));
+            }}
+            style={{ marginRight: 12, cursor: "pointer", background: "none", border: "none", color: "var(--cream-60)", fontSize: "0.88rem" }}
+          >
+            Sign Out
+          </button>
+        ) : (
+          <button
+            className="nav-link"
+            onClick={onLoginClick}
+            style={{ marginRight: 12, cursor: "pointer", background: "none", border: "none", color: "var(--cream-60)", fontSize: "0.88rem" }}
+          >
+            Sign In
+          </button>
+        )}
         <button
           className="nav-cta"
           onClick={() => { closeAll(); onUploadClick?.(); }}
@@ -909,25 +930,26 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
 
         <div className="hero-eyebrow">
           <span className="eyebrow-dot" />
-          AI-Powered Resume Analysis
+          MACOOSTUDY – AI CAREER COPILOT
         </div>
 
-        <h1 className="hero-title">
-          <span className="ht-roast">ROAST</span>
-          <span className="ht-my">MY</span>
-          <span className="ht-resume">RESUME</span>
+        <h1 className="hero-title" style={{ fontSize: "clamp(2.2rem, 6vw, 4rem)" }}>
+          <span className="ht-roast">LAND</span>
+          <span className="ht-my">MORE</span>
+          <span className="ht-resume">INTERVIEWS</span>
         </h1>
 
         <p className="hero-sub">
-          Find out <strong>exactly why your resume gets skipped</strong> — before a real recruiter does.
+          Get a brutal roast, detailed ATS breakdown, target company alignment checks, bullet rewriters, custom interview prep, and cover letters. <strong>All in under 60 seconds.</strong>
         </p>
 
         <div className="feature-chips">
-          <span className="fchip">🔥 Brutal Roast</span>
-          <span className="fchip">📊 ATS Score</span>
-          <span className="fchip fchip-hot">🎯 5 Specific Fixes</span>
-          <span className="fchip">🌍 34+ Languages</span>
-          <span className="fchip">📸 Share as Image</span>
+          <span className="fchip">📊 ATS Score & Breakdown</span>
+          <span className="fchip">🏢 Company Match</span>
+          <span className="fchip fchip-hot">✍️ Google XYZ Rewriter</span>
+          <span className="fchip">💡 Interview Q&A</span>
+          <span className="fchip">✉️ Cover Letters</span>
+          <span className="fchip">💬 Career Chat Coach</span>
         </div>
 
         <div className="hero-cta-row">
@@ -1149,6 +1171,55 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
         </div>
       )}
 
+      {/* ── Testimonials ── */}
+      {!roast && (
+        <section className="testimonials-section" style={{ padding: "60px 20px", background: "rgba(255,255,255,0.01)", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)", margin: "40px 0" }}>
+          <div style={{ textAlign: "center", marginBottom: 40 }}>
+            <span style={{ fontSize: "11px", fontWeight: 800, color: "var(--fire)", letterSpacing: "1px", textTransform: "uppercase" }}>WALL OF LOVE</span>
+            <h2 style={{ fontSize: "2rem", color: "#fff", marginTop: 8 }}>Loved by 10,000+ Students & Job Seekers</h2>
+            <p style={{ color: "var(--cream-60)", maxWidth: 500, margin: "8px auto 0" }}>Here is what engineers and tech freshers say after land-testing their resumes.</p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24, maxWidth: 1000, margin: "0 auto" }}>
+            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: 24, borderRadius: 12 }}>
+              <p style={{ fontStyle: "italic", color: "var(--cream)", margin: "0 0 16px", fontSize: "0.92rem", lineHeight: 1.5 }}>
+                "Macoostudy's company match checked my alignment for Cisco and Google. The roadmap and project ideas literally got me an screening call!"
+              </p>
+              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                <span style={{ fontSize: "1.5rem" }}>🧑‍💻</span>
+                <div>
+                  <p style={{ margin: 0, fontWeight: 700, color: "#fff", fontSize: "0.85rem" }}>Rahul Sharma</p>
+                  <p style={{ margin: 0, color: "var(--cream-60)", fontSize: "0.78rem" }}>SDE Intern, Cisco</p>
+                </div>
+              </div>
+            </div>
+            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: 24, borderRadius: 12 }}>
+              <p style={{ fontStyle: "italic", color: "var(--cream)", margin: "0 0 16px", fontSize: "0.92rem", lineHeight: 1.5 }}>
+                "I was skeptical about AI resume checkers, but the Google XYZ bullet rewriter transformed my generic points. The feedback was brutally honest."
+              </p>
+              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                <span style={{ fontSize: "1.5rem" }}>👩‍💻</span>
+                <div>
+                  <p style={{ margin: 0, fontWeight: 700, color: "#fff", fontSize: "0.85rem" }}>Sneha Patel</p>
+                  <p style={{ margin: 0, color: "var(--cream-60)", fontSize: "0.78rem" }}>IIT Kharagpur Grad</p>
+                </div>
+              </div>
+            </div>
+            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: 24, borderRadius: 12 }}>
+              <p style={{ fontStyle: "italic", color: "var(--cream)", margin: "0 0 16px", fontSize: "0.92rem", lineHeight: 1.5 }}>
+                "The tailored interview preps and cover letters saved me hours. It gave me the exact keywords BNY was looking for."
+              </p>
+              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                <span style={{ fontSize: "1.5rem" }}>👨‍💻</span>
+                <div>
+                  <p style={{ margin: 0, fontWeight: 700, color: "#fff", fontSize: "0.85rem" }}>Amaan Khan</p>
+                  <p style={{ margin: 0, color: "var(--cream-60)", fontSize: "0.78rem" }}>Incoming L3, Google</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ── FAQ ── */}
       <section className="faq-section">
         <h3 className="faq-title">FAQ</h3>
@@ -1163,6 +1234,22 @@ export default function App() {
   const [showSample, setShowSample] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const uploadRef = useRef(null);
+  const [user, setUserState] = useState(getUser());
+  const [loginOpen, setLoginOpen] = useState(false);
+
+  useEffect(() => {
+    const handleUserChange = () => setUserState(getUser());
+    window.addEventListener("mcs_user_changed", handleUserChange);
+
+    // Save referral code if present in URL
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref) {
+      localStorage.setItem("mcs_referral_code", ref);
+    }
+
+    return () => window.removeEventListener("mcs_user_changed", handleUserChange);
+  }, []);
   const registerUpload = useCallback((fn) => { uploadRef.current = fn; }, []);
 
   const handleNavUpload = useCallback(() => {
@@ -1181,7 +1268,8 @@ export default function App() {
       <div className="app">
         <div className="bg-canvas" aria-hidden="true" />
         <div className="bg-grid"   aria-hidden="true" />
-        <Navbar onUploadClick={handleNavUpload} theme={theme} onToggleTheme={toggleTheme} />
+        <Navbar onUploadClick={handleNavUpload} theme={theme} onToggleTheme={toggleTheme} user={user} onLoginClick={() => setLoginOpen(true)} />
+        <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
 
         {/* Drawer lives at root — never clipped by any child stacking context */}
         <SampleDrawer

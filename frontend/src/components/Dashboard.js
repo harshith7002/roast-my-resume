@@ -53,6 +53,41 @@ export default function Dashboard() {
         )}
       </div>
 
+      {/* ── Referral System ── */}
+      <div className="referral-banner" style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: "20px", borderRadius: "12px", marginBottom: "28px" }}>
+        <h3 style={{ margin: "0 0 6px", color: "var(--cream)", fontSize: "1rem" }}>🎁 Invite Friends, Earn Bonus Credits!</h3>
+        <p style={{ fontSize: "0.85rem", color: "var(--cream-60)", margin: "0 0 16px" }}>
+          Share your unique referral link. When they sign up, both of you get **+3 bonus credits** instantly!
+        </p>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <input
+            type="text"
+            readOnly
+            value={`${window.location.origin}/?ref=${user?.user_id || getVisitorId()}`}
+            style={{
+              flex: 1,
+              padding: "10px 12px",
+              borderRadius: "8px",
+              background: "rgba(0,0,0,0.25)",
+              border: "1px solid var(--border)",
+              color: "#fff",
+              fontSize: "0.82rem",
+              outline: "none",
+            }}
+          />
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(`${window.location.origin}/?ref=${user?.user_id || getVisitorId()}`);
+              alert("Referral link copied to clipboard! 📋");
+            }}
+            className="fire-btn"
+            style={{ padding: "10px 16px", borderRadius: "8px", fontSize: "0.82rem" }}
+          >
+            Copy Link
+          </button>
+        </div>
+      </div>
+
       {error && <div className="notice" role="status">Stats are temporarily unavailable. Your local history is still safe.</div>}
 
       <div className="stat-cards">

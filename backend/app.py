@@ -1321,6 +1321,97 @@ def cover_letter_generate():
         return jsonify({"error": message}), status
 
 
+# ── AI Resume Timeline / Roadmap ──────────────────────────────────────────────
+
+TIMELINE_PROMPT = """You are an expert career strategist. Create a highly customized, weekly roadmap (4 weeks) for the candidate to achieve interview readiness based on their resume.
+RESUME:
+{resume_text}
+
+Return ONLY valid JSON in this exact structure:
+{{
+  "overall_readiness": <integer 0-100>,
+  "estimated_ready_score": <integer 0-100>,
+  "weeks": [
+    {{
+      "week": 1,
+      "focus": "string (main theme for this week)",
+      "items": [
+        {{
+          "title": "string (specific action item title)",
+          "description": "string (detailed execution guide)",
+          "difficulty": "Easy|Medium|Hard"
+        }}
+      ]
+    }}
+  ]
+}}
+
+Provide exactly 4 weeks, with 2-3 specific action items per week. Return ONLY raw JSON. No markdown, no preamble."""
+
+@app.route("/api/resume/timeline", methods=["POST"])
+def resume_timeline():
+    data = request.get_json(silent=True) or {}
+    resume_text = data.get("resume_text", "").strip()
+    if not resume_text:
+        return jsonify({"error": "resume_text is required"}), 400
+
+    try:
+        prompt = TIMELINE_PROMPT.format(resume_text=resume_text[:3500])
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=1500,
+            temperature=0.3,
+        )
+        raw = response.choices[0].message.content.strip()
+        raw = re.sub(r'^```(?:json)?\s*', '', raw)
+        raw = re.sub(r'\s*```$', '', raw)
+        result = json.loads(raw)
+        return jsonify({"success": True, "timeline": result})
+    except Exception as e:
+        message, status = public_error(e)
+        return jsonify({"error": message}), status
+
+
+# ── Referral Code Validation ──────────────────────────────────────────────────
+
+@app.route("/api/referrals/claim", methods=["POST"])
+def referrals_claim():
+    data = request.get_json(silent=True) or {}
+    user_id = data.get("user_id")
+    ref_code = data.get("referral_code", "").strip()
+
+    if not user_id or not ref_code:
+        return jsonify({"error": "user_id and referral_code are required"}), 400
+
+    if user_id == ref_code:
+        return jsonify({"error": "You cannot refer yourself!"}), 400
+
+    conn = get_db()
+    try:
+        # Verify referrer exists
+        referrer = conn.execute("SELECT id FROM users WHERE id=?", (ref_code,)).fetchone()
+        if not referrer:
+            referrer = conn.execute("SELECT id FROM email_captures WHERE id=?", (ref_code,)).fetchone()
+
+        if not referrer:
+            conn.close()
+            return jsonify({"error": "Invalid referral code."}), 400
+
+        # Grant 3 bonus credits to user
+        conn.execute("UPDATE users SET credits = credits + 3 WHERE id=?", (user_id,))
+        # Grant 3 bonus credits to referrer
+        conn.execute("UPDATE users SET credits = credits + 3 WHERE id=?", (ref_code,))
+        conn.commit()
+        conn.close()
+
+        track("referral_claimed", user_id, {"referrer_id": ref_code})
+        return jsonify({"success": True, "bonus_credits": 3})
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e)}), 500
+
+
 # ── Health ────────────────────────────────────────────────────────────────────
 
 @app.route("/health", methods=["GET"])

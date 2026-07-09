@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ResumeChat from "./ResumeChat";
+import { apiFetch } from "../utils/api";
 
 /* Category metadata — order is intentional (recruiters scan ATS → impact). */
 const CATS = [
@@ -164,6 +165,29 @@ export default function RoastReport({
   const [showBA, setShowBA] = useState(false);
   const baRef = useRef();
 
+  const [timeline, setTimeline] = useState(null);
+  const [loadingTimeline, setLoadingTimeline] = useState(false);
+
+  useEffect(() => {
+    if (!resumeText || preview) return;
+    setLoadingTimeline(true);
+    apiFetch("/api/resume/timeline", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ resume_text: resumeText }),
+    })
+      .then((data) => {
+        if (data.success && data.timeline) {
+          setTimeline(data.timeline);
+        }
+        setLoadingTimeline(false);
+      })
+      .catch((e) => {
+        console.error("Timeline error:", e);
+        setLoadingTimeline(false);
+      });
+  }, [resumeText, preview]);
+
   return (
     <motion.div
       className="report"
@@ -240,6 +264,72 @@ export default function RoastReport({
           )}
         </AnimatePresence>
       </div>
+
+      {/* ── AI Resume Timeline / Roadmap ── */}
+      {!preview && (
+        <div className="report-section" style={{ borderTop: "1px solid var(--border)", paddingTop: 32, marginBottom: 32 }}>
+          <p className="report-section-label">🎯 Your 4-Week Career Roadmap</p>
+          {loadingTimeline ? (
+            <p style={{ color: "var(--cream-60)", fontSize: "0.9rem" }}>Analyzing skill gaps and building roadmap...</p>
+          ) : timeline ? (
+            <div>
+              <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 24, padding: 16, background: "rgba(0,214,143,0.05)", borderRadius: 10, border: "1px solid var(--emerald)" }}>
+                <span style={{ fontSize: "1.8rem" }}>🚀</span>
+                <div>
+                  <p style={{ margin: 0, fontWeight: 700, color: "#fff", fontSize: "0.95rem" }}>
+                    Interview Readiness Timeline
+                  </p>
+                  <p style={{ margin: "2px 0 0", color: "var(--cream-60)", fontSize: "0.85rem" }}>
+                    Current Score: <strong>{overall}%</strong> → Expected score after Week 4: <strong>{timeline.estimated_ready_score || 85}%</strong>
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 24, position: "relative", paddingLeft: 20 }}>
+                {/* Vertical Line */}
+                <div style={{ position: "absolute", left: 6, top: 10, bottom: 10, width: 2, background: "var(--border)" }} />
+
+                {timeline.weeks.map((w, idx) => (
+                  <div key={idx} style={{ position: "relative", display: "flex", flexDirection: "column", gap: 8 }}>
+                    {/* Circle Bullet */}
+                    <div style={{ position: "absolute", left: -19, top: 4, width: 10, height: 10, borderRadius: "50%", background: "var(--fire)", border: "2px solid var(--bg)" }} />
+                    
+                    <div style={{ paddingLeft: 12 }}>
+                      <span style={{ fontSize: "0.78rem", fontWeight: 800, color: "var(--fire)", letterSpacing: "0.5px" }}>
+                        WEEK {w.week} · {w.focus.toUpperCase()}
+                      </span>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
+                        {w.items.map((item, itemIdx) => (
+                          <div key={itemIdx} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)", borderRadius: 8, padding: 12 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                              <span style={{ fontWeight: 600, color: "#fff", fontSize: "0.9rem" }}>{item.title}</span>
+                              <span style={{
+                                fontSize: "0.68rem",
+                                fontWeight: 800,
+                                padding: "2px 6px",
+                                borderRadius: 4,
+                                background: item.difficulty === "Easy" ? "rgba(0,214,143,0.1)" : item.difficulty === "Medium" ? "rgba(255,170,0,0.1)" : "rgba(255,71,87,0.1)",
+                                color: item.difficulty === "Easy" ? "var(--emerald)" : item.difficulty === "Medium" ? "#ffaa00" : "#ff4757"
+                              }}>
+                                {item.difficulty}
+                              </span>
+                            </div>
+                            <p style={{ margin: 0, fontSize: "0.82rem", color: "var(--cream-60)", lineHeight: 1.5 }}>
+                              {item.description}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <p style={{ color: "var(--cream-60)", fontSize: "0.85rem" }}>Upload resume to see custom career roadmap.</p>
+          )}
+        </div>
+      )}
 
       {!preview && (
         <>
