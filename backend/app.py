@@ -876,6 +876,16 @@ def get_razorpay_client():
     except Exception:
         return None
 
+@app.route("/api/payments/test-config")
+def test_payments_config():
+    client_ok = get_razorpay_client() is not None
+    return jsonify({
+        "key_id_present": RAZORPAY_KEY_ID != "rzp_test_mockkey",
+        "key_secret_present": RAZORPAY_KEY_SECRET != "mocksecret",
+        "client_ok": client_ok,
+        "razorpay_key_id_preview": RAZORPAY_KEY_ID[:8] if len(RAZORPAY_KEY_ID) > 8 else "too_short"
+    })
+
 @app.route("/api/payments/create-order", methods=["POST"])
 def create_payment_order():
     data = request.get_json(silent=True) or {}
