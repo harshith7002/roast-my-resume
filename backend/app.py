@@ -4,6 +4,16 @@ from groq import Groq
 from pypdf import PdfReader
 import io
 import os
+
+# Load environment variables from .env files if present
+for env_path in [".env", "../.env", "backend/.env"]:
+    if os.path.exists(env_path):
+        with open(env_path, "r") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    os.environ[k.strip()] = v.strip()
 import re
 import json
 import sqlite3
