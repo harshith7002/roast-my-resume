@@ -701,6 +701,51 @@ def email_capture():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/auth/sync", methods=["POST"])
+def auth_sync():
+    data = request.get_json(silent=True) or {}
+    user_id = data.get("user_id")
+    email = data.get("email", "").strip().lower()
+    name = data.get("name", "")
+    
+    if not user_id or not email:
+        return jsonify({"error": "user_id and email required"}), 400
+        
+    conn = get_db()
+    try:
+        # Check if user already exists
+        row = conn.execute("SELECT * FROM users WHERE id=?", (user_id,)).fetchone()
+        if not row:
+            # Check if email is already captured/associated with another row
+            existing_email = conn.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
+            if existing_email:
+                # Update existing row to map to Supabase user_id
+                conn.execute(
+                    "UPDATE users SET id=?, name=? WHERE email=?",
+                    (user_id, name, email)
+                )
+            else:
+                # Insert brand new user row
+                conn.execute(
+                    "INSERT INTO users (id, email, name, provider) VALUES (?,?,?, 'google')",
+                    (user_id, email, name)
+                )
+            conn.commit()
+            row = conn.execute("SELECT * FROM users WHERE id=?", (user_id,)).fetchone()
+            
+        conn.close()
+        return jsonify({
+            "success": True,
+            "user_id": row["id"],
+            "email": row["email"],
+            "tier": row["tier"],
+            "credits": row["credits"]
+        })
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e)}), 500
+
+
 # ── Version Comparison ────────────────────────────────────────────────────────
 
 @app.route("/api/compare", methods=["POST"])

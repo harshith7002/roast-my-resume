@@ -1677,8 +1677,30 @@ export default function App() {
     // Sync Supabase Auth session (Real Google OAuth Redirect handler)
     import("./utils/supabase").then(({ supabase, isSupabaseConfigured }) => {
       if (isSupabaseConfigured()) {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-          if (session?.user) {
+        const syncUser = async (session) => {
+          if (!session?.user) return;
+          try {
+            const res = await apiFetch("/api/auth/sync", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                user_id: session.user.id,
+                email: session.user.email,
+                name: session.user.user_metadata?.full_name || ""
+              })
+            });
+            if (res && res.success) {
+              const uObj = {
+                email: res.email,
+                user_id: res.user_id,
+                tier: res.tier,
+                credits: res.credits
+              };
+              setUser(uObj);
+              setUserState(uObj);
+            }
+          } catch (e) {
+            console.error("Auth sync failed", e);
             const uObj = {
               email: session.user.email,
               user_id: session.user.id,
@@ -1688,18 +1710,15 @@ export default function App() {
             setUser(uObj);
             setUserState(uObj);
           }
+        };
+
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session) syncUser(session);
         });
 
         supabase.auth.onAuthStateChange((_event, session) => {
-          if (session?.user) {
-            const uObj = {
-              email: session.user.email,
-              user_id: session.user.id,
-              tier: session.user.user_metadata?.tier || "free",
-              credits: session.user.user_metadata?.credits || 5
-            };
-            setUser(uObj);
-            setUserState(uObj);
+          if (session) {
+            syncUser(session);
           } else {
             setUser(null);
             setUserState(null);
