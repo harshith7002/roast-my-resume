@@ -496,7 +496,23 @@ function Navbar({ onUploadClick, theme, onToggleTheme, user, onLoginClick }) {
           )}
         </div>
 
-        <a href="#pricing-section" className="nav-link" onClick={(e) => { closeAll(); if (loc.pathname !== "/") { e.preventDefault(); window.location.href = "/#pricing-section"; } }}>Pricing</a>
+        <a 
+          href="#pricing-section" 
+          className="nav-link" 
+          onClick={(e) => { 
+            closeAll(); 
+            if (loc.pathname !== "/") { 
+              e.preventDefault(); 
+              window.location.href = "/#pricing-section"; 
+            } else {
+              e.preventDefault();
+              const el = document.getElementById("pricing-section");
+              if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+          }}
+        >
+          Pricing
+        </a>
         <Link to="/blog"        className={active("/blog")}        onClick={closeAll}>Blog</Link>
         <Link to="/dashboard"   className={active("/dashboard")}   onClick={closeAll}>Dashboard</Link>
 
@@ -1619,6 +1635,24 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
   );
 }
 
+function ScrollToTop() {
+  const { pathname, hash } = useLocation();
+
+  useEffect(() => {
+    if (hash) {
+      setTimeout(() => {
+        const id = hash.replace("#", "");
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 150);
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [pathname, hash]);
+
+  return null;
+}
+
 /* ── Root ─────────────────────────────────────────────────────── */
 export default function App() {
   const [showSample, setShowSample] = useState(false);
@@ -1689,6 +1723,7 @@ export default function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <div className="app">
         <div className="bg-canvas" aria-hidden="true" />
         <div className="bg-grid"   aria-hidden="true" />

@@ -118,7 +118,7 @@ export default function PremiumFeatures() {
       ) : (
         <>
           {showEmailPrompt ? (
-            <div style={{ maxWidth: 450, margin: "0 auto 40px", padding: 24, background: "#151515", border: "1px solid #24242A", borderRadius: 16 }}>
+            <div style={{ maxWidth: 450, margin: "0 auto 40px", padding: 24, background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: 16 }}>
               <h3 style={{ margin: "0 0 8px", color: "#fff", fontWeight: 700 }}>Enter Email to Continue</h3>
               <p style={{ fontSize: "0.85rem", color: "var(--cream-60)", margin: "0 0 16px" }}>
                 We'll sync your upgrade and history to this email.
@@ -135,7 +135,7 @@ export default function PremiumFeatures() {
                     padding: "12px 16px",
                     borderRadius: 8,
                     background: "rgba(0,0,0,0.2)",
-                    border: "1px solid #24242A",
+                    border: "1px solid var(--border)",
                     color: "#fff",
                     marginBottom: 16,
                     fontSize: "0.9rem",
@@ -237,11 +237,11 @@ export default function PremiumFeatures() {
               </div>
 
               {/* Comparison Table */}
-              <div style={{ background: "#151515", border: "1px solid #24242A", borderRadius: "12px", overflow: "hidden", padding: "16px" }}>
+              <div style={{ background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: "12px", overflow: "hidden", padding: "16px" }}>
                 <h4 style={{ color: "#fff", fontWeight: 700, fontSize: "1rem", marginBottom: "16px", paddingLeft: "8px" }}>Compare Features</h4>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem", textAlign: "left" }}>
                   <thead>
-                    <tr style={{ borderBottom: "1px solid #24242A", color: "var(--cream-60)" }}>
+                    <tr style={{ borderBottom: "1px solid var(--border)", color: "var(--cream-60)" }}>
                       <th style={{ padding: "12px 8px" }}>Feature</th>
                       <th style={{ padding: "12px 8px" }}>Free</th>
                       <th style={{ padding: "12px 8px" }}>Pro Lite</th>
@@ -249,43 +249,43 @@ export default function PremiumFeatures() {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr style={{ borderBottom: "1px solid #1f1f23" }}>
+                    <tr style={{ borderBottom: "1px solid var(--border)" }}>
                       <td style={{ padding: "12px 8px", color: "#fff" }}>Resume Roasting</td>
                       <td style={{ padding: "12px 8px" }}>✓ (1/day)</td>
                       <td style={{ padding: "12px 8px" }}>✓ (Unlimited)</td>
                       <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓ (Unlimited)</td>
                     </tr>
-                    <tr style={{ borderBottom: "1px solid #1f1f23" }}>
+                    <tr style={{ borderBottom: "1px solid var(--border)" }}>
                       <td style={{ padding: "12px 8px", color: "#fff" }}>ATS Score Gauge</td>
                       <td style={{ padding: "12px 8px" }}>✓</td>
                       <td style={{ padding: "12px 8px" }}>✓</td>
                       <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
                     </tr>
-                    <tr style={{ borderBottom: "1px solid #1f1f23" }}>
+                    <tr style={{ borderBottom: "1px solid var(--border)" }}>
                       <td style={{ padding: "12px 8px", color: "#fff" }}>Detailed ATS Breakdown</td>
                       <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
                       <td style={{ padding: "12px 8px" }}>✓</td>
                       <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
                     </tr>
-                    <tr style={{ borderBottom: "1px solid #1f1f23" }}>
+                    <tr style={{ borderBottom: "1px solid var(--border)" }}>
                       <td style={{ padding: "12px 8px", color: "#fff" }}>Google XYZ Rewriter</td>
                       <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
                       <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
                       <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
                     </tr>
-                    <tr style={{ borderBottom: "1px solid #1f1f23" }}>
+                    <tr style={{ borderBottom: "1px solid var(--border)" }}>
                       <td style={{ padding: "12px 8px", color: "#fff" }}>Job Description Matcher</td>
                       <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
                       <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
                       <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
                     </tr>
-                    <tr style={{ borderBottom: "1px solid #1f1f23" }}>
+                    <tr style={{ borderBottom: "1px solid var(--border)" }}>
                       <td style={{ padding: "12px 8px", color: "#fff" }}>Target Company Fit Alignment</td>
                       <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
                       <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
                       <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
                     </tr>
-                    <tr style={{ borderBottom: "1px solid #1f1f23" }}>
+                    <tr style={{ borderBottom: "1px solid var(--border)" }}>
                       <td style={{ padding: "12px 8px", color: "#fff" }}>Cover Letter Generator</td>
                       <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
                       <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
