@@ -223,16 +223,6 @@ body {
   position: relative;
 }
 
-/* Background texture — office/professional, visible enough to read subconsciously */
-.hero::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: url('https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200') center/cover no-repeat;
-  opacity: 0.1; z-index: -1;
-}
-/* The stock photo reads as washed-out clutter on the light surface — keep it very subtle */
-html[data-theme="light"] .hero::before { opacity: 0.04; }
-
 /* Trust strip — very first thing above the fold */
 .hero-trust-strip {
   display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;

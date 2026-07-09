@@ -487,14 +487,6 @@ function Navbar({ onUploadClick, theme, onToggleTheme, user, onLoginClick }) {
       </div>
 
       <div className="navbar-right">
-        <button
-          className="theme-toggle"
-          onClick={onToggleTheme}
-          aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
-          title={theme === "light" ? "Dark mode" : "Light mode"}
-        >
-          {theme === "light" ? "🌙" : "☀️"}
-        </button>
         {user ? (
           <button
             className="nav-link"
