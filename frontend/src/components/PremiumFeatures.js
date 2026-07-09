@@ -3,13 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { getUser, getVisitorId, setUser } from "../utils/storage";
 import { apiFetch } from "../utils/api";
 import { openRazorpayCheckout } from "../utils/razorpay";
+import LoginModal from "./LoginModal";
 
 export default function PremiumFeatures() {
   const [user, setLocalUser] = useState(getUser());
-  const [emailInput, setEmailInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [activeTier, setActiveTier] = useState(null); // 'pro' or 'pro_plus'
-  const [showEmailPrompt, setShowEmailPrompt] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
@@ -25,9 +25,9 @@ export default function PremiumFeatures() {
     setError("");
     setActiveTier(tier);
 
-    // If no user email, prompt for it
+    // If no user is logged in, open the standard login modal
     if (!user || !user.email) {
-      setShowEmailPrompt(true);
+      setLoginOpen(true);
       return;
     }
 
@@ -59,40 +59,6 @@ export default function PremiumFeatures() {
     }
   }
 
-  async function handleRegisterEmail(e) {
-    e.preventDefault();
-    if (!emailInput.trim() || !emailInput.includes("@")) {
-      setError("Please enter a valid email address.");
-      return;
-    }
-
-    setLoading(true);
-    setError("");
-    try {
-      const data = await apiFetch("/api/email-capture", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: emailInput.trim(), source: "payment_flow" }),
-      });
-
-      if (data.success && data.user_id) {
-        const newUserObj = { email: emailInput.trim(), user_id: data.user_id, tier: "free", credits: 5 };
-        setUser(newUserObj);
-        setLocalUser(newUserObj);
-        setShowEmailPrompt(false);
-        setTimeout(() => {
-          handleCheckout(activeTier);
-        }, 100);
-      } else {
-        setError(data.error || "Failed to register email.");
-      }
-    } catch (err) {
-      setError(err.message || "An error occurred.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   return (
     <main className="page-wrap premium-page" style={{ maxWidth: 900, margin: "0 auto", padding: "60px 20px" }}>
       <div className="premium-hero" style={{ marginBottom: 48, textAlign: "center" }}>
@@ -117,61 +83,7 @@ export default function PremiumFeatures() {
         </div>
       ) : (
         <>
-          {showEmailPrompt ? (
-            <div style={{ maxWidth: 450, margin: "0 auto 40px", padding: 24, background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: 16 }}>
-              <h3 style={{ margin: "0 0 8px", color: "#fff", fontWeight: 700 }}>Enter Email to Continue</h3>
-              <p style={{ fontSize: "0.85rem", color: "var(--cream-60)", margin: "0 0 16px" }}>
-                We'll sync your upgrade and history to this email.
-              </p>
-              <form onSubmit={handleRegisterEmail}>
-                <input
-                  type="email"
-                  value={emailInput}
-                  onChange={(e) => setEmailInput(e.target.value)}
-                  placeholder="name@example.com"
-                  required
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    borderRadius: 8,
-                    background: "rgba(0,0,0,0.2)",
-                    border: "1px solid var(--border)",
-                    color: "#fff",
-                    marginBottom: 16,
-                    fontSize: "0.9rem",
-                    outline: "none",
-                  }}
-                />
-                {error && <p style={{ color: "#ff4757", fontSize: "0.8rem", margin: "-8px 0 12px" }}>⚠️ {error}</p>}
-                <div style={{ display: "flex", gap: 12 }}>
-                  <button
-                    type="button"
-                    onClick={() => setShowEmailPrompt(false)}
-                    style={{
-                      flex: 1,
-                      padding: "10px",
-                      borderRadius: 8,
-                      background: "rgba(255,255,255,0.05)",
-                      border: "none",
-                      color: "var(--cream-60)",
-                      cursor: "pointer",
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="fire-btn"
-                    style={{ flex: 1, padding: "10px", borderRadius: 8 }}
-                  >
-                    {loading ? "Registering..." : "Verify & Pay"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          ) : (
-            <div>
+          <div>
               {/* Plans Overview Cards */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "20px", marginBottom: "40px" }}>
                 {/* Free Plan */}
@@ -307,9 +219,9 @@ export default function PremiumFeatures() {
                 </table>
               </div>
             </div>
-          )}
 
           {error && <div style={{ color: "#ff4757", textAlign: "center", margin: "20px 0" }}>⚠️ {error}</div>}
+          <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
         </>
       )}
 
