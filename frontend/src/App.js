@@ -913,68 +913,136 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        style={{ padding: "0 0 40px", borderBottom: "none" }}
       >
-        {/* Above-the-fold trust strip */}
-        <div className="hero-trust-strip">
-          <span className="hts-item">✓ Private</span>
-          <span className="hts-sep">·</span>
-          <span className="hts-item">✓ No Signup Required</span>
-          <span className="hts-sep">·</span>
-          <span className="hts-item">✓ Free Analysis</span>
-          <span className="hts-sep">·</span>
-          <span className="hts-item">🌍 10+ Countries</span>
-        </div>
+        <div className="hero-split-container" style={{ display: "flex", gap: "40px", alignItems: "center", justifyContent: "space-between", maxWidth: "1200px", margin: "0 auto", flexWrap: "wrap" }}>
+          
+          {/* Left Side: Headline & Copy */}
+          <div style={{ flex: "1 1 55%", textAlign: "left" }} className="hero-left-col">
+            <div className="hero-eyebrow" style={{ display: "inline-flex", alignItems: "center", gap: "8px", margin: "0 0 16px" }}>
+              <span className="eyebrow-dot" />
+              MACOOSTUDY – AI CAREER COPILOT
+            </div>
+            
+            <h1 className="hero-title" style={{ fontSize: "clamp(2.5rem, 5.5vw, 4.5rem)", fontWeight: 900, lineHeight: 1.05, color: "#fff", marginBottom: "24px", letterSpacing: "-1.5px" }}>
+              Land More Interviews.<br />
+              <span style={{ color: "var(--fire)" }}>with AI Career Copilot.</span>
+            </h1>
 
-        <div className="header-badges-row" style={{ justifyContent: "center" }}>
-          <div className="trust-pill">🔒 Secure Processing</div>
-        </div>
+            <p className="hero-sub" style={{ fontSize: "1.1rem", color: "var(--cream-60)", lineHeight: 1.6, marginBottom: "32px", maxWidth: "560px" }}>
+              Upload your resume once. Receive ATS insights, resume rewrites, company matching, interview preparation, cover letters, and AI career coaching in under 60 seconds.
+            </p>
 
-        <div className="hero-eyebrow">
-          <span className="eyebrow-dot" />
-          MACOOSTUDY – AI CAREER COPILOT
-        </div>
+            <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "28px" }}>
+              <button
+                className="btn-primary"
+                style={{ padding: "16px 28px", borderRadius: "100px", fontSize: "0.95rem", fontWeight: 700, cursor: "pointer", background: "var(--fire)", border: "none", color: "#fff", boxShadow: "0 8px 30px rgba(255, 106, 61, 0.3)" }}
+                onClick={() => { closeSampleDrawer(); fileRef.current?.click(); }}
+              >
+                📂 Upload Resume — It's Free
+              </button>
+              <button
+                className="btn-secondary"
+                style={{ padding: "16px 28px", borderRadius: "100px", fontSize: "0.95rem", fontWeight: 700, cursor: "pointer", background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", color: "#fff" }}
+                onClick={showSampleDrawer}
+              >
+                👀 See Demo
+              </button>
+            </div>
 
-        <h1 className="hero-title" style={{ fontSize: "clamp(2.2rem, 6vw, 4rem)" }}>
-          <span className="ht-roast">LAND</span>
-          <span className="ht-my">MORE</span>
-          <span className="ht-resume">INTERVIEWS</span>
-        </h1>
+            <div style={{ display: "flex", gap: "20px", fontSize: "0.8rem", color: "var(--cream-30)" }}>
+              <span>🔒 Encrypted & Private</span>
+              <span>·</span>
+              <span>🗑️ PDF Never Stored</span>
+              <span>·</span>
+              <span>✓ No Account Required</span>
+            </div>
+          </div>
 
-        <p className="hero-sub">
-          Get a brutal roast, detailed ATS breakdown, target company alignment checks, bullet rewriters, custom interview prep, and cover letters. <strong>All in under 60 seconds.</strong>
-        </p>
-
-        <div className="feature-chips">
-          <span className="fchip">📊 ATS Score & Breakdown</span>
-          <span className="fchip">🏢 Company Match</span>
-          <span className="fchip fchip-hot">✍️ Google XYZ Rewriter</span>
-          <span className="fchip">💡 Interview Q&A</span>
-          <span className="fchip">✉️ Cover Letters</span>
-          <span className="fchip">💬 Career Chat Coach</span>
-        </div>
-
-        <div className="hero-cta-row">
-          <button
-            className="btn-primary btn-hero-cta"
-            id="hero-upload-btn"
-            onClick={() => { closeSampleDrawer(); fileRef.current?.click(); }}
+          {/* Right Side: Floating Premium Dashboard Preview */}
+          <motion.div 
+            style={{ flex: "1 1 35%", position: "relative", minWidth: "320px" }} 
+            className="hero-dashboard-preview"
+            animate={{ y: [0, -10, 0] }}
+            transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
           >
-            📂 Upload Resume — It's Free
-          </button>
-          <button className="btn-secondary" onClick={showSampleDrawer}>
-            👀 See Sample Roast
-          </button>
+            <div
+              style={{
+                background: "#141419",
+                border: "1px solid #24242A",
+                borderRadius: "20px",
+                padding: "24px",
+                boxShadow: "0 30px 60px rgba(0,0,0,0.8), 0 0 100px rgba(255,106,61,0.03)",
+                position: "relative",
+                overflow: "hidden"
+              }}
+            >
+              {/* Top header bar */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", borderBottom: "1px solid #24242A", paddingBottom: "12px" }}>
+                <div style={{ display: "flex", gap: "6px" }}>
+                  <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#FF5F56" }}></span>
+                  <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#FFBD2E" }}></span>
+                  <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#27C93F" }}></span>
+                </div>
+                <span style={{ fontSize: "0.75rem", color: "var(--cream-30)", fontFamily: "monospace" }}>copilot_dashboard.sh</span>
+              </div>
+
+              {/* Score Grid */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "20px" }}>
+                <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid #24242A", padding: "16px", borderRadius: "12px", textAlign: "center" }}>
+                  <span style={{ fontSize: "0.75rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "0.5px" }}>ATS Score</span>
+                  <div style={{ fontSize: "2rem", fontWeight: 800, color: "var(--emerald)", margin: "8px 0 4px", fontFamily: "monospace" }}>89<span style={{ fontSize: "1rem", color: "var(--cream-30)" }}>/100</span></div>
+                  <div style={{ height: "4px", background: "rgba(0,230,118,0.1)", borderRadius: "10px", overflow: "hidden" }}>
+                    <div style={{ width: "89%", height: "100%", background: "var(--emerald)" }}></div>
+                  </div>
+                </div>
+                <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid #24242A", padding: "16px", borderRadius: "12px", textAlign: "center" }}>
+                  <span style={{ fontSize: "0.75rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Company Match</span>
+                  <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--sapphire)", margin: "12px 0 8px" }}>Google</div>
+                  <span style={{ fontSize: "0.75rem", background: "rgba(255,179,71,0.1)", color: "var(--sapphire)", padding: "3px 8px", borderRadius: "100px", fontWeight: 700 }}>86% Match</span>
+                </div>
+              </div>
+
+              {/* AI Roast Preview */}
+              <div style={{ background: "rgba(255, 106, 61, 0.03)", border: "1px solid rgba(255, 106, 61, 0.15)", borderRadius: "12px", padding: "16px", marginBottom: "16px" }}>
+                <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "var(--fire)", letterSpacing: "0.5px", textTransform: "uppercase" }}>🔥 AI Roast Verdict</span>
+                <p style={{ fontSize: "0.85rem", color: "#fff", fontStyle: "italic", marginTop: "6px", lineHeight: 1.4 }}>
+                  "Your experience bullets read like a list of server configurations. Tell us about impact, not just maintenance chores."
+                </p>
+              </div>
+
+              {/* Preparation Roadmap */}
+              <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid #24242A", borderRadius: "12px", padding: "16px" }}>
+                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--cream-60)", textTransform: "uppercase" }}>🎯 Next 4-Week Steps</span>
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "10px" }}>
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center", fontSize: "0.8rem" }}>
+                    <span style={{ color: "var(--emerald)", fontWeight: 900 }}>✓</span>
+                    <span style={{ color: "var(--cream-60)" }}>Week 1: Quantify impact bullets</span>
+                  </div>
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center", fontSize: "0.8rem" }}>
+                    <span style={{ color: "var(--fire)", fontWeight: 900 }}>⚡</span>
+                    <span style={{ color: "#fff", fontWeight: 600 }}>Week 2: Practice Cisco custom mock Q&As</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </div>
 
-        <p className="hero-microcopy">
-          Get ATS score, resume feedback and actionable fixes in under 15 seconds.
-        </p>
-
-        <div className="hero-trust-badges" role="list" aria-label="Security and privacy guarantees">
-          <span className="htb-item" role="listitem"><span className="htb-icon">🔒</span> Encrypted in transit</span>
-          <span className="htb-item" role="listitem"><span className="htb-icon">🗑️</span> PDF never stored</span>
-          <span className="htb-item" role="listitem"><span className="htb-icon">✓</span> No account required</span>
-          <span className="htb-item" role="listitem"><span className="htb-icon">🤫</span> Never publicly shared</span>
+        {/* ── Trust Stats Strip ── */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "20px", width: "100%", marginTop: "60px" }} className="hero-trust-strip-premium">
+          <div style={{ background: "#141419", border: "1px solid #24242A", padding: "24px", borderRadius: "16px", textAlign: "center" }}>
+            <span style={{ fontSize: "0.85rem", color: "var(--cream-60)" }}>Trusted by students in</span>
+            <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#fff", marginTop: "8px", fontFamily: "monospace" }}>15+ Countries</div>
+          </div>
+          <div style={{ background: "#141419", border: "1px solid #24242A", padding: "24px", borderRadius: "16px", textAlign: "center" }}>
+            <span style={{ fontSize: "0.85rem", color: "var(--cream-60)" }}>Resume analyses</span>
+            <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#fff", marginTop: "8px", fontFamily: "monospace" }}>500,000+</div>
+          </div>
+          <div style={{ background: "#141419", border: "1px solid #24242A", padding: "24px", borderRadius: "16px", textAlign: "center" }}>
+            <span style={{ fontSize: "0.85rem", color: "var(--cream-60)" }}>Average ATS improvement</span>
+            <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "var(--emerald)", marginTop: "8px", fontFamily: "monospace" }}>+32%</div>
+          </div>
         </div>
       </motion.header>
 
@@ -1092,15 +1160,56 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
         </div>
       )}
 
-      {/* ── Verdict types ── */}
+      {/* ── World-Class Feature Cards Grid ── */}
       {!roast && !loading && (
-        <div className="verdict-types">
-          <p className="vt-label">What verdict will you get?</p>
-          <div className="vt-row">
-            <span className="vbadge entry">🏭 Entry Level</span>
-            <span className="vbadge startup">🚀 Startup Ready</span>
-            <span className="vbadge product">💰 Product Co.</span>
-            <span className="vbadge faang">🌟 FAANG Possible</span>
+        <div style={{ maxWidth: "1200px", margin: "80px auto 40px", padding: "0 20px" }}>
+          <div style={{ textAlign: "center", marginBottom: "48px" }}>
+            <span style={{ fontSize: "11px", fontWeight: 800, color: "var(--fire)", letterSpacing: "1.5px", textTransform: "uppercase" }}>PLATFORM SUITE</span>
+            <h2 style={{ fontSize: "2.4rem", fontWeight: 800, color: "#fff", marginTop: "8px" }}>Everything you need to land tech roles</h2>
+            <p style={{ color: "var(--cream-60)", marginTop: "8px" }}>An integrated career suite that replaces multiple subscriptions.</p>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "20px" }}>
+            <div className="feature-card-premium" style={{ background: "#141419", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "16px", transition: "all 0.3s" }}>
+              <span style={{ fontSize: "2rem", display: "block", marginBottom: "16px" }}>📊</span>
+              <h3 style={{ fontSize: "1.15rem", color: "#fff", marginBottom: "8px", fontWeight: 700 }}>ATS Analyzer</h3>
+              <p style={{ fontSize: "0.88rem", color: "var(--cream-60)", lineHeight: 1.5 }}>Scans your resume formatting, keywords, and headers to identify parsing gaps instantly.</p>
+            </div>
+            <div className="feature-card-premium" style={{ background: "#141419", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "16px", transition: "all 0.3s" }}>
+              <span style={{ fontSize: "2rem", display: "block", marginBottom: "16px" }}>✍️</span>
+              <h3 style={{ fontSize: "1.15rem", color: "#fff", marginBottom: "8px", fontWeight: 700 }}>Resume Rewriter</h3>
+              <p style={{ fontSize: "0.88rem", color: "var(--cream-60)", lineHeight: 1.5 }}>Rewrites raw bullet points into high-impact Google XYZ formula ("Accomplished X, measured by Y, by doing Z").</p>
+            </div>
+            <div className="feature-card-premium" style={{ background: "#141419", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "16px", transition: "all 0.3s" }}>
+              <span style={{ fontSize: "2rem", display: "block", marginBottom: "16px" }}>🎯</span>
+              <h3 style={{ fontSize: "1.15rem", color: "#fff", marginBottom: "8px", fontWeight: 700 }}>JD Matcher</h3>
+              <p style={{ fontSize: "0.88rem", color: "var(--cream-60)", lineHeight: 1.5 }}>Pipes custom job descriptions alongside your resume text to pinpoint missing tech keywords.</p>
+            </div>
+            <div className="feature-card-premium" style={{ background: "#141419", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "16px", transition: "all 0.3s" }}>
+              <span style={{ fontSize: "2rem", display: "block", marginBottom: "16px" }}>🏢</span>
+              <h3 style={{ fontSize: "1.15rem", color: "#fff", marginBottom: "8px", fontWeight: 700 }}>Company Match</h3>
+              <p style={{ fontSize: "0.88rem", color: "var(--cream-60)", lineHeight: 1.5 }}>Compares your profile alignment against tech giants like Cisco, Google, Salesforce, BNY, and Oracle.</p>
+            </div>
+            <div className="feature-card-premium" style={{ background: "#141419", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "16px", transition: "all 0.3s" }}>
+              <span style={{ fontSize: "2rem", display: "block", marginBottom: "16px" }}>💡</span>
+              <h3 style={{ fontSize: "1.15rem", color: "#fff", marginBottom: "8px", fontWeight: 700 }}>Interview Prep</h3>
+              <p style={{ fontSize: "0.88rem", color: "var(--cream-60)", lineHeight: 1.5 }}>Generates 5 custom role-specific questions and rubrics to prepare for screenings.</p>
+            </div>
+            <div className="feature-card-premium" style={{ background: "#141419", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "16px", transition: "all 0.3s" }}>
+              <span style={{ fontSize: "2rem", display: "block", marginBottom: "16px" }}>✉️</span>
+              <h3 style={{ fontSize: "1.15rem", color: "#fff", marginBottom: "8px", fontWeight: 700 }}>AI Cover Letter</h3>
+              <p style={{ fontSize: "0.88rem", color: "var(--cream-60)", lineHeight: 1.5 }}>Automatically constructs formal, job-specific cover letters that reference achievements in your resume.</p>
+            </div>
+            <div className="feature-card-premium" style={{ background: "#141419", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "16px", transition: "all 0.3s" }}>
+              <span style={{ fontSize: "2rem", display: "block", marginBottom: "16px" }}>💬</span>
+              <h3 style={{ fontSize: "1.15rem", color: "#fff", marginBottom: "8px", fontWeight: 700 }}>Career Coach</h3>
+              <p style={{ fontSize: "0.88rem", color: "var(--cream-60)", lineHeight: 1.5 }}>Enables unlimited chat iterations to ask: "how do I prepare for Google?", or "what projects should I add?".</p>
+            </div>
+            <div className="feature-card-premium" style={{ background: "#141419", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "16px", transition: "all 0.3s" }}>
+              <span style={{ fontSize: "2rem", display: "block", marginBottom: "16px" }}>📅</span>
+              <h3 style={{ fontSize: "1.15rem", color: "#fff", marginBottom: "8px", fontWeight: 700 }}>Resume Timeline</h3>
+              <p style={{ fontSize: "0.88rem", color: "var(--cream-60)", lineHeight: 1.5 }}>A structured 4-week calendar timeline indicating precisely what steps to execute next.</p>
+            </div>
           </div>
         </div>
       )}

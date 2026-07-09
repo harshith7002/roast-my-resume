@@ -1,27 +1,27 @@
 
 :root {
-  --fire:       #ff6b00;
-  --fire-dark:  #d44f00;
-  --fire-glow:  rgba(255, 107, 0, 0.25);
-  --amber:      #ffaa00;
-  --amber-glow: rgba(255, 170, 0, 0.15);
-  --cream:      #f3f4f6; /* Crisp off-white */
-  --cream-60:   rgba(243, 244, 246, 0.6);
-  --cream-30:   rgba(243, 244, 246, 0.3);
-  --cream-10:   rgba(243, 244, 246, 0.06);
+  --fire:       #FF6A3D;
+  --fire-dark:  #E55F35;
+  --fire-glow:  rgba(255, 106, 61, 0.25);
+  --amber:      #FFB347;
+  --amber-glow: rgba(255, 179, 71, 0.15);
+  --cream:      #FFFFFF;
+  --cream-60:   #B6B6B6;
+  --cream-30:   rgba(182, 182, 182, 0.3);
+  --cream-10:   rgba(182, 182, 182, 0.08);
 
-  --bg:         #0A0A0C; /* Deepest carbon console */
-  --bg2:        #111115; /* Charcoal/obsidian */
-  --bg3:        #17171E;
+  --bg:         #0B0B0F; /* Premium Obsidian background */
+  --bg2:        #141419; /* Obsidian card surface */
+  --bg3:        #1E1E24;
 
-  --surface:    rgba(255, 255, 255, 0.02);
-  --surface2:   rgba(255, 255, 255, 0.04);
+  --surface:    #141419;
+  --surface2:   #1E1E24;
 
-  --border:     rgba(255, 255, 255, 0.08); /* Minimal developer grid border */
-  --border-hot: rgba(255, 107, 0, 0.22);
+  --border:     #24242A; /* Subtle SaaS border */
+  --border-hot: #FF6A3D;
 
-  --emerald:    #00E676; /* Hacker green */
-  --sapphire:   #00B0FF; /* Cyber cyan */
+  --emerald:    #00E676;
+  --sapphire:   #FFB347;
   --gold:       #FFD600;
 
   --r-sm: 6px;
@@ -1770,4 +1770,42 @@ html[data-theme="light"] ::-webkit-scrollbar-track { background: var(--bg); }
 @media (max-width: 560px) {
   .ats-explainer, .why-section { margin-top: 40px; }
   .atsx-grid, .why-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Redesign: Linear / Vercel Premium SaaS Overrides ── */
+.feature-card-premium {
+  border: 1px solid #24242A !important;
+  background: #141419 !important;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.25, 1) !important;
+}
+.feature-card-premium:hover {
+  border-color: rgba(255, 106, 61, 0.45) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 50px rgba(255, 106, 61, 0.03) !important;
+  transform: translateY(-4px);
+}
+
+@media (max-width: 900px) {
+  .hero-split-container {
+    flex-direction: column !important;
+    text-align: center !important;
+  }
+  .hero-left-col {
+    text-align: center !important;
+    width: 100% !important;
+  }
+  .hero-left-col h1 {
+    text-align: center !important;
+  }
+  .hero-left-col p {
+    margin: 0 auto 32px !important;
+    text-align: center !important;
+  }
+  .hero-left-col div {
+    justify-content: center !important;
+  }
+  .hero-dashboard-preview {
+    width: 100% !important;
+    max-width: 480px;
+    margin: 40px auto 0 !important;
+  }
 }
