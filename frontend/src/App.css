@@ -66,9 +66,23 @@ body {
 /* ── App shell ───────────────────────────────────────────────── */
 .app { min-height: 100vh; display: flex; flex-direction: column; position: relative; }
 
-/* Hide developer template background blobs and overlays */
-.bg-canvas, .bg-grid {
-  display: none !important;
+/* ── Premium SaaS canvas background ────────────────────── */
+.bg-canvas {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 40% at 50% -10%, rgba(255, 138, 61, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 80% 50%, rgba(136, 80, 255, 0.03) 0%, transparent 50%),
+    #08080C; /* Premium SaaS charcoal-black */
+}
+
+/* Subtle SaaS grid */
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.008) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.008) 1px, transparent 1px);
+  background-size: 50px 50px;
+  mask-image: radial-gradient(circle at 50% 0%, black 10%, transparent 80%);
 }
 
 /* ── Navbar ───────────────────────────────────────────────────── */
@@ -77,11 +91,11 @@ body {
   height: var(--nav-h);
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 32px;
-  background: rgba(16, 11, 0, 0.92);
-  backdrop-filter: blur(32px) saturate(1.8);
-  border-bottom: 1px solid var(--border);
+  background: rgba(8, 8, 12, 0.7);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   transition: background 0.3s, box-shadow 0.3s;
-  box-shadow: 0 1px 0 rgba(255,107,0,0.08), 0 4px 20px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.4);
 }
 
 .navbar-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
