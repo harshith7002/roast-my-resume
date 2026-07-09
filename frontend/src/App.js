@@ -891,44 +891,69 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
           
           {/* Left Side: Headline & Copy */}
           <div style={{ flex: "1 1 55%", textAlign: "left" }} className="hero-left-col">
-            <div className="hero-eyebrow" style={{ display: "inline-flex", alignItems: "center", gap: "8px", margin: "0 0 16px" }}>
-              <span className="eyebrow-dot" />
-              MACOOSTUDY – AI CAREER COPILOT
+            <div className="hero-eyebrow" style={{ display: "inline-flex", alignItems: "center", gap: "8px", margin: "0 0 16px", fontSize: "0.78rem", fontWeight: 800, letterSpacing: "2px", color: "var(--fire)" }}>
+              <span className="eyebrow-dot" style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--fire)", display: "inline-block" }} />
+              MACOOSTUDY — AI CAREER COPILOT
             </div>
             
-            <h1 className="hero-title" style={{ fontSize: "clamp(2.5rem, 5.5vw, 4.5rem)", fontWeight: 900, lineHeight: 1.05, color: "#fff", marginBottom: "24px", letterSpacing: "-1.5px" }}>
+            <h1 className="hero-title" style={{ fontSize: "56px", fontWeight: 900, lineHeight: 1.12, color: "#fff", marginBottom: "24px", letterSpacing: "-1.5px" }}>
               Land More Interviews <span style={{ color: "var(--fire)" }}>with AI.</span>
             </h1>
 
-            <p className="hero-sub" style={{ fontSize: "1.1rem", color: "var(--cream-60)", lineHeight: 1.6, marginBottom: "32px", maxWidth: "560px" }}>
+            <p className="hero-sub" style={{ fontSize: "16px", color: "#B6B6B6", lineHeight: 1.6, marginBottom: "40px", maxWidth: "480px" }}>
               Upload your resume once and receive ATS analysis, company matching, resume rewriting, interview preparation, cover letters, and career coaching in under 60 seconds.
             </p>
 
-            <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "28px" }}>
+            <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "32px" }}>
               <button
                 className="btn-primary"
-                style={{ padding: "16px 28px", borderRadius: "100px", fontSize: "0.95rem", fontWeight: 700, cursor: "pointer", background: "var(--fire)", border: "none", color: "#fff", boxShadow: "0 8px 30px rgba(255, 106, 61, 0.3)" }}
+                style={{
+                  padding: "16px 28px",
+                  borderRadius: "100px",
+                  fontSize: "0.95rem",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  background: "linear-gradient(135deg, #FF8A3D 0%, #E57E35 100%)",
+                  border: "none",
+                  color: "#fff",
+                  boxShadow: "0 8px 30px rgba(255, 138, 61, 0.2)",
+                  transition: "transform 0.2s, box-shadow 0.2s"
+                }}
                 onClick={() => { closeSampleDrawer(); fileRef.current?.click(); }}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.02)"; e.currentTarget.style.boxShadow = "0 8px 35px rgba(255, 138, 61, 0.35)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 8px 30px rgba(255, 138, 61, 0.2)"; }}
               >
                 Upload Resume — Free
               </button>
               <button
                 className="btn-secondary"
-                style={{ padding: "16px 28px", borderRadius: "100px", fontSize: "0.95rem", fontWeight: 700, cursor: "pointer", background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", color: "#fff" }}
+                style={{
+                  padding: "16px 28px",
+                  borderRadius: "100px",
+                  fontSize: "0.95rem",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255, 255, 255, 0.15)",
+                  color: "#fff",
+                  transition: "background 0.2s"
+                }}
                 onClick={showSampleDrawer}
+                onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)"}
               >
                 View Demo
               </button>
             </div>
 
-            <div style={{ display: "flex", gap: "20px", fontSize: "0.8rem", color: "var(--cream-30)", flexWrap: "wrap" }}>
-              <span>✓ Resume Never Stored</span>
+            <div style={{ display: "flex", gap: "16px", fontSize: "0.75rem", color: "rgba(255, 255, 255, 0.4)", flexWrap: "wrap", alignItems: "center" }}>
+              <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>🛡️ Resume Never Stored</span>
               <span>·</span>
-              <span>✓ Private Processing</span>
+              <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>🔑 Private Processing</span>
               <span>·</span>
-              <span>✓ No Signup Required</span>
+              <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>⚡ No Signup Required</span>
               <span>·</span>
-              <span>✓ 250+ Resumes Analyzed</span>
+              <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>📈 250+ Resumes Analyzed</span>
             </div>
           </div>
 
@@ -942,78 +967,78 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
             <div
               style={{
                 background: "#151515",
-                border: "1px solid #24242A",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
                 borderRadius: "16px",
                 padding: "24px",
-                boxShadow: "0 30px 60px rgba(0,0,0,0.8)",
+                boxShadow: "0 30px 60px rgba(0,0,0,0.6)",
                 position: "relative",
                 overflow: "hidden"
               }}
             >
               {/* Header */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", borderBottom: "1px solid #24242A", paddingBottom: "12px" }}>
-                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1px" }}>🚀 REPORT_PREVIEW.JSX</span>
-                <span style={{ fontSize: "0.72rem", background: "rgba(255, 138, 61, 0.1)", color: "var(--fire)", padding: "2px 8px", borderRadius: "100px", fontWeight: 700 }}>LIVE ANALYSIS</span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", paddingBottom: "12px" }}>
+                <span style={{ fontSize: "0.72rem", fontWeight: 800, color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1px" }}>🚀 REPORT_PREVIEW.JSX</span>
+                <span style={{ fontSize: "0.68rem", background: "rgba(255, 138, 61, 0.1)", color: "var(--fire)", padding: "2px 8px", borderRadius: "100px", fontWeight: 700 }}>LIVE ANALYSIS</span>
               </div>
 
               {/* Grid of Scores */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "16px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "16px" }}>
                 {/* ATS Score Card */}
-                <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid #24242A", padding: "14px", borderRadius: "12px" }}>
-                  <span style={{ fontSize: "0.7rem", color: "var(--cream-60)", textTransform: "uppercase" }}>ATS Score</span>
-                  <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--emerald)", margin: "4px 0", fontFamily: "monospace" }}>89<span style={{ fontSize: "0.9rem", color: "var(--cream-30)" }}>/100</span></div>
-                  <div style={{ height: "4px", background: "rgba(0,230,118,0.1)", borderRadius: "10px", overflow: "hidden" }}>
-                    <div style={{ width: "89%", height: "100%", background: "var(--emerald)" }}></div>
+                <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255, 255, 255, 0.05)", padding: "16px", borderRadius: "12px" }}>
+                  <span style={{ fontSize: "0.7rem", color: "var(--cream-60)", textTransform: "uppercase", fontWeight: 700 }}>ATS Score</span>
+                  <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "var(--emerald)", margin: "8px 0 4px", fontFamily: "monospace" }}>89<span style={{ fontSize: "0.9rem", color: "rgba(255, 255, 255, 0.3)" }}>/100</span></div>
+                  <div style={{ height: "6px", background: "rgba(0,230,118,0.1)", borderRadius: "99px", overflow: "hidden" }}>
+                    <div style={{ width: "89%", height: "100%", background: "linear-gradient(90deg, #00E676 0%, #00B0FF 100%)", borderRadius: "99px" }}></div>
                   </div>
                 </div>
                 {/* Resume Score Card */}
-                <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid #24242A", padding: "14px", borderRadius: "12px" }}>
-                  <span style={{ fontSize: "0.7rem", color: "var(--cream-60)", textTransform: "uppercase" }}>Resume Score</span>
-                  <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--fire)", margin: "4px 0", fontFamily: "monospace" }}>82<span style={{ fontSize: "0.9rem", color: "var(--cream-30)" }}>/100</span></div>
-                  <div style={{ height: "4px", background: "rgba(255,106,61,0.1)", borderRadius: "10px", overflow: "hidden" }}>
-                    <div style={{ width: "82%", height: "100%", background: "var(--fire)" }}></div>
+                <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255, 255, 255, 0.05)", padding: "16px", borderRadius: "12px" }}>
+                  <span style={{ fontSize: "0.7rem", color: "var(--cream-60)", textTransform: "uppercase", fontWeight: 700 }}>Resume Score</span>
+                  <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "var(--fire)", margin: "8px 0 4px", fontFamily: "monospace" }}>82<span style={{ fontSize: "0.9rem", color: "rgba(255, 255, 255, 0.3)" }}>/100</span></div>
+                  <div style={{ height: "6px", background: "rgba(255,138,61,0.1)", borderRadius: "99px", overflow: "hidden" }}>
+                    <div style={{ width: "82%", height: "100%", background: "linear-gradient(90deg, #FF8A3D 0%, #FFB347 100%)", borderRadius: "99px" }}></div>
                   </div>
                 </div>
               </div>
 
               {/* Sub Scores Bar Chart Mock */}
-              <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid #24242A", padding: "14px", borderRadius: "12px", marginBottom: "16px" }}>
-                <div style={{ display: "flex", justifySpaceBetween: "space-between", fontSize: "0.75rem", marginBottom: "12px", color: "var(--cream-60)", justifyContent: "space-between" }}>
+              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255, 255, 255, 0.05)", padding: "16px", borderRadius: "12px", marginBottom: "16px" }}>
+                <div style={{ display: "flex", justifySpaceBetween: "space-between", fontSize: "0.75rem", marginBottom: "12px", color: "var(--cream-60)", justifyContent: "space-between", fontWeight: 700 }}>
                   <span>INTERVIEW READINESS</span>
                   <span style={{ fontFamily: "monospace", color: "#fff", fontWeight: 700 }}>78% Ready</span>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.7rem" }}>
-                    <span style={{ width: "60px", color: "var(--cream-60)" }}>Technical</span>
-                    <div style={{ flex: 1, height: "6px", background: "rgba(255,255,255,0.05)", borderRadius: "10px", overflow: "hidden" }}>
-                      <div style={{ width: "85%", height: "100%", background: "var(--fire)" }}></div>
+                    <span style={{ width: "65px", color: "var(--cream-60)" }}>Technical</span>
+                    <div style={{ flex: 1, height: "6px", background: "rgba(255,255,255,0.05)", borderRadius: "99px", overflow: "hidden" }}>
+                      <div style={{ width: "85%", height: "100%", background: "linear-gradient(90deg, #FF8A3D 0%, #FFB347 100%)", borderRadius: "99px" }}></div>
                     </div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.7rem" }}>
-                    <span style={{ width: "60px", color: "var(--cream-60)" }}>Behavioral</span>
-                    <div style={{ flex: 1, height: "6px", background: "rgba(255,255,255,0.05)", borderRadius: "10px", overflow: "hidden" }}>
-                      <div style={{ width: "70%", height: "100%", background: "var(--fire)" }}></div>
+                    <span style={{ width: "65px", color: "var(--cream-60)" }}>Behavioral</span>
+                    <div style={{ flex: 1, height: "6px", background: "rgba(255,255,255,0.05)", borderRadius: "99px", overflow: "hidden" }}>
+                      <div style={{ width: "70%", height: "100%", background: "linear-gradient(90deg, #FF8A3D 0%, #FFB347 100%)", borderRadius: "99px" }}></div>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Company Match & Skill Gap */}
-              <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid #24242A", padding: "14px", borderRadius: "12px", marginBottom: "16px" }}>
+              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255, 255, 255, 0.05)", padding: "16px", borderRadius: "12px", marginBottom: "16px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                  <span style={{ fontSize: "0.7rem", color: "var(--cream-60)", textTransform: "uppercase" }}>Target Alignment</span>
+                  <span style={{ fontSize: "0.7rem", color: "var(--cream-60)", textTransform: "uppercase", fontWeight: 700 }}>Target Alignment</span>
                   <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "var(--fire)" }}>Google (86% Match)</span>
                 </div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "6px" }}>
-                  <span style={{ fontSize: "0.68rem", background: "rgba(0, 230, 118, 0.1)", color: "var(--emerald)", padding: "2px 8px", borderRadius: "4px" }}>+ React</span>
-                  <span style={{ fontSize: "0.68rem", background: "rgba(0, 230, 118, 0.1)", color: "var(--emerald)", padding: "2px 8px", borderRadius: "4px" }}>+ TypeScript</span>
-                  <span style={{ fontSize: "0.68rem", background: "rgba(255, 106, 61, 0.1)", color: "var(--fire)", padding: "2px 8px", borderRadius: "4px" }}>- System Design</span>
+                  <span style={{ fontSize: "0.68rem", background: "rgba(0, 230, 118, 0.1)", color: "var(--emerald)", padding: "2px 8px", borderRadius: "4px", fontWeight: 600 }}>+ React</span>
+                  <span style={{ fontSize: "0.68rem", background: "rgba(0, 230, 118, 0.1)", color: "var(--emerald)", padding: "2px 8px", borderRadius: "4px", fontWeight: 600 }}>+ TypeScript</span>
+                  <span style={{ fontSize: "0.68rem", background: "rgba(255, 106, 61, 0.1)", color: "var(--fire)", padding: "2px 8px", borderRadius: "4px", fontWeight: 600 }}>- System Design</span>
                 </div>
               </div>
 
               {/* Suggested Improvements & Weaknesses */}
-              <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid #24242A", padding: "14px", borderRadius: "12px" }}>
-                <span style={{ fontSize: "0.7rem", color: "var(--cream-60)", textTransform: "uppercase", display: "block", marginBottom: "8px" }}>Key Weaknesses & Fixes</span>
+              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255, 255, 255, 0.05)", padding: "16px", borderRadius: "12px" }}>
+                <span style={{ fontSize: "0.7rem", color: "var(--cream-60)", textTransform: "uppercase", display: "block", marginBottom: "8px", fontWeight: 700 }}>Key Weaknesses & Fixes</span>
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "0.72rem" }}>
                   <div style={{ display: "flex", gap: "8px" }}>
                     <span style={{ color: "red" }}>✕</span>
@@ -1030,18 +1055,18 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
         </div>
 
         {/* ── Trust Stats Strip ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "20px", width: "100%", marginTop: "60px" }} className="hero-trust-strip-premium">
-          <div style={{ background: "#141419", border: "1px solid #24242A", padding: "24px", borderRadius: "16px", textAlign: "center" }}>
-            <span style={{ fontSize: "0.85rem", color: "var(--cream-60)" }}>Trusted by students in</span>
-            <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#fff", marginTop: "8px", fontFamily: "monospace" }}>15+ Countries</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "24px", width: "100%", marginTop: "64px" }} className="hero-trust-strip-premium">
+          <div style={{ background: "#151515", border: "1px solid rgba(255, 255, 255, 0.08)", padding: "32px 24px", borderRadius: "16px", textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,0.2)" }}>
+            <span style={{ fontSize: "0.72rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "block", marginBottom: "8px" }}>TRUSTED BY STUDENTS IN</span>
+            <div style={{ fontSize: "2.4rem", fontWeight: 800, color: "#fff", fontFamily: "monospace" }}>15+ Countries</div>
           </div>
-          <div style={{ background: "#141419", border: "1px solid #24242A", padding: "24px", borderRadius: "16px", textAlign: "center" }}>
-            <span style={{ fontSize: "0.85rem", color: "var(--cream-60)" }}>Resume analyses</span>
-            <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#fff", marginTop: "8px", fontFamily: "monospace" }}>500,000+</div>
+          <div style={{ background: "#151515", border: "1px solid rgba(255, 255, 255, 0.08)", padding: "32px 24px", borderRadius: "16px", textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,0.2)" }}>
+            <span style={{ fontSize: "0.72rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "block", marginBottom: "8px" }}>RESUME ANALYSES</span>
+            <div style={{ fontSize: "2.4rem", fontWeight: 800, color: "#fff", fontFamily: "monospace" }}>500,000+</div>
           </div>
-          <div style={{ background: "#141419", border: "1px solid #24242A", padding: "24px", borderRadius: "16px", textAlign: "center" }}>
-            <span style={{ fontSize: "0.85rem", color: "var(--cream-60)" }}>Average ATS improvement</span>
-            <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "var(--emerald)", marginTop: "8px", fontFamily: "monospace" }}>+32%</div>
+          <div style={{ background: "#151515", border: "1px solid rgba(255, 255, 255, 0.08)", padding: "32px 24px", borderRadius: "16px", textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,0.2)" }}>
+            <span style={{ fontSize: "0.72rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "block", marginBottom: "8px" }}>AVERAGE ATS IMPROVEMENT</span>
+            <div style={{ fontSize: "2.4rem", fontWeight: 800, color: "var(--emerald)", fontFamily: "monospace" }}>+32%</div>
           </div>
         </div>
       </motion.header>
