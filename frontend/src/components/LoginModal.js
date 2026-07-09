@@ -14,7 +14,8 @@ export default function LoginModal({ isOpen, onClose }) {
   async function handleGoogleLogin() {
     setError("");
     setMsg("");
-    if (!isSupabaseConfigured()) {
+    const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    if (!isSupabaseConfigured() && isLocalhost) {
       // Mock Google Login for development environment
       setLoading(true);
       setTimeout(() => {
@@ -54,7 +55,8 @@ export default function LoginModal({ isOpen, onClose }) {
     setError("");
     setMsg("");
 
-    if (isSupabaseConfigured()) {
+    const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    if (isSupabaseConfigured() || !isLocalhost) {
       try {
         const { error: err } = await supabase.auth.signInWithOtp({
           email: email.trim(),
