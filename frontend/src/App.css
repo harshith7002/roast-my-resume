@@ -1,24 +1,24 @@
 
 :root {
-  --fire:       #FF6A3D;
-  --fire-dark:  #E55F35;
-  --fire-glow:  rgba(255, 106, 61, 0.25);
+  --fire:       #FF8A3D;
+  --fire-dark:  #E57E35;
+  --fire-glow:  rgba(255, 138, 61, 0.25);
   --amber:      #FFB347;
   --amber-glow: rgba(255, 179, 71, 0.15);
   --cream:      #FFFFFF;
-  --cream-60:   #E5E7EB; /* Brightened for high contrast */
-  --cream-30:   rgba(229, 229, 229, 0.45);
-  --cream-10:   rgba(229, 229, 229, 0.1);
+  --cream-60:   #B6B6B6; /* Standard secondary text gray */
+  --cream-30:   rgba(182, 182, 182, 0.45);
+  --cream-10:   rgba(182, 182, 182, 0.1);
 
-  --bg:         #0B0B0F; /* Premium Obsidian background */
-  --bg2:        #141419; /* Obsidian card surface */
+  --bg:         #0B0B0B; /* Flat background requested */
+  --bg2:        #151515; /* Card background requested */
   --bg3:        #1E1E24;
 
-  --surface:    #141419;
+  --surface:    #151515;
   --surface2:   #1E1E24;
 
   --border:     #24242A; /* Subtle SaaS border */
-  --border-hot: #FF6A3D;
+  --border-hot: #FF8A3D;
 
   --emerald:    #00E676;
   --sapphire:   #FFB347;

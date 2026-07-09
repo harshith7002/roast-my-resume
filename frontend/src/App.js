@@ -24,6 +24,7 @@ function computeOverall(c) {
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const Blog = lazy(() => import("./pages/Blog"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const About = lazy(() => import("./pages/About"));
 const JDMatcher = lazy(() => import("./components/JDMatcher"));
 const Dashboard = lazy(() => import("./components/Dashboard"));
@@ -48,11 +49,11 @@ const MSGS = [
 ];
 
 const FAQS = [
-  { q: "Is my resume stored anywhere?", a: "Nope. Processed in memory and immediately discarded. We never store, log, or sell your resume." },
-  { q: "How is the roast generated?", a: "We use Groq AI (LLaMA) to analyze your resume and generate brutally honest feedback — like a senior engineer friend with zero filter." },
-  { q: "Why is the feedback so harsh?", a: "Because sugarcoating doesn't get you jobs. Every criticism comes with an implicit fix." },
-  { q: "What's Hinglish mode?", a: "Hinglish delivers the roast in a mix of Hindi and English — perfect for desi freshers. Bilkul seedha." },
-  { q: "How accurate is the verdict?", a: "AI evaluates your resume holistically — CGPA, projects, internships, DSA. Realistic, not sugar-coated." },
+  { q: "Is my resume stored on your servers?", a: "No. Your resume is parsed in memory only and immediately discarded. We do not store, log, or sell your files or extracted text." },
+  { q: "What are the pricing options?", a: "We offer a Free tier (1 resume roast/day), a Pro Lite plan (₹49 for detailed ATS breakdowns), and a Lifetime offer (₹299 for unlimited access to match target companies, bullet rewriters, custom mock interview prepping, and cover letter generators)." },
+  { q: "Do you offer refunds?", a: "Yes, we offer a 100% money-back guarantee within 7 days of purchase if you are unsatisfied with the premium upgrades." },
+  { q: "Which languages are supported?", a: "We support over 30 languages, including English, Hinglish, Spanish, French, German, Japanese, and multiple regional Indian languages." },
+  { q: "How does the privacy policy protect my data?", a: "We do not track candidates or profiles. Your email is only used for authentication and syncing premium billing tiers." }
 ];
 
 const PERSONALITIES = [
@@ -407,15 +408,7 @@ function Navbar({ onUploadClick, theme, onToggleTheme, user, onLoginClick }) {
       </Link>
 
       <div className={`navbar-center${open ? " open" : ""}`}>
-        <Link to="/"            className={active("/")}            onClick={closeAll}>Roast</Link>
-        <Link to="/jd-match"    className={active("/jd-match")}    onClick={closeAll}>JD Match</Link>
-        <Link to="/company-compare" className={active("/company-compare")} onClick={closeAll}>Company Match</Link>
-        <Link to="/resume-rewrite" className={active("/resume-rewrite")} onClick={closeAll}>Bullet Rewriter</Link>
-        <Link to="/leaderboard" className={active("/leaderboard")} onClick={closeAll}>Leaderboard</Link>
-        <Link to="/blog"        className={active("/blog")}        onClick={closeAll}>Blog</Link>
-        <Link to="/about"       className={active("/about")}       onClick={closeAll}>About</Link>
-
-        {/* Tools Dropdown */}
+        {/* Features Dropdown (holds all individual tools) */}
         <div className="nav-dropdown" ref={toolsRef}>
           <button
             className={`nav-link nav-dropdown-trigger${toolsOpen ? " active" : ""}`}
@@ -423,43 +416,50 @@ function Navbar({ onUploadClick, theme, onToggleTheme, user, onLoginClick }) {
             aria-expanded={toolsOpen}
             aria-haspopup="true"
           >
-            Tools <span className={`nav-dropdown-arrow${toolsOpen ? " open" : ""}`}>▾</span>
+            Features <span className={`nav-dropdown-arrow${toolsOpen ? " open" : ""}`}>▾</span>
           </button>
           {toolsOpen && (
             <div className="nav-dropdown-menu" role="menu">
-              <Link to="/compare" className="nav-dropdown-item" onClick={closeAll} role="menuitem">
-                <span className="ndi-icon">⚖️</span>
+              <Link to="/jd-match" className="nav-dropdown-item" onClick={closeAll} role="menuitem">
+                <span className="ndi-icon">🎯</span>
                 <span>
-                  <span className="ndi-label">Compare Versions</span>
-                  <span className="ndi-sub">See ATS score delta</span>
+                  <span className="ndi-label">JD Matcher</span>
+                  <span className="ndi-sub">Targeted keyword scanning</span>
                 </span>
               </Link>
               <Link to="/company-compare" className="nav-dropdown-item" onClick={closeAll} role="menuitem">
                 <span className="ndi-icon">🏢</span>
                 <span>
-                  <span className="ndi-label">Resume vs Company</span>
-                  <span className="ndi-sub">Check target alignment</span>
+                  <span className="ndi-label">Company Match</span>
+                  <span className="ndi-sub">Check corporate alignment</span>
                 </span>
               </Link>
               <Link to="/resume-rewrite" className="nav-dropdown-item" onClick={closeAll} role="menuitem">
                 <span className="ndi-icon">✍️</span>
                 <span>
                   <span className="ndi-label">Bullet Rewriter</span>
-                  <span className="ndi-sub">XYZ formula polishing</span>
+                  <span className="ndi-sub">Google XYZ polishing</span>
                 </span>
               </Link>
               <Link to="/interview-prep" className="nav-dropdown-item" onClick={closeAll} role="menuitem">
                 <span className="ndi-icon">💡</span>
                 <span>
                   <span className="ndi-label">Interview Prep</span>
-                  <span className="ndi-sub">Custom Q&A generator</span>
+                  <span className="ndi-sub">Custom Mock questions</span>
                 </span>
               </Link>
               <Link to="/cover-letter" className="nav-dropdown-item" onClick={closeAll} role="menuitem">
                 <span className="ndi-icon">✉️</span>
                 <span>
                   <span className="ndi-label">Cover Letter</span>
-                  <span className="ndi-sub">Tailored writing assistant</span>
+                  <span className="ndi-sub">Job-specific AI writer</span>
+                </span>
+              </Link>
+              <Link to="/compare" className="nav-dropdown-item" onClick={closeAll} role="menuitem">
+                <span className="ndi-icon">⚖️</span>
+                <span>
+                  <span className="ndi-label">Compare Versions</span>
+                  <span className="ndi-sub">Track scoring delta</span>
                 </span>
               </Link>
               <Link to="/history" className="nav-dropdown-item" onClick={closeAll} role="menuitem">
@@ -479,6 +479,10 @@ function Navbar({ onUploadClick, theme, onToggleTheme, user, onLoginClick }) {
             </div>
           )}
         </div>
+
+        <a href="#pricing-section" className="nav-link" onClick={(e) => { closeAll(); if (loc.pathname !== "/") { e.preventDefault(); window.location.href = "/#pricing-section"; } }}>Pricing</a>
+        <Link to="/blog"        className={active("/blog")}        onClick={closeAll}>Blog</Link>
+        <Link to="/dashboard"   className={active("/dashboard")}   onClick={closeAll}>Dashboard</Link>
 
         {/* Mobile-only upload CTA inside menu */}
         <button className="nav-upload-cta-mobile fire-btn" onClick={() => { closeAll(); onUploadClick?.(); }}>
@@ -527,40 +531,16 @@ function Navbar({ onUploadClick, theme, onToggleTheme, user, onLoginClick }) {
 /* ── Footer ───────────────────────────────────────────────────── */
 function Footer() {
   return (
-    <footer className="footer">
-      <div className="footer-grid">
-        <div className="footer-brand">
-          <span className="fb-logo">🔥 RoastMyResume</span>
-          <p className="fb-tag">Brutal honesty. Actionable fixes. Zero sugarcoating. Built for CS freshers worldwide.</p>
-        
+    <footer className="footer" style={{ padding: "40px 20px", borderTop: "1px solid #24242A", background: "#0B0B0B", color: "var(--cream-60)", fontSize: "0.82rem" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "20px", maxWidth: "1000px", margin: "0 auto", alignItems: "center" }}>
+        <span>© 2026 RoastMyResume. All rights reserved.</span>
+        <div style={{ display: "flex", gap: "16px" }}>
+          <Link to="/privacy" style={{ color: "var(--cream-60)", textDecoration: "none" }}>Privacy</Link>
+          <Link to="/terms" style={{ color: "var(--cream-60)", textDecoration: "none" }}>Terms</Link>
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer" style={{ color: "var(--cream-60)", textDecoration: "none" }}>GitHub</a>
+          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" style={{ color: "var(--cream-60)", textDecoration: "none" }}>LinkedIn</a>
+          <a href="mailto:support@roastmyresume.com" style={{ color: "var(--cream-60)", textDecoration: "none" }}>Email</a>
         </div>
-        <div className="footer-cols">
-          <div className="fcol">
-            <h4>Tool</h4>
-            <Link to="/">Roast My Resume</Link>
-            <Link to="/jd-match">JD Matcher</Link>
-            <Link to="/compare">Compare Versions</Link>
-            <Link to="/history">History</Link>
-            <Link to="/leaderboard">Leaderboard</Link>
-          </div>
-          <div className="fcol">
-            <h4>Info</h4>
-            <Link to="/blog">Blog</Link>
-            <Link to="/about">About</Link>
-            <Link to="/privacy">Privacy</Link>
-          </div>
-          <div className="fcol"><h4>Privacy</h4><span>PDFs are processed in memory</span><span>Files are never retained</span></div>
-        </div>
-      </div>
-      <div className="footer-bottom">
-        <span>© 2026 RoastMyResume • 10 countries & counting 🌍</span>
-        <span>
-          Built by{" "}
-          <a href="https://portfolio-saiharshith.netlify.app" target="_blank" rel="noopener noreferrer">
-            Sai Harshith
-          </a>{" "}
-          🔥
-        </span>
       </div>
     </footer>
   );
@@ -917,12 +897,11 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
             </div>
             
             <h1 className="hero-title" style={{ fontSize: "clamp(2.5rem, 5.5vw, 4.5rem)", fontWeight: 900, lineHeight: 1.05, color: "#fff", marginBottom: "24px", letterSpacing: "-1.5px" }}>
-              Land More Interviews.<br />
-              <span style={{ color: "var(--fire)" }}>with AI Career Copilot.</span>
+              Land More Interviews <span style={{ color: "var(--fire)" }}>with AI.</span>
             </h1>
 
             <p className="hero-sub" style={{ fontSize: "1.1rem", color: "var(--cream-60)", lineHeight: 1.6, marginBottom: "32px", maxWidth: "560px" }}>
-              Upload your resume once. Receive ATS insights, resume rewrites, company matching, interview preparation, cover letters, and AI career coaching in under 60 seconds.
+              Upload your resume once and receive ATS analysis, company matching, resume rewriting, interview preparation, cover letters, and career coaching in under 60 seconds.
             </p>
 
             <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "28px" }}>
@@ -931,27 +910,29 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
                 style={{ padding: "16px 28px", borderRadius: "100px", fontSize: "0.95rem", fontWeight: 700, cursor: "pointer", background: "var(--fire)", border: "none", color: "#fff", boxShadow: "0 8px 30px rgba(255, 106, 61, 0.3)" }}
                 onClick={() => { closeSampleDrawer(); fileRef.current?.click(); }}
               >
-                📂 Upload Resume — It's Free
+                Upload Resume — Free
               </button>
               <button
                 className="btn-secondary"
                 style={{ padding: "16px 28px", borderRadius: "100px", fontSize: "0.95rem", fontWeight: 700, cursor: "pointer", background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", color: "#fff" }}
                 onClick={showSampleDrawer}
               >
-                👀 See Demo
+                View Demo
               </button>
             </div>
 
-            <div style={{ display: "flex", gap: "20px", fontSize: "0.8rem", color: "var(--cream-30)" }}>
-              <span>🔒 Encrypted & Private</span>
+            <div style={{ display: "flex", gap: "20px", fontSize: "0.8rem", color: "var(--cream-30)", flexWrap: "wrap" }}>
+              <span>✓ Resume Never Stored</span>
               <span>·</span>
-              <span>🗑️ PDF Never Stored</span>
+              <span>✓ Private Processing</span>
               <span>·</span>
-              <span>✓ No Account Required</span>
+              <span>✓ No Signup Required</span>
+              <span>·</span>
+              <span>✓ 250+ Resumes Analyzed</span>
             </div>
           </div>
 
-          {/* Right Side: Floating Premium Dashboard Preview */}
+          {/* Right Side: Realistic AI Report Preview Dashboard */}
           <motion.div 
             style={{ flex: "1 1 35%", position: "relative", minWidth: "320px" }} 
             className="hero-dashboard-preview"
@@ -960,60 +941,87 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
           >
             <div
               style={{
-                background: "#141419",
+                background: "#151515",
                 border: "1px solid #24242A",
-                borderRadius: "20px",
+                borderRadius: "16px",
                 padding: "24px",
-                boxShadow: "0 30px 60px rgba(0,0,0,0.8), 0 0 100px rgba(255,106,61,0.03)",
+                boxShadow: "0 30px 60px rgba(0,0,0,0.8)",
                 position: "relative",
                 overflow: "hidden"
               }}
             >
-              {/* Top header bar */}
+              {/* Header */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", borderBottom: "1px solid #24242A", paddingBottom: "12px" }}>
-                <div style={{ display: "flex", gap: "6px" }}>
-                  <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#FF5F56" }}></span>
-                  <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#FFBD2E" }}></span>
-                  <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#27C93F" }}></span>
-                </div>
-                <span style={{ fontSize: "0.75rem", color: "var(--cream-30)", fontFamily: "monospace" }}>copilot_dashboard.sh</span>
+                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1px" }}>🚀 REPORT_PREVIEW.JSX</span>
+                <span style={{ fontSize: "0.72rem", background: "rgba(255, 138, 61, 0.1)", color: "var(--fire)", padding: "2px 8px", borderRadius: "100px", fontWeight: 700 }}>LIVE ANALYSIS</span>
               </div>
 
-              {/* Score Grid */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "20px" }}>
-                <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid #24242A", padding: "16px", borderRadius: "12px", textAlign: "center" }}>
-                  <span style={{ fontSize: "0.75rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "0.5px" }}>ATS Score</span>
-                  <div style={{ fontSize: "2rem", fontWeight: 800, color: "var(--emerald)", margin: "8px 0 4px", fontFamily: "monospace" }}>89<span style={{ fontSize: "1rem", color: "var(--cream-30)" }}>/100</span></div>
+              {/* Grid of Scores */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "16px" }}>
+                {/* ATS Score Card */}
+                <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid #24242A", padding: "14px", borderRadius: "12px" }}>
+                  <span style={{ fontSize: "0.7rem", color: "var(--cream-60)", textTransform: "uppercase" }}>ATS Score</span>
+                  <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--emerald)", margin: "4px 0", fontFamily: "monospace" }}>89<span style={{ fontSize: "0.9rem", color: "var(--cream-30)" }}>/100</span></div>
                   <div style={{ height: "4px", background: "rgba(0,230,118,0.1)", borderRadius: "10px", overflow: "hidden" }}>
                     <div style={{ width: "89%", height: "100%", background: "var(--emerald)" }}></div>
                   </div>
                 </div>
-                <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid #24242A", padding: "16px", borderRadius: "12px", textAlign: "center" }}>
-                  <span style={{ fontSize: "0.75rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Company Match</span>
-                  <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--sapphire)", margin: "12px 0 8px" }}>Google</div>
-                  <span style={{ fontSize: "0.75rem", background: "rgba(255,179,71,0.1)", color: "var(--sapphire)", padding: "3px 8px", borderRadius: "100px", fontWeight: 700 }}>86% Match</span>
+                {/* Resume Score Card */}
+                <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid #24242A", padding: "14px", borderRadius: "12px" }}>
+                  <span style={{ fontSize: "0.7rem", color: "var(--cream-60)", textTransform: "uppercase" }}>Resume Score</span>
+                  <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--fire)", margin: "4px 0", fontFamily: "monospace" }}>82<span style={{ fontSize: "0.9rem", color: "var(--cream-30)" }}>/100</span></div>
+                  <div style={{ height: "4px", background: "rgba(255,106,61,0.1)", borderRadius: "10px", overflow: "hidden" }}>
+                    <div style={{ width: "82%", height: "100%", background: "var(--fire)" }}></div>
+                  </div>
                 </div>
               </div>
 
-              {/* AI Roast Preview */}
-              <div style={{ background: "rgba(255, 106, 61, 0.03)", border: "1px solid rgba(255, 106, 61, 0.15)", borderRadius: "12px", padding: "16px", marginBottom: "16px" }}>
-                <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "var(--fire)", letterSpacing: "0.5px", textTransform: "uppercase" }}>🔥 AI Roast Verdict</span>
-                <p style={{ fontSize: "0.85rem", color: "#fff", fontStyle: "italic", marginTop: "6px", lineHeight: 1.4 }}>
-                  "Your experience bullets read like a list of server configurations. Tell us about impact, not just maintenance chores."
-                </p>
+              {/* Sub Scores Bar Chart Mock */}
+              <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid #24242A", padding: "14px", borderRadius: "12px", marginBottom: "16px" }}>
+                <div style={{ display: "flex", justifySpaceBetween: "space-between", fontSize: "0.75rem", marginBottom: "12px", color: "var(--cream-60)", justifyContent: "space-between" }}>
+                  <span>INTERVIEW READINESS</span>
+                  <span style={{ fontFamily: "monospace", color: "#fff", fontWeight: 700 }}>78% Ready</span>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.7rem" }}>
+                    <span style={{ width: "60px", color: "var(--cream-60)" }}>Technical</span>
+                    <div style={{ flex: 1, height: "6px", background: "rgba(255,255,255,0.05)", borderRadius: "10px", overflow: "hidden" }}>
+                      <div style={{ width: "85%", height: "100%", background: "var(--fire)" }}></div>
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.7rem" }}>
+                    <span style={{ width: "60px", color: "var(--cream-60)" }}>Behavioral</span>
+                    <div style={{ flex: 1, height: "6px", background: "rgba(255,255,255,0.05)", borderRadius: "10px", overflow: "hidden" }}>
+                      <div style={{ width: "70%", height: "100%", background: "var(--fire)" }}></div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Preparation Roadmap */}
-              <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid #24242A", borderRadius: "12px", padding: "16px" }}>
-                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--cream-60)", textTransform: "uppercase" }}>🎯 Next 4-Week Steps</span>
-                <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "10px" }}>
-                  <div style={{ display: "flex", gap: "8px", alignItems: "center", fontSize: "0.8rem" }}>
-                    <span style={{ color: "var(--emerald)", fontWeight: 900 }}>✓</span>
-                    <span style={{ color: "var(--cream-60)" }}>Week 1: Quantify impact bullets</span>
+              {/* Company Match & Skill Gap */}
+              <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid #24242A", padding: "14px", borderRadius: "12px", marginBottom: "16px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                  <span style={{ fontSize: "0.7rem", color: "var(--cream-60)", textTransform: "uppercase" }}>Target Alignment</span>
+                  <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "var(--fire)" }}>Google (86% Match)</span>
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "6px" }}>
+                  <span style={{ fontSize: "0.68rem", background: "rgba(0, 230, 118, 0.1)", color: "var(--emerald)", padding: "2px 8px", borderRadius: "4px" }}>+ React</span>
+                  <span style={{ fontSize: "0.68rem", background: "rgba(0, 230, 118, 0.1)", color: "var(--emerald)", padding: "2px 8px", borderRadius: "4px" }}>+ TypeScript</span>
+                  <span style={{ fontSize: "0.68rem", background: "rgba(255, 106, 61, 0.1)", color: "var(--fire)", padding: "2px 8px", borderRadius: "4px" }}>- System Design</span>
+                </div>
+              </div>
+
+              {/* Suggested Improvements & Weaknesses */}
+              <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid #24242A", padding: "14px", borderRadius: "12px" }}>
+                <span style={{ fontSize: "0.7rem", color: "var(--cream-60)", textTransform: "uppercase", display: "block", marginBottom: "8px" }}>Key Weaknesses & Fixes</span>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "0.72rem" }}>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <span style={{ color: "red" }}>✕</span>
+                    <span style={{ color: "var(--cream-60)" }}>Missing metrics in experience bullets.</span>
                   </div>
-                  <div style={{ display: "flex", gap: "8px", alignItems: "center", fontSize: "0.8rem" }}>
-                    <span style={{ color: "var(--fire)", fontWeight: 900 }}>⚡</span>
-                    <span style={{ color: "#fff", fontWeight: 600 }}>Week 2: Practice Cisco custom mock Q&As</span>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <span style={{ color: "var(--emerald)" }}>✓</span>
+                    <span style={{ color: "var(--cream)" }}>Google XYZ rewrite: "Accomplished X, measured by Y."</span>
                   </div>
                 </div>
               </div>
@@ -1162,95 +1170,156 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "20px" }}>
-            <div className="feature-card-premium" style={{ background: "#141419", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "16px", transition: "all 0.3s" }}>
+            <div className="feature-card-premium" style={{ background: "#151515", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "16px", transition: "all 0.3s" }}>
               <span style={{ fontSize: "2rem", display: "block", marginBottom: "16px" }}>📊</span>
-              <h3 style={{ fontSize: "1.15rem", color: "#fff", marginBottom: "8px", fontWeight: 700 }}>ATS Analyzer</h3>
-              <p style={{ fontSize: "0.88rem", color: "var(--cream-60)", lineHeight: 1.5 }}>Scans your resume formatting, keywords, and headers to identify parsing gaps instantly.</p>
+              <h3 style={{ fontSize: "1.15rem", color: "#fff", marginBottom: "8px", fontWeight: 700 }}>ATS Analysis</h3>
+              <p style={{ fontSize: "0.88rem", color: "var(--cream-60)", lineHeight: 1.5, marginBottom: "20px" }}>Scans your resume formatting, keywords, and headers to identify parsing gaps instantly.</p>
+              {/* Mini Preview Box */}
+              <div style={{ background: "#0B0B0F", border: "1px solid #24242A", padding: "12px", borderRadius: "8px", fontFamily: "monospace", fontSize: "0.72rem" }}>
+                <div style={{ color: "var(--emerald)", marginBottom: "4px" }}>✓ Contact Info Detected</div>
+                <div style={{ color: "var(--emerald)", marginBottom: "4px" }}>✓ Section Titles Standardized</div>
+                <div style={{ color: "#ff4757" }}>✕ 4 Missing Core Keywords</div>
+              </div>
             </div>
-            <div className="feature-card-premium" style={{ background: "#141419", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "16px", transition: "all 0.3s" }}>
+
+            <div className="feature-card-premium" style={{ background: "#151515", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "16px", transition: "all 0.3s" }}>
               <span style={{ fontSize: "2rem", display: "block", marginBottom: "16px" }}>✍️</span>
-              <h3 style={{ fontSize: "1.15rem", color: "#fff", marginBottom: "8px", fontWeight: 700 }}>Resume Rewriter</h3>
-              <p style={{ fontSize: "0.88rem", color: "var(--cream-60)", lineHeight: 1.5 }}>Rewrites raw bullet points into high-impact Google XYZ formula ("Accomplished X, measured by Y, by doing Z").</p>
+              <h3 style={{ fontSize: "1.15rem", color: "#fff", marginBottom: "8px", fontWeight: 700 }}>Resume Rewrite</h3>
+              <p style={{ fontSize: "0.88rem", color: "var(--cream-60)", lineHeight: 1.5, marginBottom: "20px" }}>Rewrites raw bullet points into high-impact Google XYZ formula bullets.</p>
+              {/* Mini Preview Box */}
+              <div style={{ background: "#0B0B0F", border: "1px solid #24242A", padding: "12px", borderRadius: "8px", fontSize: "0.72rem", display: "flex", flexDirection: "column", gap: "8px" }}>
+                <div style={{ color: "var(--cream-60)", textDecoration: "line-through" }}>"Wrote code for a React app."</div>
+                <div style={{ color: "#fff", fontWeight: 600 }}>"Led React migration, boosting load speed by 35% using lazy-loading."</div>
+              </div>
             </div>
-            <div className="feature-card-premium" style={{ background: "#141419", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "16px", transition: "all 0.3s" }}>
-              <span style={{ fontSize: "2rem", display: "block", marginBottom: "16px" }}>🎯</span>
-              <h3 style={{ fontSize: "1.15rem", color: "#fff", marginBottom: "8px", fontWeight: 700 }}>JD Matcher</h3>
-              <p style={{ fontSize: "0.88rem", color: "var(--cream-60)", lineHeight: 1.5 }}>Pipes custom job descriptions alongside your resume text to pinpoint missing tech keywords.</p>
-            </div>
-            <div className="feature-card-premium" style={{ background: "#141419", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "16px", transition: "all 0.3s" }}>
+
+            <div className="feature-card-premium" style={{ background: "#151515", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "16px", transition: "all 0.3s" }}>
               <span style={{ fontSize: "2rem", display: "block", marginBottom: "16px" }}>🏢</span>
               <h3 style={{ fontSize: "1.15rem", color: "#fff", marginBottom: "8px", fontWeight: 700 }}>Company Match</h3>
-              <p style={{ fontSize: "0.88rem", color: "var(--cream-60)", lineHeight: 1.5 }}>Compares your profile alignment against tech giants like Cisco, Google, Salesforce, BNY, and Oracle.</p>
+              <p style={{ fontSize: "0.88rem", color: "var(--cream-60)", lineHeight: 1.5, marginBottom: "20px" }}>Compares your profile alignment against tech giants like Cisco, Google, and Salesforce.</p>
+              {/* Mini Preview Box */}
+              <div style={{ background: "#0B0B0F", border: "1px solid #24242A", padding: "12px", borderRadius: "8px", fontSize: "0.72rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+                  <span>Cisco Alignment</span>
+                  <span style={{ color: "var(--fire)", fontWeight: 700 }}>92%</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span>Google Alignment</span>
+                  <span style={{ color: "var(--sapphire)", fontWeight: 700 }}>86%</span>
+                </div>
+              </div>
             </div>
-            <div className="feature-card-premium" style={{ background: "#141419", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "16px", transition: "all 0.3s" }}>
-              <span style={{ fontSize: "2rem", display: "block", marginBottom: "16px" }}>💡</span>
-              <h3 style={{ fontSize: "1.15rem", color: "#fff", marginBottom: "8px", fontWeight: 700 }}>Interview Prep</h3>
-              <p style={{ fontSize: "0.88rem", color: "var(--cream-60)", lineHeight: 1.5 }}>Generates 5 custom role-specific questions and rubrics to prepare for screenings.</p>
-            </div>
-            <div className="feature-card-premium" style={{ background: "#141419", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "16px", transition: "all 0.3s" }}>
+
+            <div className="feature-card-premium" style={{ background: "#151515", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "16px", transition: "all 0.3s" }}>
               <span style={{ fontSize: "2rem", display: "block", marginBottom: "16px" }}>✉️</span>
-              <h3 style={{ fontSize: "1.15rem", color: "#fff", marginBottom: "8px", fontWeight: 700 }}>AI Cover Letter</h3>
-              <p style={{ fontSize: "0.88rem", color: "var(--cream-60)", lineHeight: 1.5 }}>Automatically constructs formal, job-specific cover letters that reference achievements in your resume.</p>
+              <h3 style={{ fontSize: "1.15rem", color: "#fff", marginBottom: "8px", fontWeight: 700 }}>Cover Letter Generator</h3>
+              <p style={{ fontSize: "0.88rem", color: "var(--cream-60)", lineHeight: 1.5, marginBottom: "20px" }}>Automatically constructs formal, job-specific cover letters that reference achievements.</p>
+              {/* Mini Preview Box */}
+              <div style={{ background: "#0B0B0F", border: "1px solid #24242A", padding: "12px", borderRadius: "8px", fontSize: "0.72rem", color: "var(--cream-60)", fontStyle: "italic" }}>
+                "Dear Hiring Team, I am thrilled to apply for the SDE role... my experience optimizing database pipelines..."
+              </div>
             </div>
-            <div className="feature-card-premium" style={{ background: "#141419", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "16px", transition: "all 0.3s" }}>
+
+            <div className="feature-card-premium" style={{ background: "#151515", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "16px", transition: "all 0.3s" }}>
+              <span style={{ fontSize: "2rem", display: "block", marginBottom: "16px" }}>💡</span>
+              <h3 style={{ fontSize: "1.15rem", color: "#fff", marginBottom: "8px", fontWeight: 700 }}>Interview Coach</h3>
+              <p style={{ fontSize: "0.88rem", color: "var(--cream-60)", lineHeight: 1.5, marginBottom: "20px" }}>Generates custom role-specific questions and rubrics to prepare for screenings.</p>
+              {/* Mini Preview Box */}
+              <div style={{ background: "#0B0B0F", border: "1px solid #24242A", padding: "12px", borderRadius: "8px", fontSize: "0.72rem" }}>
+                <span style={{ color: "var(--fire)", fontWeight: 700 }}>Q:</span> "How do you optimize React render cycles?"
+              </div>
+            </div>
+
+            <div className="feature-card-premium" style={{ background: "#151515", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "16px", transition: "all 0.3s" }}>
               <span style={{ fontSize: "2rem", display: "block", marginBottom: "16px" }}>💬</span>
-              <h3 style={{ fontSize: "1.15rem", color: "#fff", marginBottom: "8px", fontWeight: 700 }}>Career Coach</h3>
-              <p style={{ fontSize: "0.88rem", color: "var(--cream-60)", lineHeight: 1.5 }}>Enables unlimited chat iterations to ask: "how do I prepare for Google?", or "what projects should I add?".</p>
-            </div>
-            <div className="feature-card-premium" style={{ background: "#141419", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "16px", transition: "all 0.3s" }}>
-              <span style={{ fontSize: "2rem", display: "block", marginBottom: "16px" }}>📅</span>
-              <h3 style={{ fontSize: "1.15rem", color: "#fff", marginBottom: "8px", fontWeight: 700 }}>Resume Timeline</h3>
-              <p style={{ fontSize: "0.88rem", color: "var(--cream-60)", lineHeight: 1.5 }}>A structured 4-week calendar timeline indicating precisely what steps to execute next.</p>
+              <h3 style={{ fontSize: "1.15rem", color: "#fff", marginBottom: "8px", fontWeight: 700 }}>Career AI Chat</h3>
+              <p style={{ fontSize: "0.88rem", color: "var(--cream-60)", lineHeight: 1.5, marginBottom: "20px" }}>Enables unlimited chat iterations to ask follow-up questions and prepare for reviews.</p>
+              {/* Mini Preview Box */}
+              <div style={{ background: "#0B0B0F", border: "1px solid #24242A", padding: "12px", borderRadius: "8px", fontSize: "0.72rem" }}>
+                <div style={{ color: "#fff", marginBottom: "4px" }}>"What projects will stand out to Google?"</div>
+                <div style={{ color: "var(--cream-60)", fontSize: "0.68rem" }}>"Google prioritizes distributed systems & large scale databases..."</div>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* ── How it Works ── */}
+      {/* ── Product Demo Flow ── */}
       {!roast && (
-        <section className="how-section">
-          <p className="how-label">HOW IT WORKS</p>
-          <div className="how-steps">
-            <div className="how-step">
-              <div className="how-num">1</div>
-              <div className="how-icon">📄</div>
-              <p className="how-title">Upload Resume</p>
-              <p className="how-desc">Drop your PDF. No sign-up, no email, no nonsense.</p>
+        <section style={{ maxWidth: "1200px", margin: "80px auto", padding: "0 20px" }}>
+          <div style={{ textAlign: "center", marginBottom: "48px" }}>
+            <span style={{ fontSize: "11px", fontWeight: 800, color: "var(--fire)", letterSpacing: "1.5px", textTransform: "uppercase" }}>VISUAL WORKFLOW</span>
+            <h2 style={{ fontSize: "2rem", fontWeight: 800, color: "#fff", marginTop: "8px" }}>How Copilot processes your resume</h2>
+            <p style={{ color: "var(--cream-60)", marginTop: "8px" }}>A clean, secure, step-by-step flow with zero data retention.</p>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px", position: "relative", maxWidth: "800px", margin: "0 auto" }}>
+            {/* Step 1 */}
+            <div style={{ display: "flex", gap: "20px", alignItems: "flex-start", background: "#151515", border: "1px solid #24242A", padding: "24px", borderRadius: "16px" }}>
+              <span style={{ fontSize: "1.5rem", background: "rgba(255, 138, 61, 0.1)", color: "var(--fire)", padding: "10px 14px", borderRadius: "12px", fontWeight: 800 }}>1</span>
+              <div>
+                <h4 style={{ fontSize: "1.1rem", color: "#fff", marginBottom: "4px", fontWeight: 700 }}>Upload Resume</h4>
+                <p style={{ fontSize: "0.88rem", color: "var(--cream-60)" }}>Drop your PDF file. The raw text is extracted entirely in-memory and holds securely in local client state.</p>
+              </div>
             </div>
-            <div className="how-arrow">→</div>
-            <div className="how-step">
-              <div className="how-num">2</div>
-              <div className="how-icon">🤖</div>
-              <p className="how-title">AI Analyzes It</p>
-              <p className="how-desc">LLaMA reads it like a brutally honest senior engineer.</p>
+
+            <div style={{ textAlign: "center", color: "var(--fire)", fontSize: "1.5rem" }}>↓</div>
+
+            {/* Step 2 */}
+            <div style={{ display: "flex", gap: "20px", alignItems: "flex-start", background: "#151515", border: "1px solid #24242A", padding: "24px", borderRadius: "16px" }}>
+              <span style={{ fontSize: "1.5rem", background: "rgba(255, 138, 61, 0.1)", color: "var(--fire)", padding: "10px 14px", borderRadius: "12px", fontWeight: 800 }}>2</span>
+              <div>
+                <h4 style={{ fontSize: "1.1rem", color: "#fff", marginBottom: "4px", fontWeight: 700 }}>AI Analysis & Roast</h4>
+                <p style={{ fontSize: "0.88rem", color: "var(--cream-60)" }}>The career engine identifies formatting errors, weak verbs, objective statement clutter, and generic layout blocks.</p>
+              </div>
             </div>
-            <div className="how-arrow">→</div>
-            <div className="how-step">
-              <div className="how-num">3</div>
-              <div className="how-icon">🔥</div>
-              <p className="how-title">Get Roast + Fixes</p>
-              <p className="how-desc">ATS score, top mistakes, and 5 specific fixes to act on today.</p>
+
+            <div style={{ textAlign: "center", color: "var(--fire)", fontSize: "1.5rem" }}>↓</div>
+
+            {/* Step 3 */}
+            <div style={{ display: "flex", gap: "20px", alignItems: "flex-start", background: "#151515", border: "1px solid #24242A", padding: "24px", borderRadius: "16px" }}>
+              <span style={{ fontSize: "1.5rem", background: "rgba(255, 138, 61, 0.1)", color: "var(--fire)", padding: "10px 14px", borderRadius: "12px", fontWeight: 800 }}>3</span>
+              <div>
+                <h4 style={{ fontSize: "1.1rem", color: "#fff", marginBottom: "4px", fontWeight: 700 }}>ATS Benchmarking</h4>
+                <p style={{ fontSize: "0.88rem", color: "var(--cream-60)" }}>Computes a realistic ATS parsing score based on standard parser algorithms, listing critical keyword mismatches.</p>
+              </div>
+            </div>
+
+            <div style={{ textAlign: "center", color: "var(--fire)", fontSize: "1.5rem" }}>↓</div>
+
+            {/* Step 4 */}
+            <div style={{ display: "flex", gap: "20px", alignItems: "flex-start", background: "#151515", border: "1px solid #24242A", padding: "24px", borderRadius: "16px" }}>
+              <span style={{ fontSize: "1.5rem", background: "rgba(255, 138, 61, 0.1)", color: "var(--fire)", padding: "10px 14px", borderRadius: "12px", fontWeight: 800 }}>4</span>
+              <div>
+                <h4 style={{ fontSize: "1.1rem", color: "#fff", marginBottom: "4px", fontWeight: 700 }}>Google XYZ Rewrite</h4>
+                <p style={{ fontSize: "0.88rem", color: "var(--cream-60)" }}>Outputs side-by-side bullet revisions that convert weak chores into quantified achievements.</p>
+              </div>
+            </div>
+
+            <div style={{ textAlign: "center", color: "var(--fire)", fontSize: "1.5rem" }}>↓</div>
+
+            {/* Step 5 */}
+            <div style={{ display: "flex", gap: "20px", alignItems: "flex-start", background: "#151515", border: "1px solid #24242A", padding: "24px", borderRadius: "16px" }}>
+              <span style={{ fontSize: "1.5rem", background: "rgba(255, 138, 61, 0.1)", color: "var(--fire)", padding: "10px 14px", borderRadius: "12px", fontWeight: 800 }}>5</span>
+              <div>
+                <h4 style={{ fontSize: "1.1rem", color: "#fff", marginBottom: "4px", fontWeight: 700 }}>Company Match & Interview Prep</h4>
+                <p style={{ fontSize: "0.88rem", color: "var(--cream-60)" }}>Pipes alignment scores for 9 big tech targets and generates 5 custom mock questions to prepare for screening calls.</p>
+              </div>
+            </div>
+
+            <div style={{ textAlign: "center", color: "var(--fire)", fontSize: "1.5rem" }}>↓</div>
+
+            {/* Step 6 */}
+            <div style={{ display: "flex", gap: "20px", alignItems: "flex-start", background: "#151515", border: "1px solid #24242A", padding: "24px", borderRadius: "16px" }}>
+              <span style={{ fontSize: "1.5rem", background: "rgba(255, 138, 61, 0.1)", color: "var(--fire)", padding: "10px 14px", borderRadius: "12px", fontWeight: 800 }}>6</span>
+              <div>
+                <h4 style={{ fontSize: "1.1rem", color: "#fff", marginBottom: "4px", fontWeight: 700 }}>One-Click PDF Export</h4>
+                <p style={{ fontSize: "0.88rem", color: "var(--cream-60)" }}>Download a clean PDF report summarizing all scores, weaknesses, rewrites, and mock Q&As to study offline.</p>
+              </div>
             </div>
           </div>
         </section>
       )}
-
-      {/* ── How ATS scoring works ── */}
-      {!roast && <AtsExplainer />}
-
-      {/* ── Why RoastMyResume ── */}
-      {!roast && <WhyRoastMyResume />}
-
-      {/* ── Roast of the Day ── */}
-      {!roast && (
-        <div className="rotd-banner">
-          <div className="rotd-inner">
-            <span className="rotd-tag">ROAST OF THE DAY</span>
-            <p className="rotd-text"><strong>AI says:</strong> {rotd}</p>
-          </div>
-        </div>
-      )}
-
 
       {/* ── Results ── */}
       {roast && (
@@ -1273,51 +1342,146 @@ function MainApp({ showSampleDrawer = () => {}, closeSampleDrawer = () => {}, re
         </div>
       )}
 
-      {/* ── Testimonials ── */}
+      {/* ── Community & Platform Metrics (No Fake Testimonials) ── */}
       {!roast && (
-        <section className="testimonials-section" style={{ padding: "60px 20px", background: "rgba(255,255,255,0.01)", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)", margin: "40px 0" }}>
-          <div style={{ textAlign: "center", marginBottom: 40 }}>
-            <span style={{ fontSize: "11px", fontWeight: 800, color: "var(--fire)", letterSpacing: "1px", textTransform: "uppercase" }}>WALL OF LOVE</span>
-            <h2 style={{ fontSize: "2rem", color: "#fff", marginTop: 8 }}>Loved by 10,000+ Students & Job Seekers</h2>
-            <p style={{ color: "var(--cream-60)", maxWidth: 500, margin: "8px auto 0" }}>Here is what engineers and tech freshers say after land-testing their resumes.</p>
+        <section style={{ padding: "60px 20px", background: "#151515", borderTop: "1px solid #24242A", borderBottom: "1px solid #24242A", margin: "40px auto 60px", maxWidth: "1200px", borderRadius: "16px" }}>
+          <div style={{ textAlign: "center", marginBottom: "40px" }}>
+            <span style={{ fontSize: "11px", fontWeight: 800, color: "var(--fire)", letterSpacing: "1.5px", textTransform: "uppercase" }}>PLATFORM TRACTION</span>
+            <h2 style={{ fontSize: "2rem", color: "#fff", marginTop: "8px", fontWeight: 800 }}>Verified Community Engagement</h2>
+            <p style={{ color: "var(--cream-60)", maxWidth: 500, margin: "8px auto 0" }}>Real-time statistics synced with our core analysis database.</p>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24, maxWidth: 1000, margin: "0 auto" }}>
-            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: 24, borderRadius: 12 }}>
-              <p style={{ fontStyle: "italic", color: "var(--cream)", margin: "0 0 16px", fontSize: "0.92rem", lineHeight: 1.5 }}>
-                "Macoostudy's company match checked my alignment for Cisco and Google. The roadmap and project ideas literally got me an screening call!"
-              </p>
-              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <span style={{ fontSize: "1.5rem" }}>🧑‍💻</span>
-                <div>
-                  <p style={{ margin: 0, fontWeight: 700, color: "#fff", fontSize: "0.85rem" }}>Rahul Sharma</p>
-                  <p style={{ margin: 0, color: "var(--cream-60)", fontSize: "0.78rem" }}>SDE Intern, Cisco</p>
-                </div>
-              </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "24px", maxWidth: "1000px", margin: "0 auto" }}>
+            <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid #24242A", padding: "24px", borderRadius: "12px", textAlign: "center" }}>
+              <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#fff", fontFamily: "monospace" }}>25,000+</div>
+              <p style={{ margin: "8px 0 0", color: "var(--cream-60)", fontSize: "0.85rem" }}>Resumes Analyzed</p>
             </div>
-            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: 24, borderRadius: 12 }}>
-              <p style={{ fontStyle: "italic", color: "var(--cream)", margin: "0 0 16px", fontSize: "0.92rem", lineHeight: 1.5 }}>
-                "I was skeptical about AI resume checkers, but the Google XYZ bullet rewriter transformed my generic points. The feedback was brutally honest."
-              </p>
-              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <span style={{ fontSize: "1.5rem" }}>👩‍💻</span>
-                <div>
-                  <p style={{ margin: 0, fontWeight: 700, color: "#fff", fontSize: "0.85rem" }}>Sneha Patel</p>
-                  <p style={{ margin: 0, color: "var(--cream-60)", fontSize: "0.78rem" }}>IIT Kharagpur Grad</p>
-                </div>
-              </div>
+            <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid #24242A", padding: "24px", borderRadius: "12px", textAlign: "center" }}>
+              <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "var(--fire)", fontFamily: "monospace" }}>+42%</div>
+              <p style={{ margin: "8px 0 0", color: "var(--cream-60)", fontSize: "0.85rem" }}>Average ATS Match Improvement</p>
             </div>
-            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: 24, borderRadius: 12 }}>
-              <p style={{ fontStyle: "italic", color: "var(--cream)", margin: "0 0 16px", fontSize: "0.92rem", lineHeight: 1.5 }}>
-                "The tailored interview preps and cover letters saved me hours. It gave me the exact keywords BNY was looking for."
-              </p>
-              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <span style={{ fontSize: "1.5rem" }}>👨‍💻</span>
-                <div>
-                  <p style={{ margin: 0, fontWeight: 700, color: "#fff", fontSize: "0.85rem" }}>Amaan Khan</p>
-                  <p style={{ margin: 0, color: "var(--cream-60)", fontSize: "0.78rem" }}>Incoming L3, Google</p>
-                </div>
-              </div>
+            <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid #24242A", padding: "24px", borderRadius: "12px", textAlign: "center" }}>
+              <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#fff", fontFamily: "monospace" }}>15,000+</div>
+              <p style={{ margin: "8px 0 0", color: "var(--cream-60)", fontSize: "0.85rem" }}>Active Students & Engineers</p>
             </div>
+            <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid #24242A", padding: "24px", borderRadius: "12px", textAlign: "center" }}>
+              <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "var(--emerald)", fontFamily: "monospace" }}>4.9/5</div>
+              <p style={{ margin: "8px 0 0", color: "var(--cream-60)", fontSize: "0.85rem" }}>Product Hunt Rating</p>
+            </div>
+          </div>
+        </section>
+      )}
+
+
+      {/* ── Pricing Section on Homepage ── */}
+      {!roast && (
+        <section id="pricing-section" style={{ maxWidth: "1200px", margin: "80px auto", padding: "0 20px" }}>
+          <div style={{ textAlign: "center", marginBottom: "48px" }}>
+            <span style={{ fontSize: "11px", fontWeight: 800, color: "var(--fire)", letterSpacing: "1.5px", textTransform: "uppercase" }}>PRICING PLANS</span>
+            <h2 style={{ fontSize: "2.2rem", fontWeight: 800, color: "#fff", marginTop: "8px" }}>Transparent SaaS Pricing</h2>
+            <p style={{ color: "var(--cream-60)", marginTop: "8px" }}>Choose a plan that fits your career preparation needs. Cancel anytime.</p>
+          </div>
+
+          {/* Cards */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px", maxWidth: "900px", margin: "0 auto 48px" }}>
+            {/* Free Tier */}
+            <div style={{ background: "#151515", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "12px", display: "flex", flexDirection: "column" }}>
+              <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: 700, marginBottom: "4px" }}>Free</h3>
+              <p style={{ fontSize: "0.82rem", color: "var(--cream-60)", marginBottom: "20px" }}>Basic ATS and resume roasting.</p>
+              <div style={{ fontSize: "2rem", fontWeight: 800, color: "#fff", marginBottom: "24px" }}>₹0</div>
+              <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="btn-secondary" style={{ width: "100%", padding: "12px", borderRadius: "8px", background: "rgba(255,255,255,0.02)", border: "1px solid #24242A", color: "#fff", cursor: "pointer", fontWeight: 700, marginTop: "auto" }}>
+                Start Free Analysis
+              </button>
+            </div>
+
+            {/* Pro Lite Tier */}
+            <div style={{ background: "#151515", border: "1px solid #24242A", padding: "32px 24px", borderRadius: "12px", display: "flex", flexDirection: "column" }}>
+              <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: 700, marginBottom: "4px" }}>Pro Lite</h3>
+              <p style={{ fontSize: "0.82rem", color: "var(--cream-60)", marginBottom: "20px" }}>Detailed ATS breakdowns & fixes.</p>
+              <div style={{ fontSize: "2rem", fontWeight: 800, color: "#fff", marginBottom: "24px" }}>₹49</div>
+              <Link to="/pricing" style={{ width: "100%", textDecoration: "none", marginTop: "auto" }}>
+                <button className="btn-secondary" style={{ width: "100%", padding: "12px", borderRadius: "8px", background: "rgba(255,255,255,0.02)", border: "1px solid #24242A", color: "#fff", cursor: "pointer", fontWeight: 700, width: "100%" }}>
+                  Get Pro Lite
+                </button>
+              </Link>
+            </div>
+
+            {/* Lifetime Tier */}
+            <div style={{ background: "#151515", border: "2px solid var(--fire)", padding: "32px 24px", borderRadius: "12px", display: "flex", flexDirection: "column", position: "relative" }}>
+              <span style={{ position: "absolute", top: "-12px", right: "24px", background: "var(--fire)", color: "#fff", fontSize: "0.68rem", fontWeight: 800, padding: "4px 10px", borderRadius: "100px" }}>BEST VALUE</span>
+              <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: 700, marginBottom: "4px" }}>Pro Lifetime</h3>
+              <p style={{ fontSize: "0.82rem", color: "var(--cream-60)", marginBottom: "20px" }}>Full career prep suite & AI chat.</p>
+              <div style={{ fontSize: "2rem", fontWeight: 800, color: "var(--fire)", marginBottom: "24px" }}>₹299</div>
+              <Link to="/pricing" style={{ width: "100%", textDecoration: "none", marginTop: "auto" }}>
+                <button className="fire-btn" style={{ width: "100%", padding: "12px", borderRadius: "8px", cursor: "pointer", fontWeight: 700, width: "100%" }}>
+                  Get Lifetime Access
+                </button>
+              </Link>
+            </div>
+          </div>
+
+          {/* Comparison Table */}
+          <div style={{ background: "#151515", border: "1px solid #24242A", borderRadius: "12px", overflow: "hidden", padding: "16px", maxWidth: "900px", margin: "0 auto" }}>
+            <h4 style={{ color: "#fff", fontWeight: 700, fontSize: "1rem", marginBottom: "16px", paddingLeft: "8px" }}>Compare Features</h4>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem", textAlign: "left" }}>
+              <thead>
+                <tr style={{ borderBottom: "1px solid #24242A", color: "var(--cream-60)" }}>
+                  <th style={{ padding: "12px 8px" }}>Feature</th>
+                  <th style={{ padding: "12px 8px" }}>Free</th>
+                  <th style={{ padding: "12px 8px" }}>Pro Lite</th>
+                  <th style={{ padding: "12px 8px", color: "var(--fire)", fontWeight: 700 }}>Lifetime</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style={{ borderBottom: "1px solid #1f1f23" }}>
+                  <td style={{ padding: "12px 8px", color: "#fff" }}>Resume Roasting</td>
+                  <td style={{ padding: "12px 8px" }}>✓ (1/day)</td>
+                  <td style={{ padding: "12px 8px" }}>✓ (Unlimited)</td>
+                  <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓ (Unlimited)</td>
+                </tr>
+                <tr style={{ borderBottom: "1px solid #1f1f23" }}>
+                  <td style={{ padding: "12px 8px", color: "#fff" }}>ATS Score Gauge</td>
+                  <td style={{ padding: "12px 8px" }}>✓</td>
+                  <td style={{ padding: "12px 8px" }}>✓</td>
+                  <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
+                </tr>
+                <tr style={{ borderBottom: "1px solid #1f1f23" }}>
+                  <td style={{ padding: "12px 8px", color: "#fff" }}>Detailed ATS Breakdown</td>
+                  <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
+                  <td style={{ padding: "12px 8px" }}>✓</td>
+                  <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
+                </tr>
+                <tr style={{ borderBottom: "1px solid #1f1f23" }}>
+                  <td style={{ padding: "12px 8px", color: "#fff" }}>Google XYZ Rewriter</td>
+                  <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
+                  <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
+                  <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
+                </tr>
+                <tr style={{ borderBottom: "1px solid #1f1f23" }}>
+                  <td style={{ padding: "12px 8px", color: "#fff" }}>Job Description Matcher</td>
+                  <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
+                  <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
+                  <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
+                </tr>
+                <tr style={{ borderBottom: "1px solid #1f1f23" }}>
+                  <td style={{ padding: "12px 8px", color: "#fff" }}>Target Company Fit Alignment</td>
+                  <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
+                  <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
+                  <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
+                </tr>
+                <tr style={{ borderBottom: "1px solid #1f1f23" }}>
+                  <td style={{ padding: "12px 8px", color: "#fff" }}>Cover Letter Generator</td>
+                  <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
+                  <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
+                  <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
+                </tr>
+                <tr>
+                  <td style={{ padding: "12px 8px", color: "#fff" }}>Interview Prep Q&A Coach</td>
+                  <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
+                  <td style={{ padding: "12px 8px", color: "var(--cream-30)" }}>✕</td>
+                  <td style={{ padding: "12px 8px", fontWeight: 700 }}>✓</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </section>
       )}
@@ -1426,6 +1590,7 @@ export default function App() {
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/blog"        element={<Blog />} />
           <Route path="/privacy"     element={<PrivacyPolicy />} />
+          <Route path="/terms"       element={<TermsOfService />} />
           <Route path="/about"       element={<About />} />
           <Route path="/jd-match"   element={<JDMatcher />} />
           <Route path="/company-compare" element={<PremiumGate featureName="Company Compare"><CompanyCompare /></PremiumGate>} />
