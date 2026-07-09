@@ -5,24 +5,24 @@
   --fire-glow:  rgba(255, 138, 61, 0.25);
   --amber:      #FFB347;
   --amber-glow: rgba(255, 179, 71, 0.15);
-  --cream:      #0F172A; /* Deep Slate (primary text) */
-  --cream-60:   #475569; /* Slate Gray (secondary text) */
-  --cream-30:   #64748B;
-  --cream-10:   rgba(15, 23, 42, 0.05);
+  --cream:      #FFFFFF; /* Pure White (primary text) */
+  --cream-60:   #94A3B8; /* Slate/Silver Grey (secondary text) */
+  --cream-30:   rgba(255, 255, 255, 0.3);
+  --cream-10:   rgba(255, 255, 255, 0.08);
 
-  --bg:         #FAFAFC; /* Crisp Light Grey background */
-  --bg2:        #FFFFFF; /* Pure White Card Background */
-  --bg3:        #F1F5F9; /* Light Slate Card Sub-surface */
+  --bg:         #12131A; /* Sleek Charcoal Dark Canvas */
+  --bg2:        #1C1E26; /* Deep Charcoal Slate Card Surface */
+  --bg3:        #232631; /* Lighter Charcoal Card Sub-surface */
 
-  --surface:    #FFFFFF;
-  --surface2:   #F8FAFC;
+  --surface:    #1C1E26;
+  --surface2:   #232631;
 
-  --border:     #E2E8F0; /* Clean light gray border */
+  --border:     rgba(255, 255, 255, 0.08); /* Crisp 1px borders */
   --border-hot: #FF8A3D;
 
-  --emerald:    #059669; /* Richer green for light theme */
-  --sapphire:   #FF8A3D;
-  --gold:       #D97706;
+  --emerald:    #10B981; /* High-contrast emerald green */
+  --sapphire:   #3B82F6;
+  --gold:       #F59E0B;
 
   --r-sm: 6px;
   --r-md: 10px;
@@ -70,19 +70,19 @@ body {
 .bg-canvas {
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background:
-    radial-gradient(ellipse 60% 40% at 50% -10%, rgba(136, 80, 255, 0.16) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 30% at 80% 50%, rgba(255, 138, 61, 0.04) 0%, transparent 50%),
-    #070814; /* Deep Midnight Slate */
+    radial-gradient(ellipse 65% 45% at 50% -10%, rgba(255, 138, 61, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 85% 40%, rgba(136, 80, 255, 0.05) 0%, transparent 50%),
+    #12131A; /* Sleek Charcoal Dark Canvas */
 }
 
 /* Subtle SaaS grid */
 .bg-grid {
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background-image:
-    linear-gradient(rgba(136, 80, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(136, 80, 255, 0.02) 1px, transparent 1px);
-  background-size: 50px 50px;
-  mask-image: radial-gradient(circle at 50% 0%, black 10%, transparent 80%);
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 55px 55px;
+  mask-image: radial-gradient(circle at 50% 0%, black 15%, transparent 75%);
 }
 
 /* ── Navbar ───────────────────────────────────────────────────── */
@@ -91,11 +91,11 @@ body {
   height: var(--nav-h);
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 32px;
-  background: rgba(8, 8, 12, 0.7);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(18, 19, 26, 0.75);
+  backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   transition: background 0.3s, box-shadow 0.3s;
-  box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
 .navbar-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
@@ -1804,39 +1804,28 @@ html[data-theme="light"] ::-webkit-scrollbar-track { background: var(--bg); }
   }
 }
 
-/* ── Light Mode Override System ── */
+/* ── Charcoal Dark Mode Overrides ── */
 body {
-  color: var(--cream) !important;
-}
-
-/* Global text overrides for inline style hardcodes */
-.hero-title, 
-.brand-name, 
-.wtp-title, 
-h2, h3, h4, 
-th, td, 
-.pricing-card h3,
-.pricing-card div {
   color: var(--cream) !important;
 }
 
 /* Secondary CTA Button */
 .btn-secondary {
-  background: #ffffff !important;
-  border: 1px solid #D1D5DB !important;
-  color: #1F2937 !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
 }
 .btn-secondary:hover {
-  background: #F9FAFB !important;
-  border-color: #C1C5CB !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
 }
 
 /* Dashboard Live Preview container card */
 .hero-dashboard-preview > div {
   background: var(--bg2) !important;
   border: 1px solid var(--border) !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4) !important;
 }
 
 /* Dashboard live preview inner cards */
@@ -1862,7 +1851,7 @@ th, td,
 .hero-trust-strip-premium > div {
   background: var(--bg2) !important;
   border: 1px solid var(--border) !important;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.02) !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
 }
 .hero-trust-strip-premium > div > div {
   color: var(--cream) !important;
@@ -1873,7 +1862,7 @@ div[style*="background: #151515"],
 div[style*="background: \"#151515\""] {
   background: var(--bg2) !important;
   border: 1px solid var(--border) !important;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.02) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
 }
 div[style*="background: #151515"] h4,
 div[style*="background: #151515"] div {
