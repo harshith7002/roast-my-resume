@@ -902,19 +902,21 @@ def create_payment_order():
         return jsonify({"error": "Invalid tier specified"}), 400
 
     client_rp = get_razorpay_client()
-    order_id = f"order_mock_{uid()}"
 
-    if client_rp:
-        try:
-            order_data = {
-                "amount": amount,
-                "currency": "INR",
-                "receipt": f"receipt_{uid()}"
-            }
-            order = client_rp.order.create(data=order_data)
-            order_id = order.get("id", order_id)
-        except Exception as e:
-            app.logger.warning("Razorpay order creation failed: %s. Using mock mode.", str(e))
+    if not client_rp:
+        return jsonify({"error": "Payment gateway not configured. Contact support."}), 503
+
+    try:
+        order_data = {
+            "amount": amount,
+            "currency": "INR",
+            "receipt": f"receipt_{uid()}"
+        }
+        order = client_rp.order.create(data=order_data)
+        order_id = order["id"]
+    except Exception as e:
+        app.logger.error("Razorpay order creation failed: %s", str(e))
+        return jsonify({"error": f"Payment gateway error: {str(e)}"}), 500
 
     # Save transaction to database
     conn = get_db()
