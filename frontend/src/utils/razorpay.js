@@ -84,7 +84,7 @@ export async function openRazorpayCheckout({
 
   // Step 3: Open Razorpay Checkout Modal
   const options = {
-    key: order.key_id,
+    key: process.env.REACT_APP_RAZORPAY_KEY_ID,
     amount: order.amount,
     currency: order.currency || "INR",
     name: "Macoostudy 2.0",
