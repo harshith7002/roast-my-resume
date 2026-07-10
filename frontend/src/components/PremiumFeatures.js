@@ -37,6 +37,7 @@ export default function PremiumFeatures() {
         tier,
         userId: user.user_id || getVisitorId(),
         email: user.email,
+        name: user.name || "",
         onPaymentSuccess: (res) => {
           setSuccess(true);
           setUser({
@@ -50,11 +51,15 @@ export default function PremiumFeatures() {
         },
         onPaymentError: (err) => {
           setError(err.message || "Payment process interrupted.");
+          setLoading(false);
+        },
+        onDismiss: () => {
+          setLoading(false);
+          setActiveTier(null);
         },
       });
     } catch (err) {
       setError(err.message || "Could not launch checkout.");
-    } finally {
       setLoading(false);
     }
   }

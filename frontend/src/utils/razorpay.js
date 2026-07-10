@@ -1,73 +1,100 @@
 import { apiFetch } from "./api";
 
-export function loadRazorpayScript() {
+/**
+ * Asynchronously loads the Razorpay Checkout script and mounts it to the DOM.
+ * Returns a promise that resolves true once interactive, or false on failure.
+ */
+export const loadRazorpayScript = () => {
   return new Promise((resolve) => {
+    // Already loaded — resolve immediately
     if (window.Razorpay) {
       resolve(true);
       return;
     }
+
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+
     script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
+
+    script.onerror = () => {
+      console.error(
+        "CRITICAL: Razorpay SDK failed to load. Check network/CSP configuration."
+      );
+      resolve(false);
+    };
+
     document.body.appendChild(script);
   });
-}
+};
 
-export async function openRazorpayCheckout({ tier, userId, email, onPaymentSuccess, onPaymentError }) {
-  const loaded = await loadRazorpayScript();
-  if (!loaded) {
-    throw new Error("Failed to load Razorpay payment SDK. Please check your internet connection.");
+/**
+ * Opens the Razorpay payment modal.
+ * Handles script loading, order creation, checkout, and payment verification.
+ */
+export async function openRazorpayCheckout({
+  tier,
+  userId,
+  email,
+  name,
+  onPaymentSuccess,
+  onPaymentError,
+  onDismiss,
+}) {
+  // Step 1: Ensure SDK is loaded BEFORE making any API calls
+  const isScriptLoaded = await loadRazorpayScript();
+  if (!isScriptLoaded) {
+    const err = new Error(
+      "Could not initialize payment window. Please disable any ad-blockers and try again."
+    );
+    if (onPaymentError) onPaymentError(err);
+    throw err;
   }
 
-  // 1. Create order on backend
-  const order = await apiFetch("/api/payments/create-order", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ tier, user_id: userId }),
-  });
+  // Step 2: Create order on backend
+  let order;
+  try {
+    order = await apiFetch("/api/payments/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tier, user_id: userId }),
+    });
+  } catch (err) {
+    const error = new Error(
+      "Failed to connect to the payment server. Please try again."
+    );
+    if (onPaymentError) onPaymentError(error);
+    throw error;
+  }
 
   if (!order || order.error) {
-    throw new Error(order.error || "Failed to create payment order");
+    const error = new Error(order?.error || "Failed to create payment order.");
+    if (onPaymentError) onPaymentError(error);
+    throw error;
   }
 
-  // If order ID is mock or key is mock, bypass Razorpay modal to allow testing
-  if (order.order_id.startsWith("order_mock_") || order.key_id.includes("mockkey")) {
-    const mockPaymentId = `pay_mock_${Math.random().toString(36).substring(2, 11)}`;
-    try {
-      const verification = await apiFetch("/api/payments/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          razorpay_order_id: order.order_id,
-          razorpay_payment_id: mockPaymentId,
-          razorpay_signature: "mock_signature_bypass",
-          user_id: userId,
-        }),
-      });
-
-      if (verification.success) {
-        if (onPaymentSuccess) onPaymentSuccess(verification);
-      } else {
-        if (onPaymentError) onPaymentError(new Error(verification.error || "Verification failed"));
-      }
-    } catch (err) {
-      if (onPaymentError) onPaymentError(err);
-    }
-    return;
+  if (!order.order_id || !order.key_id) {
+    const error = new Error(
+      "Invalid response from payment server. Missing order_id or key_id."
+    );
+    if (onPaymentError) onPaymentError(error);
+    throw error;
   }
 
-  // 2. Open Razorpay Checkout modal
+  // Step 3: Open Razorpay Checkout Modal
   const options = {
     key: order.key_id,
     amount: order.amount,
-    currency: order.currency,
+    currency: order.currency || "INR",
     name: "Macoostudy 2.0",
-    description: `Upgrade to ${tier === "pro_plus" ? "Pro+ Unlimited" : "Pro"} Plan`,
+    description:
+      tier === "pro_plus" ? "Pro Lifetime – Full Career Suite" : "Pro Lite – Detailed Breakdowns",
     order_id: order.order_id,
+
     handler: async function (response) {
+      // Step 4: Verify payment signature on backend
       try {
-        // 3. Verify payment signature on backend
         const verification = await apiFetch("/api/payments/verify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -79,26 +106,49 @@ export async function openRazorpayCheckout({ tier, userId, email, onPaymentSucce
           }),
         });
 
-        if (verification.success) {
+        if (verification && verification.success) {
           if (onPaymentSuccess) onPaymentSuccess(verification);
         } else {
-          if (onPaymentError) onPaymentError(new Error(verification.error || "Verification failed"));
+          const error = new Error(
+            verification?.error || "Payment verification failed. Please contact support."
+          );
+          if (onPaymentError) onPaymentError(error);
         }
       } catch (err) {
-        if (onPaymentError) onPaymentError(err);
+        if (onPaymentError)
+          onPaymentError(
+            new Error("Could not verify your payment. Please contact support with your payment ID.")
+          );
       }
     },
+
     prefill: {
+      name: name || "",
       email: email || "",
     },
+
     theme: {
-      color: "#ff6b00", // Hot fire orange theme
+      color: "#ff6b00",
+    },
+
+    modal: {
+      ondismiss: () => {
+        console.log("Razorpay modal dismissed by user.");
+        if (onDismiss) onDismiss();
+      },
     },
   };
 
+  // Step 5: Instantiate and open
   const rzp = new window.Razorpay(options);
+
   rzp.on("payment.failed", function (response) {
-    if (onPaymentError) onPaymentError(new Error(response.error.description || "Payment failed"));
+    const msg =
+      response?.error?.description ||
+      response?.error?.reason ||
+      "Payment failed. Please try a different payment method.";
+    if (onPaymentError) onPaymentError(new Error(msg));
   });
+
   rzp.open();
 }
