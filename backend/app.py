@@ -864,26 +864,36 @@ def analytics_summary():
 
 # ── Payments (Razorpay) ───────────────────────────────────────────────────────
 
-RAZORPAY_KEY_ID = os.environ.get("RAZORPAY_KEY_ID", "rzp_test_mockkey")
-RAZORPAY_KEY_SECRET = os.environ.get("RAZORPAY_KEY_SECRET", "mocksecret")
-
 def get_razorpay_client():
-    if "mockkey" in RAZORPAY_KEY_ID:
-        return None
+    """Read env vars fresh on every call so Render env changes are picked up without restart."""
+    key_id = os.environ.get("RAZORPAY_KEY_ID", "")
+    key_secret = os.environ.get("RAZORPAY_KEY_SECRET", "")
+
+    # Debug print — visible in Render application logs
+    print(f"[Razorpay] KEY_ID present: {bool(key_id)}, KEY_ID prefix: {key_id[:8] if len(key_id) >= 8 else 'too_short'}")
+    print(f"[Razorpay] KEY_SECRET present: {bool(key_secret)}")
+
+    if not key_id or not key_secret:
+        print("[Razorpay] ERROR: Missing credentials — cannot create client.")
+        return None, key_id, key_secret
+
     try:
         import razorpay
-        return razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
-    except Exception:
-        return None
+        client = razorpay.Client(auth=(key_id, key_secret))
+        print("[Razorpay] Client initialized successfully.")
+        return client, key_id, key_secret
+    except Exception as e:
+        print(f"[Razorpay] ERROR: Client init failed: {e}")
+        return None, key_id, key_secret
 
 @app.route("/api/payments/test-config")
 def test_payments_config():
-    client_ok = get_razorpay_client() is not None
+    client, key_id, key_secret = get_razorpay_client()
     return jsonify({
-        "key_id_present": RAZORPAY_KEY_ID != "rzp_test_mockkey",
-        "key_secret_present": RAZORPAY_KEY_SECRET != "mocksecret",
-        "client_ok": client_ok,
-        "razorpay_key_id_preview": RAZORPAY_KEY_ID[:8] if len(RAZORPAY_KEY_ID) > 8 else "too_short"
+        "key_id_present": bool(key_id),
+        "key_secret_present": bool(key_secret),
+        "client_ok": client is not None,
+        "razorpay_key_id_preview": key_id[:8] if len(key_id) >= 8 else "too_short"
     })
 
 @app.route("/api/payments/create-order", methods=["POST"])
@@ -901,10 +911,12 @@ def create_payment_order():
     else:
         return jsonify({"error": "Invalid tier specified"}), 400
 
-    client_rp = get_razorpay_client()
+    client_rp, rzp_key_id, rzp_key_secret = get_razorpay_client()
 
     if not client_rp:
-        return jsonify({"error": "Payment gateway not configured. Contact support."}), 503
+        msg = "Payment gateway not configured" if not rzp_key_id else "Razorpay client failed to initialize"
+        print(f"[create-order] Aborting: {msg}")
+        return jsonify({"error": f"{msg}. Please try again later or contact support."}), 503
 
     try:
         order_data = {
