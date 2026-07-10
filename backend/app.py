@@ -943,7 +943,7 @@ def create_payment_order():
         "order_id": order_id,
         "amount": amount,
         "currency": "INR",
-        "key_id": RAZORPAY_KEY_ID
+        "key_id": rzp_key_id
     })
 
 @app.route("/api/payments/verify", methods=["POST"])
