@@ -18,11 +18,15 @@ import re
 import json
 import sqlite3
 import hashlib
+import hmac
 import time
 from datetime import datetime
 from functools import wraps
+from concurrent.futures import ThreadPoolExecutor
 import tempfile
 import difflib
+
+executor = ThreadPoolExecutor(max_workers=4)
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
@@ -122,6 +126,12 @@ def init_db():
         pass
     try:
         c.execute("ALTER TABLE users ADD COLUMN tier TEXT DEFAULT 'free'")
+    except sqlite3.OperationalError:
+        pass
+
+    # Migration: add processed_event_id for webhook idempotency
+    try:
+        c.execute("ALTER TABLE transactions ADD COLUMN processed_event_id TEXT UNIQUE")
     except sqlite3.OperationalError:
         pass
 
@@ -1022,6 +1032,112 @@ def verify_payment():
         conn.commit()
         conn.close()
         return jsonify({"success": True, "tier": tier, "credits": 99999})
+
+
+
+# ── Razorpay Webhook ──────────────────────────────────────────────────────────
+
+def _process_webhook_upgrade(order_id, payment_id, event_id):
+    """
+    Runs in a background thread (ThreadPoolExecutor).
+    Opens its own fresh SQLite connection — required for thread safety.
+    Updates the transaction to 'completed' and upgrades the user's tier.
+    """
+    try:
+        with sqlite3.connect(DB_PATH, timeout=10) as conn:
+            conn.row_factory = sqlite3.Row
+            tx = conn.execute(
+                "SELECT * FROM transactions WHERE razorpay_order_id=?", (order_id,)
+            ).fetchone()
+
+            if not tx:
+                print(f"[Webhook] No transaction found for order_id={order_id}")
+                return
+
+            tier = tx["tier_purchased"]
+            user_id = tx["user_id"]
+            credits = 99999  # Unlimited for paid tiers
+
+            conn.execute(
+                "UPDATE transactions SET status='completed', razorpay_payment_id=?, processed_event_id=? WHERE razorpay_order_id=?",
+                (payment_id, event_id, order_id)
+            )
+            conn.execute(
+                "UPDATE users SET credits=?, tier=? WHERE id=?",
+                (credits, tier, user_id)
+            )
+            conn.commit()
+            print(f"[Webhook] Successfully upgraded user={user_id} to tier={tier} via order={order_id}")
+    except Exception as e:
+        print(f"[Webhook] Background task error: {e}")
+
+
+@app.route("/api/payments/webhook", methods=["POST"])
+def razorpay_webhook():
+    # Step 1: Read raw bytes BEFORE any JSON parsing (required for HMAC)
+    raw_payload = request.data
+
+    webhook_secret = os.environ.get("RAZORPAY_WEBHOOK_SECRET", "")
+    received_signature = request.headers.get("X-Razorpay-Signature", "")
+    event_id = request.headers.get("X-Razorpay-Event-Id", "")
+
+    # Step 2: Verify HMAC-SHA256 signature
+    if webhook_secret and received_signature:
+        expected_signature = hmac.new(
+            webhook_secret.encode("utf-8"),
+            raw_payload,
+            "sha256"
+        ).hexdigest()
+
+        if not hmac.compare_digest(expected_signature, received_signature):
+            print("[Webhook] Signature mismatch — rejecting request")
+            return jsonify({"error": "Signature verification failed"}), 400
+    else:
+        # In test mode without a webhook secret, log a warning but continue
+        print("[Webhook] WARNING: No RAZORPAY_WEBHOOK_SECRET set — skipping signature check")
+
+    # Step 3: Parse event
+    event_data = request.get_json(silent=True) or {}
+    event_type = event_data.get("event")
+
+    if event_type == "order.paid":
+        payload = event_data.get("payload", {})
+        payment_entity = payload.get("payment", {}).get("entity", {})
+        order_id = payment_entity.get("order_id")
+        payment_id = payment_entity.get("id")
+
+        if not order_id:
+            return jsonify({"error": "Missing order_id in webhook payload"}), 400
+
+        try:
+            # Step 4: Idempotency check in main thread (fast read)
+            with sqlite3.connect(DB_PATH, timeout=10) as conn:
+                conn.row_factory = sqlite3.Row
+                tx = conn.execute(
+                    "SELECT status, processed_event_id FROM transactions WHERE razorpay_order_id=?",
+                    (order_id,)
+                ).fetchone()
+
+                if not tx:
+                    print(f"[Webhook] Unknown order_id={order_id} — not found in transactions")
+                    return jsonify({"error": "Transaction not found"}), 404
+
+                # Already processed — return 200 immediately (idempotency)
+                if tx["status"] == "completed" or (event_id and tx["processed_event_id"] == event_id):
+                    print(f"[Webhook] Already processed order_id={order_id} — skipping")
+                    return jsonify({"status": "already_processed"}), 200
+
+            # Step 5: Dispatch to background thread so we respond in < 5s
+            executor.submit(_process_webhook_upgrade, order_id, payment_id, event_id)
+            return jsonify({"status": "processing"}), 200
+
+        except Exception as e:
+            print(f"[Webhook] Database lookup error: {e}")
+            return jsonify({"error": "Internal server error"}), 500
+
+    # All other event types — acknowledge and ignore
+    print(f"[Webhook] Ignored event type: {event_type}")
+    return jsonify({"status": "ignored"}), 200
 
 
 # ── AI Resume Chat ────────────────────────────────────────────────────────────
