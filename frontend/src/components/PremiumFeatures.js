@@ -114,7 +114,7 @@ export default function PremiumFeatures() {
                 <div style={{ background: "var(--bg2)", border: "1px solid var(--border)", padding: "28px 24px", borderRadius: "12px", display: "flex", flexDirection: "column" }}>
                   <h3 style={{ color: "#fff", fontSize: "1.1rem", fontWeight: 700, marginBottom: "4px" }}>Pro Lite</h3>
                   <p style={{ fontSize: "0.8rem", color: "var(--cream-60)", marginBottom: "16px" }}>Detailed breakdowns</p>
-                  <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#fff", marginBottom: "20px" }}>₹1</div>
+                  <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#fff", marginBottom: "20px" }}>₹49</div>
                   
                   <div style={{ display: "flex", flexDirection: "column", gap: "8px", margin: "0 0 24px", fontSize: "0.82rem", color: "var(--cream-60)", textAlign: "left" }}>
                     <div style={{ display: "flex", gap: "8px", alignItems: "center" }}><span style={{ color: "var(--emerald)" }}>✔</span> <span>ATS Score</span></div>
