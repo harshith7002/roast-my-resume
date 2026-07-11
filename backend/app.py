@@ -1014,7 +1014,7 @@ def verify_payment():
         # Update user's profile credits and tier
         credits = 99999  # Unlimited/Pro credits
         conn.execute(
-            "UPDATE users SET credits=?, provider=? WHERE id=?",
+            "UPDATE users SET credits=?, tier=? WHERE id=?",
             (credits, tier, user_id)
         )
         conn.commit()
