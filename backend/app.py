@@ -17,6 +17,12 @@ for env_path in [".env", "../.env", "backend/.env"]:
 import re
 import json
 import sqlite3
+try:
+    import psycopg2
+    import psycopg2.extras
+    HAS_POSTGRES = True
+except ImportError:
+    HAS_POSTGRES = False
 import hashlib
 import hmac
 import time
@@ -38,10 +44,110 @@ DB_PATH = os.environ.get("DB_PATH", "macoostudy.db")
 
 # ── Database ──────────────────────────────────────────────────────────────────
 
+class DictRow(dict):
+    """
+    A dictionary class that allows both row['column'] and row[index] access
+    to mimic sqlite3.Row behavior exactly!
+    """
+    def __init__(self, data, description):
+        super().__init__(data)
+        self._keys = [col.name for col in description]
+        self._values = list(data.values())
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return self._values[key]
+        return super().__getitem__(key)
+
+    def keys(self):
+        return self._keys
+
+
+class DBConnectionWrapper:
+    def __init__(self, conn, is_postgres=False):
+        self.conn = conn
+        self.is_postgres = is_postgres
+        self.cur = None
+
+    def cursor(self):
+        return self
+
+    def executescript(self, script_text):
+        if self.is_postgres:
+            # PostgreSQL can execute multiple statements in one execute() call
+            script_text = script_text.replace("datetime('now')", "CURRENT_TIMESTAMP")
+            self.execute(script_text)
+        else:
+            self.cur = self.conn.cursor()
+            self.cur.executescript(script_text)
+
+    def execute(self, query, params=None):
+        if self.is_postgres:
+            # 1. Translate ? placeholders to %s
+            query = query.replace('?', '%s')
+            # 2. Translate SQLite datetime('now') to PostgreSQL CURRENT_TIMESTAMP
+            query = query.replace("datetime('now')", "CURRENT_TIMESTAMP")
+            # 3. Translate PRAGMA table_info to PostgreSQL schema query
+            if "PRAGMA table_info(" in query:
+                table_name = re.findall(r'PRAGMA table_info\((\w+)\)', query)[0]
+                query = f"SELECT 1, column_name FROM information_schema.columns WHERE table_name = '{table_name}'"
+            # 4. Translate SQLite INSERT OR IGNORE syntax
+            if "INSERT OR IGNORE INTO email_captures" in query:
+                query = query.replace("INSERT OR IGNORE", "INSERT")
+                query += " ON CONFLICT (email) DO NOTHING"
+            elif "INSERT OR IGNORE INTO users" in query:
+                query = query.replace("INSERT OR IGNORE", "INSERT")
+                if "provider, credits, tier" in query:
+                    query += " ON CONFLICT (id) DO NOTHING"
+                else:
+                    query += " ON CONFLICT (email) DO NOTHING"
+                    
+        self.cur = self.conn.cursor()
+        self.cur.execute(query, params)
+        return self
+
+    def fetchone(self):
+        if not self.cur:
+            return None
+        row = self.cur.fetchone()
+        if row is None:
+            return None
+        if self.is_postgres:
+            desc = self.cur.description
+            colnames = [col.name for col in desc]
+            row_dict = dict(zip(colnames, row))
+            return DictRow(row_dict, desc)
+        return row
+
+    def fetchall(self):
+        if not self.cur:
+            return []
+        rows = self.cur.fetchall()
+        if self.is_postgres:
+            desc = self.cur.description
+            colnames = [col.name for col in desc]
+            return [DictRow(dict(zip(colnames, r)), desc) for r in rows]
+        return rows
+
+    def commit(self):
+        self.conn.commit()
+
+    def rollback(self):
+        self.conn.rollback()
+
+    def close(self):
+        self.conn.close()
+
+
 def get_db():
-    conn = sqlite3.connect(DB_PATH, timeout=30)
-    conn.row_factory = sqlite3.Row
-    return conn
+    db_url = os.environ.get("DATABASE_URL")
+    if db_url and HAS_POSTGRES:
+        conn = psycopg2.connect(db_url)
+        return DBConnectionWrapper(conn, is_postgres=True)
+    else:
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        conn.row_factory = sqlite3.Row
+        return DBConnectionWrapper(conn, is_postgres=False)
 
 def init_db():
     conn = get_db()
@@ -134,7 +240,7 @@ def init_db():
             c.execute("ALTER TABLE users ADD COLUMN credits INTEGER DEFAULT 5")
             conn.commit()
             print("[Migration] Added credits column to users table.")
-        except sqlite3.OperationalError as e:
+        except Exception as e:
             if "duplicate column" not in str(e).lower():
                 raise e
                 
@@ -143,7 +249,7 @@ def init_db():
             c.execute("ALTER TABLE users ADD COLUMN tier TEXT DEFAULT 'free'")
             conn.commit()
             print("[Migration] Added tier column to users table.")
-        except sqlite3.OperationalError as e:
+        except Exception as e:
             if "duplicate column" not in str(e).lower():
                 raise e
 
@@ -153,16 +259,17 @@ def init_db():
             c.execute("ALTER TABLE transactions ADD COLUMN processed_event_id TEXT")
             conn.commit()
             print("[Migration] Added processed_event_id column to transactions table.")
-        except sqlite3.OperationalError as e:
+        except Exception as e:
             if "duplicate column" not in str(e).lower():
                 raise e
 
-    # Create unique index for idempotency (fully supported by SQLite)
+    # Create unique index for idempotency (fully supported by SQLite & PostgreSQL)
     try:
         c.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_processed_event_id ON transactions (processed_event_id)")
         conn.commit()
-    except sqlite3.OperationalError as e:
-        raise e
+    except Exception as e:
+        if "already exists" not in str(e).lower():
+            raise e
 
     conn.close()
 
