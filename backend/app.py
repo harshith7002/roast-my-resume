@@ -1144,33 +1144,6 @@ def razorpay_webhook():
 
 
 
-# ── Admin Debug Diagnostics (Temporary) ───────────────────────────────────────
-
-@app.route("/api/admin/debug-transactions", methods=["GET"])
-def admin_debug_transactions():
-    secret = request.args.get("secret")
-    if secret != "super_secret_upgrade_key_123":
-        return "Unauthorized", 401
-        
-    conn = get_db()
-    
-    # Get 10 most recent transactions
-    tx_rows = conn.execute(
-        "SELECT * FROM transactions ORDER BY created_at DESC LIMIT 10"
-    ).fetchall()
-    
-    # Get 10 most recent users
-    user_rows = conn.execute(
-        "SELECT id, email, name, tier, credits, created_at FROM users ORDER BY created_at DESC LIMIT 10"
-    ).fetchall()
-    
-    conn.close()
-    
-    return jsonify({
-        "transactions": [dict(r) for r in tx_rows],
-        "users": [dict(r) for r in user_rows]
-    })
-
 
 
 # ── Admin Upgrade User (Secure Permanent) ──────────────────────────────────────
@@ -1178,8 +1151,10 @@ def admin_debug_transactions():
 @app.route("/api/admin/upgrade-user", methods=["GET", "POST"])
 def admin_upgrade_user():
     secret = request.headers.get("X-Admin-Secret") or request.args.get("secret")
-    expected_secret = os.environ.get("ADMIN_SECRET_KEY", "super_secret_upgrade_key_123")
-    if secret != expected_secret:
+    expected_secret = os.environ.get("ADMIN_SECRET_KEY")
+    
+    # Strictly require env variable setup for security
+    if not expected_secret or secret != expected_secret:
         return "Unauthorized", 401
         
     if request.method == "GET":
@@ -1238,6 +1213,8 @@ def admin_upgrade_user():
     conn.commit()
     conn.close()
     return jsonify({"success": True, "message": f"Successfully upgraded user {uid_val} to {tier}!"})
+
+
 
 
 # ── AI Resume Chat ────────────────────────────────────────────────────────────
