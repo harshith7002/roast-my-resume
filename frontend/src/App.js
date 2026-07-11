@@ -576,9 +576,7 @@ function Footer() {
         <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", alignItems: "center" }}>
           <Link to="/privacy" style={{ color: "var(--cream-60)", textDecoration: "none" }}>Privacy Policy</Link>
           <Link to="/terms" style={{ color: "var(--cream-60)", textDecoration: "none" }}>Terms of Service</Link>
-          <a href="mailto:support@macoostudy.com" style={{ color: "var(--cream-60)", textDecoration: "none" }}>Contact Us</a>
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer" style={{ color: "var(--cream-60)", textDecoration: "none" }}>GitHub</a>
-          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" style={{ color: "var(--cream-60)", textDecoration: "none" }}>LinkedIn</a>
+          <a href="mailto:macoostudy2@gmail.com" style={{ color: "var(--cream-60)", textDecoration: "none" }}>Contact Us</a>
         </div>
       </div>
     </footer>
