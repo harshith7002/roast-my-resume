@@ -19,11 +19,20 @@ export default function ResumeChat({ analysisId, resumeText }) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
+  const textareaRef = useRef(null);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
+
+  // Adjust textarea height dynamically based on input length
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 140)}px`;
+    }
+  }, [input]);
 
   async function handleSend(text) {
     const messageText = text || input;
@@ -65,34 +74,53 @@ export default function ResumeChat({ analysisId, resumeText }) {
     }
   }
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   return (
     <div
       style={{
-        marginTop: "32px",
-        background: "rgba(255, 255, 255, 0.02)",
+        marginTop: "40px",
+        background: "var(--bg2)",
         border: "1px solid var(--border)",
         borderRadius: "16px",
         overflow: "hidden",
+        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)"
       }}
     >
       {/* Header */}
       <div
         style={{
-          padding: "16px 20px",
+          padding: "18px 24px",
           borderBottom: "1px solid var(--border)",
-          background: "rgba(255, 107, 0, 0.05)",
+          background: "linear-gradient(90deg, rgba(255, 107, 0, 0.05) 0%, rgba(0, 0, 0, 0.2) 100%)",
           display: "flex",
           alignItems: "center",
-          gap: "10px",
+          gap: "12px",
         }}
       >
-        <span style={{ fontSize: "1.2rem" }}>💬</span>
+        <div style={{
+          width: 38,
+          height: 38,
+          borderRadius: "50%",
+          background: "rgba(255, 107, 0, 0.1)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          border: "1px solid rgba(255, 107, 0, 0.2)"
+        }}>
+          <span style={{ fontSize: "1.1rem" }}>🤖</span>
+        </div>
         <div>
-          <h3 style={{ margin: 0, fontSize: "0.95rem", color: "var(--cream)", fontWeight: 700 }}>
+          <h3 style={{ margin: 0, fontSize: "1rem", color: "#fff", fontWeight: 750 }}>
             AI Resume Copilot Chat
           </h3>
-          <p style={{ margin: 0, fontSize: "0.72rem", color: "var(--cream-60)" }}>
-            Ask questions, ask for bullet rewrites, or request mock questions
+          <p style={{ margin: 0, fontSize: "0.75rem", color: "var(--cream-60)", marginTop: "2px" }}>
+            Ask questions, request bullet rewrites, or request mock interview practice
           </p>
         </div>
       </div>
@@ -100,49 +128,92 @@ export default function ResumeChat({ analysisId, resumeText }) {
       {/* Messages */}
       <div
         style={{
-          padding: "20px",
-          maxHeight: "350px",
+          padding: "24px",
+          maxHeight: "380px",
           overflowY: "auto",
           display: "flex",
           flexDirection: "column",
-          gap: "16px",
+          gap: "18px",
+          background: "rgba(0,0,0,0.1)"
         }}
       >
         {messages.map((msg, idx) => (
           <div
             key={idx}
             style={{
-              alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
-              maxWidth: "85%",
-              background: msg.role === "user" ? "var(--fire)" : "rgba(255, 255, 255, 0.04)",
-              color: msg.role === "user" ? "#fff" : "var(--cream)",
-              padding: "12px 16px",
-              borderRadius: msg.role === "user" ? "14px 14px 2px 14px" : "14px 14px 14px 2px",
-              fontSize: "0.88rem",
-              lineHeight: 1.5,
-              whiteSpace: "pre-wrap",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+              display: "flex",
+              justifyContent: msg.role === "user" ? "flex-end" : "flex-start",
+              width: "100%"
             }}
           >
-            {msg.content}
+            <div style={{ display: "flex", gap: "10px", maxWidth: "80%", flexDirection: msg.role === "user" ? "row-reverse" : "row", alignItems: "flex-end" }}>
+              {/* Profile Avatar indicator */}
+              <div style={{
+                width: 28,
+                height: 28,
+                borderRadius: "50%",
+                background: msg.role === "user" ? "rgba(255,255,255,0.08)" : "rgba(255, 107, 0, 0.1)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "0.75rem",
+                fontWeight: 700,
+                border: msg.role === "user" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(255,107,0,0.25)"
+              }}>
+                {msg.role === "user" ? "YO" : "AI"}
+              </div>
+              <div
+                style={{
+                  background: msg.role === "user" ? "linear-gradient(135deg, var(--fire) 0%, var(--fire-dark) 100%)" : "rgba(255, 255, 255, 0.03)",
+                  border: msg.role === "user" ? "none" : "1px solid var(--border)",
+                  color: msg.role === "user" ? "#fff" : "var(--cream)",
+                  padding: "12px 18px",
+                  borderRadius: msg.role === "user" ? "16px 16px 2px 16px" : "16px 16px 16px 2px",
+                  fontSize: "0.88rem",
+                  lineHeight: 1.55,
+                  whiteSpace: "pre-wrap",
+                  boxShadow: "0 4px 15px rgba(0,0,0,0.15)",
+                }}
+              >
+                {msg.content}
+              </div>
+            </div>
           </div>
         ))}
         {loading && (
-          <div
-            style={{
-              alignSelf: "flex-start",
-              background: "rgba(255, 255, 255, 0.02)",
-              padding: "12px 16px",
-              borderRadius: "14px 14px 14px 2px",
-              fontSize: "0.85rem",
-              color: "var(--cream-60)",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
-            <span className="pulsing-dot" style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "var(--fire)" }} />
-            <span>AI Copilot is thinking...</span>
+          <div style={{ display: "flex", justifyContent: "flex-start", width: "100%" }}>
+            <div style={{ display: "flex", gap: "10px", alignItems: "flex-end" }}>
+              <div style={{
+                width: 28,
+                height: 28,
+                borderRadius: "50%",
+                background: "rgba(255, 107, 0, 0.1)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "0.75rem",
+                border: "1px solid rgba(255,107,0,0.25)"
+              }}>
+                AI
+              </div>
+              <div
+                style={{
+                  background: "rgba(255, 255, 255, 0.02)",
+                  border: "1px solid var(--border)",
+                  padding: "12px 18px",
+                  borderRadius: "16px 16px 16px 2px",
+                  fontSize: "0.88rem",
+                  color: "var(--cream-60)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  boxShadow: "0 4px 15px rgba(0,0,0,0.1)"
+                }}
+              >
+                <span className="pulsing-dot" style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "var(--fire)" }} />
+                <span>AI Copilot is composing...</span>
+              </div>
+            </div>
           </div>
         )}
         <div ref={messagesEndRef} />
@@ -150,7 +221,7 @@ export default function ResumeChat({ analysisId, resumeText }) {
 
       {/* Quick Prompts */}
       {messages.length === 1 && (
-        <div style={{ padding: "0 20px 14px", display: "flex", flexWrap: "wrap", gap: "8px" }}>
+        <div style={{ padding: "16px 24px", display: "flex", flexWrap: "wrap", gap: "10px", background: "rgba(0,0,0,0.05)" }}>
           {QUICK_PROMPTS.map((prompt) => (
             <button
               key={prompt}
@@ -160,19 +231,22 @@ export default function ResumeChat({ analysisId, resumeText }) {
                 background: "rgba(255, 255, 255, 0.03)",
                 border: "1px solid var(--border)",
                 color: "var(--cream-60)",
-                padding: "8px 12px",
+                padding: "8px 14px",
                 borderRadius: "100px",
                 fontSize: "0.78rem",
+                fontWeight: 500,
                 cursor: "pointer",
                 transition: "all 0.2s",
               }}
               onMouseOver={(e) => {
                 e.currentTarget.style.borderColor = "var(--fire)";
                 e.currentTarget.style.color = "var(--cream)";
+                e.currentTarget.style.background = "rgba(255,138,61,0.05)";
               }}
               onMouseOut={(e) => {
                 e.currentTarget.style.borderColor = "var(--border)";
                 e.currentTarget.style.color = "var(--cream-60)";
+                e.currentTarget.style.background = "rgba(255,255,255,0.03)";
               }}
             >
               {prompt}
@@ -182,50 +256,58 @@ export default function ResumeChat({ analysisId, resumeText }) {
       )}
 
       {/* Input Form */}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSend();
-        }}
+      <div
         style={{
           display: "flex",
           borderTop: "1px solid var(--border)",
           background: "rgba(0,0,0,0.2)",
+          alignItems: "flex-end",
+          padding: "6px 12px"
         }}
       >
-        <input
-          type="text"
+        <textarea
+          ref={textareaRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask a follow-up question about your resume..."
+          onKeyDown={handleKeyDown}
+          placeholder="Ask a follow-up question, ask to rewrite a section..."
           disabled={loading}
+          rows={1}
           style={{
             flex: 1,
             background: "none",
             border: "none",
-            padding: "16px 20px",
+            padding: "12px 10px",
             color: "#fff",
             fontSize: "0.88rem",
             outline: "none",
+            resize: "none",
+            maxHeight: "140px",
+            fontFamily: "inherit",
+            lineHeight: "1.4"
           }}
         />
         <button
-          type="submit"
+          type="button"
+          onClick={() => handleSend()}
           disabled={loading || !input.trim()}
           style={{
-            background: "none",
-            border: "none",
-            borderLeft: "1px solid var(--border)",
-            color: input.trim() && !loading ? "var(--fire)" : "var(--cream-30)",
-            padding: "0 24px",
-            fontSize: "0.9rem",
+            background: input.trim() && !loading ? "var(--fire)" : "rgba(255,255,255,0.02)",
+            border: "1px solid rgba(255,255,255,0.05)",
+            color: input.trim() && !loading ? "#fff" : "var(--cream-30)",
+            padding: "8px 18px",
+            fontSize: "0.85rem",
             fontWeight: 700,
+            borderRadius: "8px",
             cursor: input.trim() && !loading ? "pointer" : "default",
+            marginBottom: "6px",
+            transition: "all 0.25s",
+            boxShadow: input.trim() && !loading ? "0 4px 12px rgba(255,138,61,0.25)" : "none"
           }}
         >
           Send
         </button>
-      </form>
+      </div>
     </div>
   );
 }

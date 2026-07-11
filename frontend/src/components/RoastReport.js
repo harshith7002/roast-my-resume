@@ -228,28 +228,52 @@ export default function RoastReport({
         )}
       </div>
 
+      {/* Shimmer keyframe styles for skeleton loader */}
+      <style>{`
+        @keyframes skeleton-shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        .skeleton-shimmer-box {
+          background: linear-gradient(90deg, rgba(255,255,255,0.01) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.01) 75%);
+          background-size: 200% 100%;
+          animation: skeleton-shimmer 1.8s infinite linear;
+        }
+      `}</style>
+
       {/* ── Top: gauge + verdict ── */}
-      <div className="report-top" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px", padding: "28px" }}>
+      <div className="report-top" style={{ 
+        display: "grid", 
+        gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", 
+        gap: "24px", 
+        padding: "28px",
+        background: "linear-gradient(135deg, rgba(28, 30, 38, 0.4) 0%, rgba(18, 19, 26, 0.6) 100%)",
+        border: "1px solid rgba(255, 255, 255, 0.05)",
+        borderRadius: "16px",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.2)"
+      }}>
         
         {/* Left Side: Score Gauges */}
         <div style={{ display: "flex", gap: "20px", alignItems: "center", justifyContent: "center" }}>
           <ScoreGauge value={overall} />
-          <div style={{ borderLeft: "1px solid var(--border)", height: "80px" }} />
+          <div style={{ borderLeft: "1px solid rgba(255, 255, 255, 0.08)", height: "80px" }} />
           <div style={{ textAlign: "center" }}>
-            <span style={{ fontSize: "0.72rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "block" }}>ATS Score</span>
-            <div style={{ fontSize: "2.2rem", fontWeight: 900, color: scoreColor(cats?.ats || overall), fontFamily: "monospace", margin: "4px 0" }}>
-              {cats?.ats || overall}<span style={{ fontSize: "1rem", color: "var(--cream-60)" }}>/100</span>
+            <span style={{ fontSize: "0.7rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 800, display: "block" }}>ATS Score</span>
+            <div style={{ fontSize: "2.5rem", fontWeight: 950, color: scoreColor(cats?.ats || overall), fontFamily: "monospace", margin: "4px 0", letterSpacing: "-1px" }}>
+              {cats?.ats || overall}<span style={{ fontSize: "1rem", color: "var(--cream-30)" }}>/100</span>
             </div>
-            <span style={{ fontSize: "0.68rem", color: "var(--emerald)", fontWeight: 700 }}>🟢 Passing Grade</span>
+            <span style={{ fontSize: "0.7rem", color: "var(--emerald)", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: "4px", background: "rgba(16, 185, 129, 0.08)", padding: "2px 8px", borderRadius: "100px" }}>
+              🟢 Passing Grade
+            </span>
           </div>
         </div>
 
         {/* Right Side: FAANG Readiness, Strengths, Weaknesses */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px", justifyContent: "center" }}>
           <div>
-            <span style={{ fontSize: "0.72rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "block", marginBottom: "4px" }}>FAANG READINESS</span>
+            <span style={{ fontSize: "0.7rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 800, display: "block", marginBottom: "6px" }}>FAANG READINESS</span>
             <div style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
-              <div className={`verdict-pill ${verdictMeta.cls}`} style={{ margin: 0, padding: "4px 10px", fontSize: "0.76rem" }}>
+              <div className={`verdict-pill ${verdictMeta.cls}`} style={{ margin: 0, padding: "6px 12px", fontSize: "0.75rem", fontWeight: 800, letterSpacing: "0.5px", borderRadius: "8px" }}>
                 {verdictMeta.icon} {verdictMeta.label.toUpperCase()}
               </div>
             </div>
@@ -257,21 +281,21 @@ export default function RoastReport({
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <div>
-              <span style={{ fontSize: "0.72rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "block", marginBottom: "6px" }}>🏆 STRENGTHS</span>
-              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+              <span style={{ fontSize: "0.7rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1.2px", fontWeight: 800, display: "block", marginBottom: "8px" }}>🏆 STRENGTHS</span>
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 {strengths.slice(0, 2).map((s, idx) => (
-                  <span key={idx} style={{ fontSize: "0.78rem", color: "var(--cream)", display: "flex", alignItems: "center", gap: "4px" }}>
-                    🟢 <span style={{ fontWeight: 600 }}>{s}</span>
+                  <span key={idx} style={{ fontSize: "0.8rem", color: "var(--cream)", display: "flex", alignItems: "center", gap: "6px" }}>
+                    <span style={{ color: "var(--emerald)", fontSize: "0.9rem" }}>✓</span> <span style={{ fontWeight: 600 }}>{s}</span>
                   </span>
                 ))}
               </div>
             </div>
             <div>
-              <span style={{ fontSize: "0.72rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "block", marginBottom: "6px" }}>⚠️ WEAKNESSES</span>
-              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+              <span style={{ fontSize: "0.7rem", color: "var(--cream-60)", textTransform: "uppercase", letterSpacing: "1.2px", fontWeight: 800, display: "block", marginBottom: "8px" }}>⚠️ WEAKNESSES</span>
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 {weaknesses.slice(0, 2).map((w, idx) => (
-                  <span key={idx} style={{ fontSize: "0.78rem", color: "var(--cream)", display: "flex", alignItems: "center", gap: "4px" }}>
-                    🔴 <span style={{ fontWeight: 600 }}>{w}</span>
+                  <span key={idx} style={{ fontSize: "0.8rem", color: "var(--cream)", display: "flex", alignItems: "center", gap: "6px" }}>
+                    <span style={{ color: "var(--fire)", fontSize: "0.9rem" }}>⚡</span> <span style={{ fontWeight: 600 }}>{w}</span>
                   </span>
                 ))}
               </div>
@@ -314,7 +338,7 @@ export default function RoastReport({
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             >
               <div className="ba-list-inner">
-                <p className="ba-caption">Common weak lines and how to fix them — apply the same pattern to yours.</p>
+                 <p className="ba-caption">Common weak lines and how to fix them — apply the same pattern to yours.</p>
                 {BEFORE_AFTER.map((ex, i) => (
                   <div key={i} className="ba-row">
                     <div className="ba-before"><span className="ba-tag bad">Before</span><p>{ex.before}</p></div>
@@ -333,7 +357,19 @@ export default function RoastReport({
         <div className="report-section" style={{ borderTop: "1px solid var(--border)", paddingTop: 32, marginBottom: 32 }}>
           <p className="report-section-label">🎯 Your 4-Week Career Roadmap</p>
           {loadingTimeline ? (
-            <p style={{ color: "var(--cream-60)", fontSize: "0.9rem" }}>Analyzing skill gaps and building roadmap...</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 24, position: "relative", paddingLeft: 20 }}>
+              {/* Vertical line indicator */}
+              <div style={{ position: "absolute", left: 6, top: 10, bottom: 10, width: 2, background: "rgba(255,255,255,0.04)" }} />
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} style={{ position: "relative", display: "flex", flexDirection: "column", gap: 8, opacity: 0.6 }}>
+                  <div style={{ position: "absolute", left: -19, top: 4, width: 10, height: 10, borderRadius: "50%", background: "var(--border)", border: "2px solid var(--bg)" }} />
+                  <div className="skeleton-shimmer-box" style={{ width: "120px", height: "14px", borderRadius: "4px", background: "rgba(255,255,255,0.03)" }} />
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 4 }}>
+                    <div className="skeleton-shimmer-box" style={{ width: "100%", height: "54px", borderRadius: "10px", background: "rgba(255,255,255,0.02)" }} />
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : timeline ? (
             <div>
               <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 24, padding: 16, background: "rgba(0,214,143,0.05)", borderRadius: 10, border: "1px solid var(--emerald)" }}>
