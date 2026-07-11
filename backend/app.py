@@ -1141,40 +1141,6 @@ def razorpay_webhook():
 
 
 
-# ── Admin Manual Upgrade (Temporary) ──────────────────────────────────────────
-
-@app.route("/api/admin/upgrade", methods=["GET"])
-def admin_upgrade():
-    email = request.args.get("email", "").strip().lower()
-    tier = request.args.get("tier", "pro_plus")  # default to Lifetime
-    secret = request.args.get("secret")
-    
-    if secret != "super_secret_upgrade_key_123":
-        return "Unauthorized", 401
-        
-    if not email:
-        return "Email required", 400
-        
-    conn = get_db()
-    user = conn.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
-    if not user:
-        # Create user record dynamically
-        mock_id = f"usr_manual_{uid()}"
-        conn.execute(
-            "INSERT INTO users (id, email, name, provider, credits, tier) VALUES (?,?,?, 'google', 99999, ?)",
-            (mock_id, email, email.split("@")[0], tier)
-        )
-        conn.commit()
-        conn.close()
-        return f"User was not in DB, so created new account & successfully upgraded {email} to {tier} with unlimited credits!"
-        
-    conn.execute(
-        "UPDATE users SET tier=?, credits=99999 WHERE email=?",
-        (tier, email)
-    )
-    conn.commit()
-    conn.close()
-    return f"Successfully upgraded existing user {email} to {tier} with unlimited credits!"
 
 
 # ── AI Resume Chat ────────────────────────────────────────────────────────────
