@@ -915,7 +915,7 @@ def create_payment_order():
         return jsonify({"error": "user_id required"}), 400
 
     if tier == "pro":
-        amount = 4900  # ₹49 in paise (Pro Lite)
+        amount = 100  # ₹1 in paise (Pro Lite) for testing
     elif tier == "pro_plus":
         amount = 29900  # ₹299 in paise (Pro Lifetime)
     else:
