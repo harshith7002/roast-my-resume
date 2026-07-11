@@ -1172,6 +1172,69 @@ def admin_debug_transactions():
     })
 
 
+
+# ── Admin Upgrade User (Secure Permanent) ──────────────────────────────────────
+
+@app.route("/api/admin/upgrade-user", methods=["POST"])
+def admin_upgrade_user():
+    secret = request.headers.get("X-Admin-Secret") or request.args.get("secret")
+    expected_secret = os.environ.get("ADMIN_SECRET_KEY", "super_secret_upgrade_key_123")
+    if secret != expected_secret:
+        return "Unauthorized", 401
+        
+    data = request.get_json(silent=True) or {}
+    email = data.get("email")
+    user_id = data.get("user_id")
+    tier = data.get("tier", "pro_plus")
+    
+    if not email and not user_id:
+        return "email or user_id required", 400
+        
+    conn = get_db()
+    if email:
+        email = email.strip().lower()
+        user = conn.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
+        if not user:
+            uid_val = user_id or f"usr_manual_{uid()}"
+            conn.execute(
+                "INSERT INTO users (id, email, name, provider, credits, tier) VALUES (?,?,?, 'google', 99999, ?)",
+                (uid_val, email, email.split("@")[0], tier)
+            )
+            conn.commit()
+            user = conn.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
+        else:
+            conn.execute(
+                "UPDATE users SET tier=?, credits=99999 WHERE email=?",
+                (tier, email)
+            )
+            conn.commit()
+        uid_val = user["id"]
+    else:
+        user = conn.execute("SELECT * FROM users WHERE id=?", (user_id,)).fetchone()
+        if not user:
+            conn.execute(
+                "INSERT INTO users (id, email, name, provider, credits, tier) VALUES (?,?,'User', 'google', 99999, ?)",
+                (user_id, f"{user_id}@supabase.com", tier)
+            )
+            conn.commit()
+        else:
+            conn.execute(
+                "UPDATE users SET tier=?, credits=99999 WHERE id=?",
+                (tier, user_id)
+            )
+            conn.commit()
+        uid_val = user_id
+
+    # Update transactions as well if present
+    conn.execute(
+        "UPDATE transactions SET status='completed' WHERE user_id=?",
+        (uid_val,)
+    )
+    conn.commit()
+    conn.close()
+    return jsonify({"success": True, "message": f"Successfully upgraded user {uid_val} to {tier}!"})
+
+
 # ── AI Resume Chat ────────────────────────────────────────────────────────────
 
 CHAT_PROMPT = """You are a helpful and experienced career advisor. The user has uploaded their resume and got it evaluated.
