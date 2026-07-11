@@ -1143,6 +1143,35 @@ def razorpay_webhook():
 
 
 
+
+# ── Admin Debug Diagnostics (Temporary) ───────────────────────────────────────
+
+@app.route("/api/admin/debug-transactions", methods=["GET"])
+def admin_debug_transactions():
+    secret = request.args.get("secret")
+    if secret != "super_secret_upgrade_key_123":
+        return "Unauthorized", 401
+        
+    conn = get_db()
+    
+    # Get 10 most recent transactions
+    tx_rows = conn.execute(
+        "SELECT * FROM transactions ORDER BY created_at DESC LIMIT 10"
+    ).fetchall()
+    
+    # Get 10 most recent users
+    user_rows = conn.execute(
+        "SELECT id, email, name, tier, credits, created_at FROM users ORDER BY created_at DESC LIMIT 10"
+    ).fetchall()
+    
+    conn.close()
+    
+    return jsonify({
+        "transactions": [dict(r) for r in tx_rows],
+        "users": [dict(r) for r in user_rows]
+    })
+
+
 # ── AI Resume Chat ────────────────────────────────────────────────────────────
 
 CHAT_PROMPT = """You are a helpful and experienced career advisor. The user has uploaded their resume and got it evaluated.
