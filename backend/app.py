@@ -1140,6 +1140,36 @@ def razorpay_webhook():
     return jsonify({"status": "ignored"}), 200
 
 
+
+# ── Admin Manual Upgrade (Temporary) ──────────────────────────────────────────
+
+@app.route("/api/admin/upgrade", methods=["GET"])
+def admin_upgrade():
+    email = request.args.get("email")
+    tier = request.args.get("tier", "pro_plus")  # default to Lifetime
+    secret = request.args.get("secret")
+    
+    if secret != "super_secret_upgrade_key_123":
+        return "Unauthorized", 401
+        
+    if not email:
+        return "Email required", 400
+        
+    conn = get_db()
+    user = conn.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
+    if not user:
+        conn.close()
+        return f"User with email {email} not found. Please log in once first so your user account exists in database.", 404
+        
+    conn.execute(
+        "UPDATE users SET tier=?, credits=99999 WHERE email=?",
+        (tier, email)
+    )
+    conn.commit()
+    conn.close()
+    return f"Successfully upgraded {email} to {tier} with unlimited credits!"
+
+
 # ── AI Resume Chat ────────────────────────────────────────────────────────────
 
 CHAT_PROMPT = """You are a helpful and experienced career advisor. The user has uploaded their resume and got it evaluated.
