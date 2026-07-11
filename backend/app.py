@@ -39,7 +39,7 @@ DB_PATH = os.environ.get("DB_PATH", "macoostudy.db")
 # ── Database ──────────────────────────────────────────────────────────────────
 
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=30)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -119,23 +119,44 @@ def init_db():
             FOREIGN KEY (analysis_id) REFERENCES analyses(id)
         );
     """)
-    # Migration queries to add credits and tier if they do not exist
-    try:
-        c.execute("ALTER TABLE users ADD COLUMN credits INTEGER DEFAULT 5")
-    except sqlite3.OperationalError:
-        pass
-    try:
-        c.execute("ALTER TABLE users ADD COLUMN tier TEXT DEFAULT 'free'")
-    except sqlite3.OperationalError:
-        pass
-
-    # Migration: add processed_event_id for webhook idempotency
-    try:
-        c.execute("ALTER TABLE transactions ADD COLUMN processed_event_id TEXT UNIQUE")
-    except sqlite3.OperationalError:
-        pass
-
     conn.commit()
+
+    # Get active columns for users and transactions tables to avoid race condition silent failures
+    c.execute("PRAGMA table_info(users)")
+    user_cols = [row[1] for row in c.fetchall()]
+    
+    c.execute("PRAGMA table_info(transactions)")
+    tx_cols = [row[1] for row in c.fetchall()]
+
+    # Migrate users columns if missing
+    if "credits" not in user_cols:
+        try:
+            c.execute("ALTER TABLE users ADD COLUMN credits INTEGER DEFAULT 5")
+            conn.commit()
+            print("[Migration] Added credits column to users table.")
+        except sqlite3.OperationalError as e:
+            if "duplicate column" not in str(e).lower():
+                raise e
+                
+    if "tier" not in user_cols:
+        try:
+            c.execute("ALTER TABLE users ADD COLUMN tier TEXT DEFAULT 'free'")
+            conn.commit()
+            print("[Migration] Added tier column to users table.")
+        except sqlite3.OperationalError as e:
+            if "duplicate column" not in str(e).lower():
+                raise e
+
+    # Migrate transactions processed_event_id column if missing
+    if "processed_event_id" not in tx_cols:
+        try:
+            c.execute("ALTER TABLE transactions ADD COLUMN processed_event_id TEXT UNIQUE")
+            conn.commit()
+            print("[Migration] Added processed_event_id column to transactions table.")
+        except sqlite3.OperationalError as e:
+            if "duplicate column" not in str(e).lower():
+                raise e
+
     conn.close()
 
 init_db()
