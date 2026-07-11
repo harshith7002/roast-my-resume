@@ -1175,17 +1175,22 @@ def admin_debug_transactions():
 
 # ── Admin Upgrade User (Secure Permanent) ──────────────────────────────────────
 
-@app.route("/api/admin/upgrade-user", methods=["POST"])
+@app.route("/api/admin/upgrade-user", methods=["GET", "POST"])
 def admin_upgrade_user():
     secret = request.headers.get("X-Admin-Secret") or request.args.get("secret")
     expected_secret = os.environ.get("ADMIN_SECRET_KEY", "super_secret_upgrade_key_123")
     if secret != expected_secret:
         return "Unauthorized", 401
         
-    data = request.get_json(silent=True) or {}
-    email = data.get("email")
-    user_id = data.get("user_id")
-    tier = data.get("tier", "pro_plus")
+    if request.method == "GET":
+        email = request.args.get("email")
+        user_id = request.args.get("user_id")
+        tier = request.args.get("tier", "pro_plus")
+    else:
+        data = request.get_json(silent=True) or {}
+        email = data.get("email") or request.args.get("email")
+        user_id = data.get("user_id") or request.args.get("user_id")
+        tier = data.get("tier", "pro_plus") or request.args.get("tier", "pro_plus")
     
     if not email and not user_id:
         return "email or user_id required", 400
