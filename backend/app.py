@@ -150,12 +150,19 @@ def init_db():
     # Migrate transactions processed_event_id column if missing
     if "processed_event_id" not in tx_cols:
         try:
-            c.execute("ALTER TABLE transactions ADD COLUMN processed_event_id TEXT UNIQUE")
+            c.execute("ALTER TABLE transactions ADD COLUMN processed_event_id TEXT")
             conn.commit()
             print("[Migration] Added processed_event_id column to transactions table.")
         except sqlite3.OperationalError as e:
             if "duplicate column" not in str(e).lower():
                 raise e
+
+    # Create unique index for idempotency (fully supported by SQLite)
+    try:
+        c.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_processed_event_id ON transactions (processed_event_id)")
+        conn.commit()
+    except sqlite3.OperationalError as e:
+        raise e
 
     conn.close()
 
